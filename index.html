@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LS4YOU – Atelier EMPLOI (support interactif)</title>
+
+  <!-- Fonts (optionnel) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --orange:#f39200; --vert:#95c11f; --bleu:#2897d5; --rose:#d60b52; --violet:#a3195b; --rouge:#9f3d3f;
+      --noir:#171718; --blanc:#ffffff;
+      --bg:#0f0f10;
+      --panel:#141416;
+      --panel2:#101012;
+      --text:#f5f5f7;
+      --muted:#b6b6bb;
+      --stroke:rgba(255,255,255,.10);
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius:18px;
+      --radius2:26px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background: radial-gradient(900px 500px at 20% 10%, rgba(40,151,213,.18), transparent 55%),
+                  radial-gradient(900px 500px at 80% 10%, rgba(243,146,0,.16), transparent 55%),
+                  radial-gradient(900px 500px at 50% 90%, rgba(149,193,31,.14), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      overflow:hidden;
+    }
+
+    /* Top bar */
+    .topbar{
+      position:fixed; inset:0 0 auto 0;
+      height:64px; display:flex; align-items:center; gap:14px;
+      padding:0 18px;
+      background:linear-gradient(to bottom, rgba(10,10,11,.82), rgba(10,10,11,.55));
+      border-bottom:1px solid var(--stroke);
+      backdrop-filter: blur(10px);
+      z-index:50;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.2px;
+    }
+    .dot{width:10px;height:10px;border-radius:999px;background:var(--orange); box-shadow:0 0 0 6px rgba(243,146,0,.12)}
+    .brand small{font-weight:600;color:var(--muted)}
+    .spacer{flex:1}
+    .pill{
+      display:flex; align-items:center; gap:10px;
+      padding:8px 12px; border:1px solid var(--stroke);
+      border-radius:999px; background:rgba(255,255,255,.04);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+      font-size:13px; color:var(--muted);
+    }
+    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; font-size:12px; padding:2px 6px; border:1px solid var(--stroke); border-radius:8px; color:var(--text); background:rgba(255,255,255,.04)}
+    .btn{
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      cursor:pointer;
+      display:inline-flex; align-items:center; gap:8px;
+      transition:.15s ease;
+      user-select:none;
+    }
+    .btn:hover{transform:translateY(-1px); background:rgba(255,255,255,.07)}
+    .btn:active{transform:translateY(0px)}
+    .btn.primary{background:rgba(243,146,0,.16); border-color:rgba(243,146,0,.35)}
+    .btn.primary:hover{background:rgba(243,146,0,.22)}
+    .btn.blue{background:rgba(40,151,213,.14); border-color:rgba(40,151,213,.35)}
+    .btn.green{background:rgba(149,193,31,.14); border-color:rgba(149,193,31,.35)}
+    .btn.rose{background:rgba(214,11,82,.14); border-color:rgba(214,11,82,.35)}
+
+    /* Layout */
+    .wrap{
+      position:fixed; inset:64px 0 0 0;
+      display:grid;
+      grid-template-columns: 320px 1fr 360px;
+      gap:14px;
+      padding:14px;
+    }
+
+    @media (max-width: 1100px){
+      .wrap{grid-template-columns: 1fr;}
+      .side, .right{display:none;}
+      body{overflow:auto;}
+      .wrap{position:relative; inset:auto; overflow:auto;}
+    }
+
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+      border:1px solid var(--stroke);
+      border-radius:var(--radius2);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .side{padding:14px}
+    .right{padding:14px}
+
+    .sectionTitle{
+      font-weight:800; font-size:12px; color:rgba(255,255,255,.72);
+      text-transform:uppercase; letter-spacing:.12em;
+      margin:8px 0 10px;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+
+    .list{
+      display:flex; flex-direction:column; gap:8px;
+    }
+    .item{
+      padding:10px 10px;
+      border-radius:16px;
+      border:1px solid var(--stroke);
+      background:rgba(0,0,0,.25);
+      cursor:pointer;
+      transition:.15s ease;
+    }
+    .item:hover{transform:translateY(-1px); background:rgba(255,255,255,.06)}
+    .item.active{border-color:rgba(243,146,0,.45); background:rgba(243,146,0,.10)}
+    .item .name{font-weight:800; font-size:13px}
+    .item .meta{font-size:12px; color:var(--muted); margin-top:3px}
+    .badge{
+      display:inline-flex; align-items:center; gap:6px;
+      font-size:12px; color:rgba(255,255,255,.78);
+      padding:6px 10px; border-radius:999px;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.04);
+    }
+
+    /* Main stage */
+    .stage{
+      display:flex; flex-direction:column;
+      min-height: calc(100vh - 64px - 28px);
+    }
+    .stageHeader{
+      padding:16px 18px;
+      border-bottom:1px solid var(--stroke);
+      display:flex; align-items:flex-start; gap:14px; justify-content:space-between;
+    }
+    .hgroup{display:flex; flex-direction:column; gap:6px}
+    .title{font-size:22px; font-weight:900; letter-spacing:-.02em}
+    .subtitle{color:var(--muted); font-size:14px; line-height:1.35}
+    .chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:6px}
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px; border-radius:999px;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.04);
+      font-size:12px; color:rgba(255,255,255,.78);
+    }
+    .chip .b{width:10px;height:10px;border-radius:999px}
+
+    .stageBody{
+      padding:18px;
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:14px;
+      align-items:start;
+      flex:1;
+      overflow:auto;
+    }
+    @media (max-width: 1100px){
+      .stageBody{grid-template-columns:1fr}
+    }
+
+    .card{
+      background:rgba(0,0,0,.25);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      padding:14px;
+    }
+    .card h3{
+      margin:0 0 8px;
+      font-size:14px; font-weight:900; letter-spacing:-.01em;
+    }
+    .card p{margin:0; color:var(--muted); line-height:1.5; font-size:14px}
+    .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    @media (max-width: 1100px){.grid2{grid-template-columns:1fr}}
+    .grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px}
+    @media (max-width: 1100px){.grid3{grid-template-columns:1fr}}
+    .muted{color:var(--muted)}
+    ul.clean{margin:8px 0 0 18px; color:var(--muted)}
+    ul.clean li{margin:6px 0}
+
+    /* Interactive widgets */
+    .choices{display:flex; flex-wrap:wrap; gap:10px; margin-top:10px}
+    .choice{
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.03);
+      padding:10px 12px;
+      border-radius:14px;
+      cursor:pointer;
+      user-select:none;
+      transition:.15s ease;
+      font-weight:700;
+      font-size:13px;
+      color:rgba(255,255,255,.85);
+    }
+    .choice:hover{transform:translateY(-1px); background:rgba(255,255,255,.06)}
+    .choice.selected{border-color:rgba(40,151,213,.45); background:rgba(40,151,213,.12)}
+    .choice.orange.selected{border-color:rgba(243,146,0,.50); background:rgba(243,146,0,.13)}
+    .choice.green.selected{border-color:rgba(149,193,31,.50); background:rgba(149,193,31,.13)}
+    .choice.rose.selected{border-color:rgba(214,11,82,.50); background:rgba(214,11,82,.13)}
+    .choice.violet.selected{border-color:rgba(163,25,91,.50); background:rgba(163,25,91,.13)}
+
+    .field{
+      width:100%;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.03);
+      color:var(--text);
+      border-radius:14px;
+      padding:10px 12px;
+      outline:none;
+      font-size:14px;
+    }
+    textarea.field{min-height:92px; resize:vertical}
+
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .row > *{flex:1}
+    .row .btn{flex:0}
+
+    .barWrap{margin-top:10px; display:flex; flex-direction:column; gap:8px}
+    .barLine{display:flex; align-items:center; gap:10px}
+    .barLabel{width:130px; font-size:12px; color:rgba(255,255,255,.78)}
+    .bar{
+      flex:1; height:12px; border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--stroke);
+      overflow:hidden;
+    }
+    .barFill{height:100%; width:0%; border-radius:999px}
+    .barFill.orange{background:rgba(243,146,0,.85)}
+    .barFill.bleu{background:rgba(40,151,213,.85)}
+    .barFill.vert{background:rgba(149,193,31,.85)}
+    .barFill.rose{background:rgba(214,11,82,.85)}
+    .barFill.violet{background:rgba(163,25,91,.85)}
+    .barFill.rouge{background:rgba(159,61,63,.85)}
+    .barVal{width:40px; text-align:right; font-size:12px; color:rgba(255,255,255,.78)}
+
+    .footerNav{
+      padding:14px 18px;
+      border-top:1px solid var(--stroke);
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      background:linear-gradient(to top, rgba(10,10,11,.75), rgba(10,10,11,.25));
+    }
+    .stepInfo{font-size:13px; color:var(--muted)}
+    .toast{
+      position:fixed; right:18px; bottom:18px;
+      padding:12px 14px;
+      border-radius:16px;
+      border:1px solid var(--stroke);
+      background:rgba(0,0,0,.60);
+      color:rgba(255,255,255,.88);
+      box-shadow: var(--shadow);
+      display:none;
+      max-width: 520px;
+      z-index:100;
+    }
+
+    /* Right panel: facilitator + timer */
+    .timer{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:12px; border-radius:18px;
+      border:1px solid var(--stroke); background:rgba(0,0,0,.25);
+    }
+    .tbig{font-size:20px; font-weight:900; letter-spacing:-.02em}
+    .tsub{font-size:12px; color:var(--muted)}
+    .note{
+      font-size:13px; line-height:1.45; color:rgba(255,255,255,.86);
+      padding:12px; border-radius:18px;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.04);
+    }
+    .note .k{display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--stroke); background:rgba(255,255,255,.03); font-size:12px; margin-right:6px; color:rgba(255,255,255,.78)}
+    .miniTitle{font-weight:900; margin-bottom:6px}
+    .small{font-size:12px; color:var(--muted)}
+    .divider{height:1px; background:var(--stroke); margin:12px 0}
+
+    /* Print */
+    @media print{
+      body{overflow:visible; background:#fff; color:#000}
+      .topbar, .side, .right, .footerNav, .toast{display:none !important}
+      .wrap{position:relative; inset:auto; display:block; padding:0}
+      .panel{box-shadow:none; border:0}
+      .stageBody{display:block; overflow:visible}
+      .card{break-inside:avoid}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand">
+      <span class="dot"></span>
+      <span>LS4YOU</span>
+      <small>• Atelier EMPLOI</small>
+    </div>
+
+    <div class="pill" title="Raccourcis">
+      <span class="kbd">←</span><span class="kbd">→</span> navigation
+      <span class="kbd">Espace</span> pause échange
+      <span class="kbd">T</span> timer
+      <span class="kbd">P</span> impression
+    </div>
+
+    <div class="spacer"></div>
+
+    <button class="btn" id="btnReset" title="Réinitialiser les réponses (locales)">
+      ↺ Reset
+    </button>
+    <button class="btn blue" id="btnPause" title="Ouvrir une pause échange collectif">
+      ⏸ Pause échange
+    </button>
+    <button class="btn primary" id="btnExport" title="Générer la carte de sortie (local)">
+      ⤓ Générer carte
+    </button>
+  </div>
+
+  <div class="wrap">
+
+    <!-- Left: plan -->
+    <div class="panel side">
+      <div class="sectionTitle">
+        <span>Déroulé</span>
+        <span class="badge" id="badgeStep">Étape 1/6</span>
+      </div>
+
+      <div class="list" id="navList"></div>
+
+      <div class="divider"></div>
+      <div class="sectionTitle"><span>Sortie jeune</span><span class="badge">PDF/Impression</span></div>
+      <div class="note">
+        <div class="miniTitle">Carte “Compétences emploi”</div>
+        <div class="small">
+          Motivations • Compétences • Pitch • Freins • Signaux d’alerte • Leviers
+        </div>
+      </div>
+    </div>
+
+    <!-- Main stage -->
+    <div class="panel stage" aria-live="polite">
+      <div class="stageHeader">
+        <div class="hgroup">
+          <div class="title" id="stepTitle">—</div>
+          <div class="subtitle" id="stepSubtitle">—</div>
+          <div class="chips" id="chips"></div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+          <button class="btn green" id="btnCollect" title="Afficher/masquer les tendances du groupe (anonymisées)">
+            📊 Tendances
+          </button>
+          <button class="btn" id="btnNotes" title="Afficher/masquer les notes animateur">
+            🧑‍🏫 Notes
+          </button>
+        </div>
+      </div>
+
+      <div class="stageBody">
+        <div class="card" id="leftCard"></div>
+        <div class="card" id="rightCard"></div>
+      </div>
+
+      <div class="footerNav">
+        <div class="stepInfo" id="stepInfo">—</div>
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <button class="btn" id="prevBtn">← Précédent</button>
+          <button class="btn primary" id="nextBtn">Suivant →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: facilitator -->
+    <div class="panel right">
+      <div class="sectionTitle"><span>Animation</span><span class="badge">Mode conseiller</span></div>
+
+      <div class="timer">
+        <div>
+          <div class="tsub">Timer</div>
+          <div class="tbig" id="timerDisplay">00:00</div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn" id="timerStart">▶</button>
+          <button class="btn" id="timerStop">■</button>
+          <button class="btn" id="timerReset">↺</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="note" id="facilNote">
+        <div class="miniTitle">Notes animateur</div>
+        <div class="small">Sélectionne une étape à gauche.</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="note">
+        <div class="miniTitle">Rappels posture</div>
+        <div><span class="k">✔</span>On part de faits vécus</div>
+        <div><span class="k">✔</span>Pas de scores / pas de jugement</div>
+        <div><span class="k">✔</span>On traduit en compétences</div>
+        <div class="small" style="margin-top:8px;">
+          Astuce : utilise la touche <b>T</b> pour lancer/stopper le timer.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // -----------------------------
+    // LS4YOU – Atelier EMPLOI (support interactif)
+    // Données stockées localement (localStorage) sur l'appareil.
+    // -----------------------------
+    const STORAGE_KEY = "ls4you_atelier_emploi_v1";
+
+    const AXES = {
+      a1: {name:"Axe 1 – Personnalité", color:"var(--orange)"},
+      a2: {name:"Axe 2 – Valorisation de soi", color:"var(--bleu)"},
+      a3: {name:"Axe 3 – Bien-être", color:"var(--rose)"},
+      a4: {name:"Axe 4 – Ressources", color:"var(--vert)"},
+    };
+
+    const STEPS = [
+      {
+        id:"intro",
+        nav:"0. Ouverture",
+        title:"Ouverture – Objectif & cadre",
+        subtitle:"On parle travail, mais surtout : comment je me positionne, et comment je tiens.",
+        duration:"10 min",
+        axes:["a2","a1"],
+        note:[
+          "Poser le cadre : pas de test, pas de jugement, pas de scores.",
+          "Objectif : rendre chacun plus lisible/plus crédible face à un employeur.",
+          "Tour rapide : ‘Travail = … ?’ (argent / autonomie / pression / reconnaissance / projet)."
+        ],
+        render: (state) => {
+          const left = `
+            <h3>Consigne animateur</h3>
+            <p>Présente l’atelier en 3 phrases : <b>se connaître</b>, <b>se présenter</b>, <b>éviter les ruptures</b>.</p>
+            <div class="grid2" style="margin-top:12px;">
+              <div class="card">
+                <h3>Message clé</h3>
+                <p>« On ne cherche pas le métier parfait. On construit une façon crédible de se présenter et de tenir. »</p>
+              </div>
+              <div class="card">
+                <h3>Mini-sondage (anonyme)</h3>
+                <p class="muted">Clique sur 1–2 mots qui te parlent.</p>
+                <div class="choices" id="introWords"></div>
+              </div>
+            </div>
+          `;
+          const right = `
+            <h3>Tendances du groupe</h3>
+            <p class="muted">Affichage local, sans identités.</p>
+            <div class="barWrap" id="introBars"></div>
+            <div style="margin-top:12px;" class="small">
+              Astuce : lance une <b>pause échange</b> après 2–3 votes pour commenter.
+            </div>
+          `;
+          setTimeout(() => {
+            const words = ["Argent","Autonomie","Projet","Reconnaissance","Pression","Horaires","Respect","Apprendre"];
+            const box = document.getElementById("introWords");
+            box.innerHTML = words.map(w => `<div class="choice orange" data-word="${w}">${w}</div>`).join("");
+            box.querySelectorAll(".choice").forEach(el=>{
+              el.addEventListener("click", ()=>{
+                el.classList.toggle("selected");
+                const selected = [...box.querySelectorAll(".choice.selected")].map(x=>x.dataset.word);
+                state.intro = state.intro || {};
+                state.intro.words = selected;
+                saveState(state);
+                renderIntroBars(state);
+              });
+            });
+            // restore selection
+            const selected = (state.intro && state.intro.words) ? state.intro.words : [];
+            box.querySelectorAll(".choice").forEach(el=>{
+              if(selected.includes(el.dataset.word)) el.classList.add("selected");
+            });
+            renderIntroBars(state);
+          }, 0);
+
+          return {left, right};
+        }
+      },
+
+      {
+        id:"fonctionnement",
+        nav:"1. Fonctionnement",
+        title:"Étape 1 – Comment je fonctionne au travail",
+        subtitle:"On repère des préférences et des réactions typiques (pas de profil).",
+        duration:"15–20 min",
+        axes:["a1"],
+        note:[
+          "Objectif : aider les jeunes à identifier 2–3 préférences + 1 point de vigilance.",
+          "Insister : préférences ≠ capacités. Aucun fonctionnement n’est “mauvais”.",
+          "Faire verbaliser : ‘Dans quel cadre tu te sens mieux ?’"
+        ],
+        render: (state) => {
+          const Q = [
+            {k:"energie",  label:"Après beaucoup de monde, je me sens plutôt…", opts:["Reboosté","Vidé","Ça dépend"], color:"bleu"},
+            {k:"regles",   label:"Avec des règles strictes, je me sens…",       opts:["Rassuré","Étouffé","Je m’adapte"], color:"orange"},
+            {k:"remarque", label:"Quand on me fait une remarque, je…",          opts:["J’encaisse","Je me braque","Je demande des explications"], color:"rose"},
+            {k:"urgence",  label:"Sous pression / urgence, je…",                opts:["J’accélère","Je bloque","Je m’énerve","Je demande de l’aide"], color:"violet"},
+          ];
+
+          const left = `
+            <h3>Questions (réponse rapide)</h3>
+            <p class="muted">Chaque jeune répond sur l’écran. L’animateur commente en collectif.</p>
+            <div id="qWrap"></div>
+          `;
+
+          const right = `
+            <h3>Résumé jeune (local)</h3>
+            <p class="muted">On garde une trace simple : 2 forces + 1 vigilance.</p>
+            <div class="grid2" style="margin-top:10px;">
+              <div>
+                <label class="small">2 choses qui m’aident au travail</label>
+                <textarea class="field" id="helpMe" placeholder="Ex : règles claires / travailler en binôme / autonomie…"></textarea>
+              </div>
+              <div>
+                <label class="small">1 vigilance (à anticiper)</label>
+                <textarea class="field" id="watchOut" placeholder="Ex : pression / rythme / remarques…"></textarea>
+              </div>
+            </div>
+          `;
+
+          setTimeout(()=>{
+            const wrap = document.getElementById("qWrap");
+            const answers = (state.fonctionnement && state.fonctionnement.answers) ? state.fonctionnement.answers : {};
+            wrap.innerHTML = Q.map(q=>{
+              const picked = answers[q.k] || "";
+              return `
+                <div class="card" style="margin-top:10px;">
+                  <h3>${q.label}</h3>
+                  <div class="choices" data-k="${q.k}">
+                    ${q.opts.map(o=>`<div class="choice ${q.color} ${picked===o?'selected':''}" data-opt="${o}">${o}</div>`).join("")}
+                  </div>
+                </div>
+              `;
+            }).join("");
+
+            wrap.querySelectorAll(".choices").forEach(box=>{
+              box.querySelectorAll(".choice").forEach(ch=>{
+                ch.addEventListener("click", ()=>{
+                  box.querySelectorAll(".choice").forEach(x=>x.classList.remove("selected"));
+                  ch.classList.add("selected");
+                  const k = box.dataset.k;
+                  state.fonctionnement = state.fonctionnement || {};
+                  state.fonctionnement.answers = state.fonctionnement.answers || {};
+                  state.fonctionnement.answers[k] = ch.dataset.opt;
+                  saveState(state);
+                });
+              });
+            });
+
+            // textareas
+            const help = document.getElementById("helpMe");
+            const watch = document.getElementById("watchOut");
+            help.value = (state.fonctionnement && state.fonctionnement.helpMe) ? state.fonctionnement.helpMe : "";
+            watch.value = (state.fonctionnement && state.fonctionnement.watchOut) ? state.fonctionnement.watchOut : "";
+            help.addEventListener("input", ()=>{
+              state.fonctionnement = state.fonctionnement || {};
+              state.fonctionnement.helpMe = help.value;
+              saveState(state);
+            });
+            watch.addEventListener("input", ()=>{
+              state.fonctionnement = state.fonctionnement || {};
+              state.fonctionnement.watchOut = watch.value;
+              saveState(state);
+            });
+          },0);
+
+          return {left, right};
+        }
+      },
+
+      {
+        id:"motivation",
+        nav:"2. Motivation",
+        title:"Étape 1 – Pourquoi je veux travailler",
+        subtitle:"On hiérarchise ses moteurs (argent / autonomie / projet / reconnaissance).",
+        duration:"10–15 min",
+        axes:["a1","a2"],
+        note:[
+          "Objectif : 1 motivation prioritaire + 1 motivation secondaire.",
+          "Faire verbaliser : ‘Si tu n’avais qu’un seul moteur cette année… ?’",
+          "Relier au réel : horaires, type de poste, niveau d’encadrement."
+        ],
+        render: (state) => {
+          const items = [
+            {k:"argent", label:"Argent / sécurité", color:"orange"},
+            {k:"autonomie", label:"Autonomie", color:"vert"},
+            {k:"projet", label:"Projet (avenir)", color:"bleu"},
+            {k:"reco", label:"Reconnaissance / fierté", color:"rose"},
+            {k:"apprendre", label:"Apprendre", color:"violet"},
+            {k:"lien", label:"Lien social", color:"rouge"},
+          ];
+
+          const left = `
+            <h3>Classe tes moteurs</h3>
+            <p class="muted">Choisis <b>1 priorité</b> + <b>1 secondaire</b>. (Pas plus.)</p>
+            <div class="choices" id="motChoices"></div>
+            <div class="divider"></div>
+            <h3>Traduction “recherche d’emploi”</h3>
+            <p class="muted">Selon tes moteurs, tu vas chercher des contextes différents.</p>
+            <ul class="clean">
+              <li><b>Argent</b> → stabilité / heures / rythme</li>
+              <li><b>Autonomie</b> → marge de manœuvre / confiance</li>
+              <li><b>Projet</b> → apprentissage / progression</li>
+              <li><b>Reconnaissance</b> → feedback / relation / équipe</li>
+            </ul>
+          `;
+
+          const right = `
+            <h3>Résultat jeune</h3>
+            <p class="muted">Formule ta priorité en 1 phrase.</p>
+            <textarea class="field" id="motSentence" placeholder="Ex : ‘Je veux travailler d’abord pour être autonome, et construire mon projet.’"></textarea>
+          `;
+
+          setTimeout(()=>{
+            const box = document.getElementById("motChoices");
+            const picked = (state.motivation && state.motivation.picked) ? state.motivation.picked : [];
+            box.innerHTML = items.map(it=>{
+              const isSel = picked.includes(it.k);
+              return `<div class="choice ${it.color} ${isSel?'selected':''}" data-k="${it.k}">${it.label}</div>`;
+            }).join("");
+
+            const update = (k)=>{
+              state.motivation = state.motivation || {};
+              state.motivation.picked = state.motivation.picked || [];
+              const arr = state.motivation.picked;
+
+              if(arr.includes(k)){
+                state.motivation.picked = arr.filter(x=>x!==k);
+              } else {
+                if(arr.length >= 2){
+                  toast("Tu peux sélectionner 2 moteurs maximum (priorité + secondaire).");
+                  return;
+                }
+                state.motivation.picked = [...arr, k];
+              }
+              saveState(state);
+
+              // rerender selection
+              box.querySelectorAll(".choice").forEach(el=>{
+                el.classList.toggle("selected", state.motivation.picked.includes(el.dataset.k));
+              });
+            };
+
+            box.querySelectorAll(".choice").forEach(el=>{
+              el.addEventListener("click", ()=> update(el.dataset.k));
+            });
+
+            const ta = document.getElementById("motSentence");
+            ta.value = (state.motivation && state.motivation.sentence) ? state.motivation.sentence : "";
+            ta.addEventListener("input", ()=>{
+              state.motivation = state.motivation || {};
+              state.motivation.sentence = ta.value;
+              saveState(state);
+            });
+          },0);
+
+          return {left, right};
+        }
+      },
+
+      {
+        id:"valorisation",
+        nav:"3. Valorisation",
+        title:"Étape 2 – Valorisation de soi (cœur)",
+        subtitle:"Transformer des expériences (même informelles) en compétences + construire un pitch.",
+        duration:"35–45 min",
+        axes:["a2","a1","a3","a4"],
+        note:[
+          "Objectif : 1 expérience → 3 actions concrètes → 3 compétences.",
+          "Posture : on part de faits, on reformule en compétences.",
+          "Finir par un pitch 60–90 secondes (simple, crédible)."
+        ],
+        render: (state) => {
+          const left = `
+            <h3>1) Choisir une expérience</h3>
+            <p class="muted">Choisis une expérience réelle (même “petite”).</p>
+            <div class="choices" id="expChoices"></div>
+
+            <div class="divider"></div>
+            <h3>2) Décrire en faits</h3>
+            <p class="muted">Écris ce que tu faisais concrètement (verbes d’action).</p>
+            <textarea class="field" id="expFacts" placeholder="Ex : accueillir des clients, préparer, nettoyer, ranger, aider, livrer, garder un enfant…"></textarea>
+
+            <div class="divider"></div>
+            <h3>3) Traduire en compétences</h3>
+            <p class="muted">Sélectionne 3 compétences maximum.</p>
+            <div class="choices" id="skillChoices"></div>
+          `;
+
+          const right = `
+            <h3>Pitch emploi (60–90 sec)</h3>
+            <p class="muted">Structure guidée. Tu peux l’utiliser en entretien, forum, téléphone.</p>
+
+            <label class="small">1) Ce que je cherche</label>
+            <input class="field" id="pitchSeek" placeholder="Ex : un stage/emploi en… (restauration, logistique, vente…)" />
+
+            <div style="height:10px;"></div>
+            <label class="small">2) Ce que je sais faire (preuve)</label>
+            <textarea class="field" id="pitchProof" placeholder="Ex : j’ai déjà… donc je sais…"></textarea>
+
+            <div style="height:10px;"></div>
+            <label class="small">3) Ce que j’apporte / comment je fonctionne</label>
+            <textarea class="field" id="pitchBring" placeholder="Ex : on peut compter sur moi pour… je fonctionne mieux quand…"></textarea>
+
+            <div style="height:10px;"></div>
+            <div class="row">
+              <button class="btn blue" id="btnPitchCopy">📋 Copier pitch</button>
+              <button class="btn green" id="btnPitchCoach">🧑‍🏫 Conseils animateur</button>
+            </div>
+            <div class="divider"></div>
+            <h3>Dire oui / poser des limites</h3>
+            <p class="muted">Choisis 1 limite importante (sans agressivité).</p>
+            <div class="choices" id="limitChoices"></div>
+            <textarea class="field" id="limitSentence" placeholder="Ex : ‘Je peux être flexible, mais j’ai besoin de…’"></textarea>
+          `;
+
+          setTimeout(()=>{
+            // Experiences
+            const exps = [
+              "Job court", "Stage", "Bénévolat", "Aide familiale", "Galère surmontée", "Autre"
+            ];
+            const expBox = document.getElementById("expChoices");
+            expBox.innerHTML = exps.map(e=>`<div class="choice bleu" data-e="${e}">${e}</div>`).join("");
+
+            state.valorisation = state.valorisation || {};
+            const selectedExp = state.valorisation.exp || "";
+
+            expBox.querySelectorAll(".choice").forEach(el=>{
+              if(el.dataset.e === selectedExp) el.classList.add("selected");
+              el.addEventListener("click", ()=>{
+                expBox.querySelectorAll(".choice").forEach(x=>x.classList.remove("selected"));
+                el.classList.add("selected");
+                state.valorisation.exp = el.dataset.e;
+                saveState(state);
+              });
+            });
+
+            // Facts
+            const facts = document.getElementById("expFacts");
+            facts.value = state.valorisation.facts || "";
+            facts.addEventListener("input", ()=>{
+              state.valorisation.facts = facts.value;
+              saveState(state);
+            });
+
+            // Skills
+            const skills = [
+              {k:"fiabilite", label:"Fiabilité / ponctualité", color:"vert"},
+              {k:"organisation", label:"Organisation", color:"bleu"},
+              {k:"equipe", label:"Travail en équipe", color:"orange"},
+              {k:"relation", label:"Relation client / communication", color:"rose"},
+              {k:"stress", label:"Gestion du stress", color:"violet"},
+              {k:"adaptation", label:"Adaptation", color:"rouge"},
+              {k:"initiative", label:"Initiative", color:"vert"},
+              {k:"rigueur", label:"Rigueur", color:"bleu"},
+            ];
+            const skillBox = document.getElementById("skillChoices");
+            const picked = state.valorisation.skills || [];
+            skillBox.innerHTML = skills.map(s=>`<div class="choice ${s.color} ${picked.includes(s.k)?'selected':''}" data-k="${s.k}">${s.label}</div>`).join("");
+
+            skillBox.querySelectorAll(".choice").forEach(el=>{
+              el.addEventListener("click", ()=>{
+                const k = el.dataset.k;
+                const arr = state.valorisation.skills || [];
+                if(arr.includes(k)){
+                  state.valorisation.skills = arr.filter(x=>x!==k);
+                } else {
+                  if(arr.length>=3){ toast("3 compétences maximum."); return; }
+                  state.valorisation.skills = [...arr, k];
+                }
+                saveState(state);
+                el.classList.toggle("selected", (state.valorisation.skills||[]).includes(k));
+              });
+            });
+
+            // Pitch fields
+            const seek = document.getElementById("pitchSeek");
+            const proof = document.getElementById("pitchProof");
+            const bring = document.getElementById("pitchBring");
+            seek.value = state.valorisation.pitchSeek || "";
+            proof.value = state.valorisation.pitchProof || "";
+            bring.value = state.valorisation.pitchBring || "";
+            [seek,proof,bring].forEach(inp=>{
+              inp.addEventListener("input", ()=>{
+                state.valorisation.pitchSeek = seek.value;
+                state.valorisation.pitchProof = proof.value;
+                state.valorisation.pitchBring = bring.value;
+                saveState(state);
+              });
+            });
+
+            document.getElementById("btnPitchCopy").addEventListener("click", async ()=>{
+              const text =
+`Je cherche : ${seek.value || "…"}
+J’ai déjà : ${proof.value || "…"}
+On peut compter sur moi pour : ${bring.value || "…"}`;
+              try{
+                await navigator.clipboard.writeText(text);
+                toast("Pitch copié dans le presse-papier.");
+              } catch(e){
+                toast("Copie impossible ici. Sélectionne le texte manuellement.");
+              }
+            });
+
+            document.getElementById("btnPitchCoach").addEventListener("click", ()=>{
+              toast("Conseil : 1 phrase = 1 idée. Donne 1 exemple concret. Évite ‘je suis nul’. Dis plutôt ‘je progresse / j’apprends’.");
+            });
+
+            // Limits
+            const limits = [
+              "Horaires (tôt/tard)", "Rythme/pression", "Respect (ton, remarques)", "Tâches (cadre du poste)", "Transport/temps de trajet"
+            ];
+            const limitBox = document.getElementById("limitChoices");
+            limitBox.innerHTML = limits.map(l=>`<div class="choice orange" data-l="${l}">${l}</div>`).join("");
+            const selL = state.valorisation.limit || "";
+            limitBox.querySelectorAll(".choice").forEach(el=>{
+              if(el.dataset.l === selL) el.classList.add("selected");
+              el.addEventListener("click", ()=>{
+                limitBox.querySelectorAll(".choice").forEach(x=>x.classList.remove("selected"));
+                el.classList.add("selected");
+                state.valorisation.limit = el.dataset.l;
+                saveState(state);
+              });
+            });
+
+            const ls = document.getElementById("limitSentence");
+            ls.value = state.valorisation.limitSentence || "";
+            ls.addEventListener("input", ()=>{
+              state.valorisation.limitSentence = ls.value;
+              saveState(state);
+            });
+
+          },0);
+
+          return {left, right};
+        }
+      },
+
+      {
+        id:"freins",
+        nav:"4. Freins & anti-sabotage",
+        title:"Étape 3 – Freins, signaux d’alerte & anti-sabotage",
+        subtitle:"On distingue peur / contrainte réelle et on prépare une stratégie simple.",
+        duration:"20–25 min",
+        axes:["a1","a3","a2"],
+        note:[
+          "Normaliser : ‘beaucoup de personnes vivent ça’.",
+          "Objectif : 1 situation à risque + 2 leviers d’anticipation.",
+          "Rester concret : postuler / tenir un rythme / demander de l’aide."
+        ],
+        render: (state) => {
+          const left = `
+            <h3>Les pensées qui bloquent (imposteur)</h3>
+            <p class="muted">Clique les phrases que tu as déjà pensées.</p>
+            <div class="choices" id="impChoices"></div>
+
+            <div class="divider"></div>
+            <h3>Freins (réels / négociables)</h3>
+            <p class="muted">Classe chaque frein.</p>
+            <div class="grid2" style="margin-top:10px;">
+              <div class="card">
+                <h3>Négociable</h3>
+                <div class="choices" id="negBox"></div>
+              </div>
+              <div class="card">
+                <h3>À anticiper</h3>
+                <div class="choices" id="antBox"></div>
+              </div>
+            </div>
+          `;
+
+          const right = `
+            <h3>Mes signaux d’alerte</h3>
+            <p class="muted">Coche ce qui te concerne quand ça ne va plus.</p>
+            <div class="choices" id="alertChoices"></div>
+
+            <div class="divider"></div>
+            <h3>Plan anti-sabotage (simple)</h3>
+            <p class="muted">Choisis 2 actions qui t’aident à tenir.</p>
+            <div class="choices" id="planChoices"></div>
+
+            <div class="divider"></div>
+            <h3>Situation à risque</h3>
+            <textarea class="field" id="riskScenario" placeholder="Ex : ‘Si on me parle mal / si je suis trop fatigué / si je ne comprends pas…’"></textarea>
+          `;
+
+          setTimeout(()=>{
+            state.freins = state.freins || {};
+
+            // Impostor phrases
+            const imp = [
+              "Je ne suis pas capable",
+              "Ils vont se rendre compte que ce n’est pas pour moi",
+              "Je vais échouer",
+              "Ce poste est hors de ma portée",
+              "J’ai eu de la chance (pas grâce à moi)"
+            ];
+            const impBox = document.getElementById("impChoices");
+            const impSel = state.freins.imposteur || [];
+            impBox.innerHTML = imp.map(p=>`<div class="choice rose ${impSel.includes(p)?'selected':''}" data-p="${p}">${p}</div>`).join("");
+            impBox.querySelectorAll(".choice").forEach(el=>{
+              el.addEventListener("click", ()=>{
+                const p = el.dataset.p;
+                const arr = state.freins.imposteur || [];
+                state.freins.imposteur = arr.includes(p) ? arr.filter(x=>x!==p) : [...arr,p];
+                saveState(state);
+                el.classList.toggle("selected", state.freins.imposteur.includes(p));
+              });
+            });
+
+            // Freins buckets
+            const freins = ["Horaires","Pression/rythme","Cadre strict","Relation hiérarchique","Transport","Fatigue"];
+            const neg = new Set(state.freins.negociables || []);
+            const ant = new Set(state.freins.anticiper || []);
+            const negBox = document.getElementById("negBox");
+            const antBox = document.getElementById("antBox");
+
+            const renderBuckets = ()=>{
+              negBox.innerHTML = freins.map(f=>`<div class="choice bleu ${neg.has(f)?'selected':''}" data-f="${f}">${f}</div>`).join("");
+              antBox.innerHTML = freins.map(f=>`<div class="choice orange ${ant.has(f)?'selected':''}" data-f="${f}">${f}</div>`).join("");
+
+              negBox.querySelectorAll(".choice").forEach(el=>{
+                el.addEventListener("click", ()=>{
+                  const f = el.dataset.f;
+                  if(neg.has(f)) neg.delete(f); else { neg.add(f); ant.delete(f); }
+                  state.freins.negociables = [...neg]; state.freins.anticiper=[...ant];
+                  saveState(state); renderBuckets();
+                });
+              });
+              antBox.querySelectorAll(".choice").forEach(el=>{
+                el.addEventListener("click", ()=>{
+                  const f = el.dataset.f;
+                  if(ant.has(f)) ant.delete(f); else { ant.add(f); neg.delete(f); }
+                  state.freins.negociables = [...neg]; state.freins.anticiper=[...ant];
+                  saveState(state); renderBuckets();
+                });
+              });
+            };
+            renderBuckets();
+
+            // Alerts
+            const alerts = ["Fatigue intense","Découragement","Retards","Absences","Énervement","Isolement"];
+            const alertSel = new Set(state.freins.alerts || []);
+            const alertBox = document.getElementById("alertChoices");
+            alertBox.innerHTML = alerts.map(a=>`<div class="choice violet ${alertSel.has(a)?'selected':''}" data-a="${a}">${a}</div>`).join("");
+            alertBox.querySelectorAll(".choice").forEach(el=>{
+              el.addEventListener("click", ()=>{
+                const a=el.dataset.a;
+                if(alertSel.has(a)) alertSel.delete(a); else alertSel.add(a);
+                state.freins.alerts = [...alertSel];
+                saveState(state);
+                el.classList.toggle("selected", alertSel.has(a));
+              });
+            });
+
+            // Plan choices (2 max)
+            const plans = ["Demander de l’aide", "Faire une pause / respirer", "Poser une question", "Revoir l’objectif", "Préparer la veille", "Parler à mon conseiller"];
+            const planSel = state.freins.plan || [];
+            const planBox = document.getElementById("planChoices");
+            planBox.innerHTML = plans.map(p=>`<div class="choice green ${planSel.includes(p)?'selected':''}" data-p="${p}">${p}</div>`).join("");
+            planBox.querySelectorAll(".choice").forEach(el=>{
+              el.addEventListener("click", ()=>{
+                const p = el.dataset.p;
+                let arr = state.freins.plan || [];
+                if(arr.includes(p)) arr = arr.filter(x=>x!==p);
+                else {
+                  if(arr.length>=2){ toast("Choisis 2 actions maximum."); return; }
+                  arr = [...arr,p];
+                }
+                state.freins.plan = arr; saveState(state);
+                el.classList.toggle("selected", arr.includes(p));
+              });
+            });
+
+            const risk = document.getElementById("riskScenario");
+            risk.value = state.freins.risk || "";
+            risk.addEventListener("input", ()=>{
+              state.freins.risk = risk.value; saveState(state);
+            });
+
+          },0);
+
+          return {left, right};
+        }
+      },
+
+      {
+        id:"carte",
+        nav:"5. Carte de sortie",
+        title:"Étape 4 – Carte “Mon rapport au travail”",
+        subtitle:"On transforme la connaissance de soi en phrases pro utilisables (entretien, forum, conseiller).",
+        duration:"15–20 min",
+        axes:["a2","a1","a3","a4"],
+        note:[
+          "Objectif : 3 phrases prêtes à dire, simples et crédibles.",
+          "Faire reformuler si c’est trop exigeant / trop vague.",
+          "Terminer par : 1 prochaine action dans la recherche (postuler, appeler, forum…)."
+        ],
+        render: (state) => {
+          const left = `
+            <h3>Formulations pro (à réutiliser)</h3>
+            <p class="muted">Complète les 3 phrases. Elles doivent être simples et vraies.</p>
+
+            <label class="small">Pour travailler, j’ai besoin de…</label>
+            <textarea class="field" id="need"></textarea>
+
+            <div style="height:10px;"></div>
+            <label class="small">Je fonctionne mieux quand…</label>
+            <textarea class="field" id="workBetter"></textarea>
+
+            <div style="height:10px;"></div>
+            <label class="small">J’ai besoin de vigilance sur…</label>
+            <textarea class="field" id="vigilance"></textarea>
+
+            <div class="divider"></div>
+            <h3>Prochaine action</h3>
+            <p class="muted">1 action simple et datée.</p>
+            <div class="row">
+              <input class="field" id="nextAction" placeholder="Ex : ‘Je postule à 2 offres d’ici vendredi’" />
+              <button class="btn primary" id="btnPrint">🖨️ Imprimer</button>
+            </div>
+          `;
+
+          const right = `
+            <h3>Carte récap (aperçu)</h3>
+            <p class="muted">Aperçu local. Clique “Générer carte” en haut pour compiler.</p>
+            <div class="card" id="preview" style="margin-top:10px;"></div>
+          `;
+
+          setTimeout(()=>{
+            state.carte = state.carte || {};
+            const need = document.getElementById("need");
+            const better = document.getElementById("workBetter");
+            const vig = document.getElementById("vigilance");
+            const act = document.getElementById("nextAction");
+
+            need.value = state.carte.need || "";
+            better.value = state.carte.better || "";
+            vig.value = state.carte.vig || "";
+            act.value = state.carte.action || "";
+
+            const update = ()=>{
+              state.carte.need = need.value;
+              state.carte.better = better.value;
+              state.carte.vig = vig.value;
+              state.carte.action = act.value;
+              saveState(state);
+              renderPreview(state);
+            };
+            [need,better,vig,act].forEach(el=> el.addEventListener("input", update));
+
+            document.getElementById("btnPrint").addEventListener("click", ()=>{
+              window.print();
+            });
+
+            renderPreview(state);
+          },0);
+
+          return {left, right};
+        }
+      }
+    ];
+
+    // ---------- State ----------
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      }catch(e){ return {}; }
+    }
+    function saveState(s){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+      if(currentStepId === "intro") renderIntroBars(s);
+      if(showCollect) renderCollective(s);
+      if(currentStepId === "carte") renderPreview(s);
+    }
+
+    // ---------- UI ----------
+    const navList = document.getElementById("navList");
+    const badgeStep = document.getElementById("badgeStep");
+    const stepTitle = document.getElementById("stepTitle");
+    const stepSubtitle = document.getElementById("stepSubtitle");
+    const chips = document.getElementById("chips");
+    const leftCard = document.getElementById("leftCard");
+    const rightCard = document.getElementById("rightCard");
+    const stepInfo = document.getElementById("stepInfo");
+    const facilNote = document.getElementById("facilNote");
+    const toastEl = document.getElementById("toast");
+
+    let state = loadState();
+    let currentIndex = 0;
+    let currentStepId = STEPS[0].id;
+    let showNotes = true;
+    let showCollect = false;
+
+    // Build nav
+    navList.innerHTML = STEPS.map((s,i)=>`
+      <div class="item" data-i="${i}">
+        <div class="name">${s.nav}</div>
+        <div class="meta">${s.duration} • ${s.axes.map(a=>a.toUpperCase()).join(" / ")}</div>
+      </div>
+    `).join("");
+
+    navList.querySelectorAll(".item").forEach(el=>{
+      el.addEventListener("click", ()=> goTo(parseInt(el.dataset.i,10)));
+    });
+
+    function setActiveNav(i){
+      navList.querySelectorAll(".item").forEach((el,idx)=>{
+        el.classList.toggle("active", idx===i);
+      });
+    }
+
+    function renderStep(i){
+      const s = STEPS[i];
+      currentIndex = i;
+      currentStepId = s.id;
+
+      setActiveNav(i);
+      badgeStep.textContent = `Étape ${i+1}/${STEPS.length}`;
+      stepTitle.textContent = s.title;
+      stepSubtitle.textContent = s.subtitle;
+
+      chips.innerHTML = s.axes.map(a=>{
+        const ax = AXES[a];
+        return `<span class="chip"><span class="b" style="background:${ax.color}"></span>${ax.name}</span>`;
+      }).join("");
+
+      stepInfo.innerHTML = `<b>${s.duration}</b> • Objectif : <span class="muted">${goalForStep(s.id)}</span>`;
+
+      // Notes animateur
+      if(showNotes){
+        facilNote.innerHTML = `
+          <div class="miniTitle">Notes animateur</div>
+          ${s.note.map(x=>`<div style="margin:6px 0;"><span class="k">•</span>${escapeHtml(x)}</div>`).join("")}
+        `;
+      } else {
+        facilNote.innerHTML = `<div class="miniTitle">Notes animateur</div><div class="small">Masquées.</div>`;
+      }
+
+      // Render content
+      const {left, right} = s.render(state);
+      leftCard.innerHTML = left;
+      rightCard.innerHTML = right;
+
+      // Collective panel refresh
+      if(showCollect) renderCollective(state);
+    }
+
+    function goalForStep(id){
+      const map = {
+        intro: "lancer l’atelier, poser le cadre",
+        fonctionnement: "repérer préférences + vigilance",
+        motivation: "hiérarchiser ses moteurs",
+        valorisation: "traduire en compétences + pitch",
+        freins: "anticiper, éviter l’auto-sabotage",
+        carte: "sortir avec 3 phrases + 1 action"
+      };
+      return map[id] || "—";
+    }
+
+    function goTo(i){
+      if(i<0 || i>=STEPS.length) return;
+      renderStep(i);
+    }
+
+    document.getElementById("prevBtn").addEventListener("click", ()=> goTo(currentIndex-1));
+    document.getElementById("nextBtn").addEventListener("click", ()=> goTo(currentIndex+1));
+
+    // Buttons
+    document.getElementById("btnNotes").addEventListener("click", ()=>{
+      showNotes = !showNotes;
+      renderStep(currentIndex);
+      toast(showNotes ? "Notes animateur affichées." : "Notes animateur masquées.");
+    });
+
+    document.getElementById("btnCollect").addEventListener("click", ()=>{
+      showCollect = !showCollect;
+      renderCollective(state);
+      toast(showCollect ? "Tendances affichées." : "Tendances masquées.");
+    });
+
+    document.getElementById("btnPause").addEventListener("click", ()=> pauseExchange());
+    document.getElementById("btnReset").addEventListener("click", ()=>{
+      if(confirm("Réinitialiser toutes les réponses enregistrées sur cet appareil ?")){
+        localStorage.removeItem(STORAGE_KEY);
+        state = {};
+        toast("Réinitialisé.");
+        renderStep(currentIndex);
+      }
+    });
+
+    document.getElementById("btnExport").addEventListener("click", ()=>{
+      const cardText = buildCardText(state);
+      if(!cardText.trim()){ toast("Pas assez d’éléments pour générer la carte."); return; }
+      openCardModal(cardText);
+    });
+
+    function pauseExchange(){
+      const msg = "Pause échange : 2–3 minutes. Questions : ‘Qu’est-ce qui t’a surpris ?’ ‘Qu’est-ce qui te ressemble ?’";
+      toast(msg);
+    }
+
+    // ---------- Collective (anonymised trends) ----------
+    function renderCollective(s){
+      // Lightweight: show a toast with a short summary depending on step.
+      // Or you can extend to a dedicated panel. Here we keep it simple.
+      if(!showCollect) return;
+
+      if(currentStepId === "intro"){
+        renderIntroBars(s);
+        return;
+      }
+      // Default: show quick summary in toast
+      toast("Tendances : ce mode est surtout utile sur l’intro. (Tu peux étendre l’affichage si besoin.)");
+    }
+
+    function renderIntroBars(s){
+      const barWrap = document.getElementById("introBars");
+      if(!barWrap) return;
+
+      const words = ["Argent","Autonomie","Projet","Reconnaissance","Pression","Horaires","Respect","Apprendre"];
+      const picked = (s.intro && s.intro.words) ? s.intro.words : [];
+      // Since this is single-device, we show "sélection du poste animateur" as a prompt,
+      // but it remains useful for animation on grand écran (les jeunes votent depuis le même écran).
+      const counts = {};
+      words.forEach(w=> counts[w] = picked.includes(w) ? 1 : 0);
+
+      barWrap.innerHTML = words.map((w,idx)=>{
+        const val = counts[w];
+        const pct = val ? 100 : 0;
+        const colors = ["orange","bleu","vert","rose","violet","rouge","bleu","vert"];
+        return `
+          <div class="barLine">
+            <div class="barLabel">${w}</div>
+            <div class="bar"><div class="barFill ${colors[idx%colors.length]}" style="width:${pct}%"></div></div>
+            <div class="barVal">${val}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // ---------- Carte ----------
+    function buildCardText(s){
+      const lines = [];
+      lines.push("LS4YOU – Carte compétences EMPLOI");
+      lines.push("—");
+
+      // Motivation
+      const mot = (s.motivation && s.motivation.picked) ? s.motivation.picked : [];
+      if(mot.length) lines.push("Motivations (priorité/secondaire) : " + mot.join(" • "));
+      if(s.motivation && s.motivation.sentence) lines.push("Phrase motivation : " + s.motivation.sentence);
+
+      // Fonctionnement
+      const f = s.fonctionnement || {};
+      if(f.answers){
+        lines.push("—");
+        lines.push("Fonctionnement (repères) :");
+        Object.entries(f.answers).forEach(([k,v])=> lines.push(`- ${k} : ${v}`));
+      }
+      if(f.helpMe) lines.push("Ce qui m’aide : " + f.helpMe);
+      if(f.watchOut) lines.push("Vigilance : " + f.watchOut);
+
+      // Valorisation
+      const v = s.valorisation || {};
+      if(v.exp || v.facts || (v.skills && v.skills.length) || v.pitchSeek || v.pitchProof || v.pitchBring){
+        lines.push("—");
+        lines.push("Valorisation :");
+        if(v.exp) lines.push("Expérience : " + v.exp);
+        if(v.facts) lines.push("Faits (verbes d’action) : " + v.facts);
+        if(v.skills && v.skills.length) lines.push("Compétences (sélection) : " + v.skills.join(" • "));
+        if(v.pitchSeek || v.pitchProof || v.pitchBring){
+          lines.push("Pitch :");
+          lines.push("- Je cherche : " + (v.pitchSeek || "…"));
+          lines.push("- Preuve : " + (v.pitchProof || "…"));
+          lines.push("- J’apporte : " + (v.pitchBring || "…"));
+        }
+        if(v.limit) lines.push("Limite importante : " + v.limit);
+        if(v.limitSentence) lines.push("Phrase limite : " + v.limitSentence);
+      }
+
+      // Freins
+      const fr = s.freins || {};
+      if((fr.imposteur && fr.imposteur.length) || (fr.negociables && fr.negociables.length) || (fr.anticiper && fr.anticiper.length) || (fr.alerts && fr.alerts.length) || (fr.plan && fr.plan.length) || fr.risk){
+        lines.push("—");
+        lines.push("Freins & anti-sabotage :");
+        if(fr.imposteur && fr.imposteur.length) lines.push("Pensées (imposteur) : " + fr.imposteur.join(" | "));
+        if(fr.negociables && fr.negociables.length) lines.push("Freins négociables : " + fr.negociables.join(" • "));
+        if(fr.anticiper && fr.anticiper.length) lines.push("Freins à anticiper : " + fr.anticiper.join(" • "));
+        if(fr.alerts && fr.alerts.length) lines.push("Signaux d’alerte : " + fr.alerts.join(" • "));
+        if(fr.plan && fr.plan.length) lines.push("Plan (2 actions) : " + fr.plan.join(" • "));
+        if(fr.risk) lines.push("Situation à risque : " + fr.risk);
+      }
+
+      // Carte finale
+      const c = s.carte || {};
+      if(c.need || c.better || c.vig || c.action){
+        lines.push("—");
+        lines.push("Phrases pro :");
+        if(c.need) lines.push("Pour travailler, j’ai besoin de : " + c.need);
+        if(c.better) lines.push("Je fonctionne mieux quand : " + c.better);
+        if(c.vig) lines.push("Vigilance : " + c.vig);
+        if(c.action) lines.push("Prochaine action : " + c.action);
+      }
+
+      return lines.join("\n");
+    }
+
+    function openCardModal(text){
+      // Simple modal via new window (works for quick print/save)
+      const w = window.open("", "_blank");
+      if(!w){ toast("Pop-up bloquée. Autorise les pop-ups pour générer la carte."); return; }
+      w.document.write(`
+        <html><head><meta charset="utf-8"><title>Carte LS4YOU – EMPLOI</title>
+        <style>
+          body{font-family:Inter,Arial,sans-serif; padding:22px; line-height:1.45}
+          pre{white-space:pre-wrap; font-size:14px}
+          .btn{display:inline-block; margin:10px 10px 0 0; padding:10px 12px; border:1px solid #ddd; border-radius:10px; cursor:pointer}
+        </style>
+        </head><body>
+          <h2>Carte “Compétences EMPLOI”</h2>
+          <pre id="t"></pre>
+          <button class="btn" onclick="window.print()">Imprimer</button>
+          <button class="btn" onclick="navigator.clipboard.writeText(document.getElementById('t').innerText)">Copier</button>
+          <script>document.getElementById('t').innerText = ${JSON.stringify(text)};</script>
+        </body></html>
+      `);
+      w.document.close();
+      toast("Carte générée (nouvelle fenêtre).");
+    }
+
+    function renderPreview(s){
+      const p = document.getElementById("preview");
+      if(!p) return;
+      const c = s.carte || {};
+      const mot = (s.motivation && s.motivation.picked) ? s.motivation.picked : [];
+      const skills = (s.valorisation && s.valorisation.skills) ? s.valorisation.skills : [];
+      p.innerHTML = `
+        <h3 style="margin:0 0 8px;">Aperçu – carte</h3>
+        <p class="muted" style="margin:0 0 10px;"><b>Motivations :</b> ${mot.length?mot.join(" • "):"—"}</p>
+        <p class="muted" style="margin:0 0 10px;"><b>Compétences :</b> ${skills.length?skills.join(" • "):"—"}</p>
+        <p class="muted" style="margin:0 0 10px;"><b>Besoin :</b> ${escapeHtml(c.need||"—")}</p>
+        <p class="muted" style="margin:0 0 10px;"><b>Je fonctionne mieux quand :</b> ${escapeHtml(c.better||"—")}</p>
+        <p class="muted" style="margin:0;"><b>Vigilance :</b> ${escapeHtml(c.vig||"—")}</p>
+      `;
+    }
+
+    // ---------- Timer ----------
+    let timerInterval = null;
+    let timerSeconds = 0;
+    const timerDisplay = document.getElementById("timerDisplay");
+    const timerStart = document.getElementById("timerStart");
+    const timerStop = document.getElementById("timerStop");
+    const timerReset = document.getElementById("timerReset");
+
+    function fmt(sec){
+      const m = String(Math.floor(sec/60)).padStart(2,"0");
+      const s = String(sec%60).padStart(2,"0");
+      return `${m}:${s}`;
+    }
+    function startTimer(){
+      if(timerInterval) return;
+      timerInterval = setInterval(()=>{
+        timerSeconds++;
+        timerDisplay.textContent = fmt(timerSeconds);
+      },1000);
+    }
+    function stopTimer(){
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    function resetTimer(){
+      stopTimer();
+      timerSeconds = 0;
+      timerDisplay.textContent = fmt(timerSeconds);
+    }
+    timerStart.addEventListener("click", startTimer);
+    timerStop.addEventListener("click", stopTimer);
+    timerReset.addEventListener("click", resetTimer);
+
+    // ---------- Toast ----------
+    let toastTimeout=null;
+    function toast(msg){
+      toastEl.innerText = msg;
+      toastEl.style.display = "block";
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(()=> toastEl.style.display="none", 3200);
+    }
+
+    // ---------- Helpers ----------
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, s => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[s]));
+    }
+
+    // ---------- Keyboard shortcuts ----------
+    window.addEventListener("keydown", (e)=>{
+      if(e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+
+      if(e.key === "ArrowRight") goTo(currentIndex+1);
+      if(e.key === "ArrowLeft") goTo(currentIndex-1);
+      if(e.code === "Space"){ e.preventDefault(); pauseExchange(); }
+      if(e.key.toLowerCase() === "t"){
+        if(timerInterval) stopTimer(); else startTimer();
+      }
+      if(e.key.toLowerCase() === "p"){
+        window.print();
+      }
+    });
+
+    // ---------- Init ----------
+    renderStep(0);
+  </script>
+</body>
+</html>
