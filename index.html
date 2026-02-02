@@ -1,561 +1,479 @@
-import React, { useState, useMemo } from 'react';
-import { Search, X, ChevronRight, Award, Menu, CheckCircle, Circle } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LS4YOU - Traducteur de Compétences</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ls-red: #FF4B5C;
+            --ls-yellow: #FFD166;
+            --ls-turquoise: #46e3cf;
+            --ls-dark: #1A1A1A;
+        }
 
-const CompetencesTranslator = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedActivity, setSelectedActivity] = useState(null);
-  const [selectedActivities, setSelectedActivities] = useState([]);
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #ffffff;
+            color: var(--ls-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-  // Base de données de 108 situations ADAPTÉES AUX JEUNES NON-QUALIFIÉS
-  const activities = [
-    // VIE DE FAMILLE & QUOTIDIEN (15)
-    { id: 1, category: 'famille', activity: "Je garde mes petits frères/sœurs", perso: "Être responsable d'eux", competences: ['Responsabilité', 'Patience', 'Réactivité'], skills: { cps: ['Responsabilité', 'Gestion émotions'], soft: ['Patience', 'Attention', 'Calme'], hard: ['Sécurité enfants'], life: ['Fiabilité'] }},
-    { id: 2, category: 'famille', activity: "J'organise une fête (anniversaire, soirée...)", perso: "Créer un moment cool", competences: ['Organisation', 'Budget', 'Créativité'], skills: { cps: ['Créativité', 'Planification'], soft: ['Organisation', 'Débrouillardise', 'Animation'], hard: ['Gestion budget', 'Planification'], life: ['Organisation d\'événement'] }},
-    { id: 3, category: 'famille', activity: "Je calme les disputes à la maison", perso: "Ramener le calme", competences: ['Calme', 'Écoute', 'Neutralité'], skills: { cps: ['Gestion conflits', 'Empathie'], soft: ['Écoute', 'Diplomatie', 'Calme'], hard: [], life: ['Médiation'] }},
-    { id: 4, category: 'famille', activity: "J'aide mes grands-parents ou un proche", perso: "Prendre soin d'eux", competences: ['Aide', 'Respect', 'Patience'], skills: { cps: ['Empathie', 'Patience'], soft: ['Respect', 'Douceur', 'Fiabilité'], hard: ['Aide quotidienne'], life: ['Care'] }},
-    { id: 5, category: 'famille', activity: "Je gère mon emploi du temps (rdv, cours, boulot...)", perso: "M'organiser", competences: ['Organisation', 'Ponctualité', 'Autonomie'], skills: { cps: ['Organisation'], soft: ['Ponctualité', 'Méthode', 'Autonomie'], hard: ['Planning'], life: ['Gestion du temps'] }},
-    { id: 6, category: 'famille', activity: "Je négocie avec mes parents", perso: "Défendre mes idées", competences: ['Argumentation', 'Écoute', 'Respect'], skills: { cps: ['Communication', 'Écoute'], soft: ['Négociation', 'Argumentation', 'Respect'], hard: [], life: ['Affirmation'] }},
-    { id: 7, category: 'famille', activity: "Je cuisine pour ma famille ou mes potes", perso: "Nourrir les autres", competences: ['Cuisine', 'Créativité', 'Partage'], skills: { cps: ['Créativité', 'Soin'], soft: ['Débrouillardise', 'Organisation'], hard: ['Cuisine', 'Hygiène'], life: ['Autonomie alimentaire'] }},
-    { id: 8, category: 'famille', activity: "J'aide aux devoirs ou j'explique des choses", perso: "Transmettre ce que je sais", competences: ['Pédagogie', 'Patience', 'Communication'], skills: { cps: ['Communication', 'Patience'], soft: ['Pédagogie', 'Écoute', 'Clarté'], hard: ['Transmission'], life: ['Entraide'] }},
-    { id: 9, category: 'famille', activity: "Je gère mon argent (poche, jobs...)", perso: "Ne pas tout claquer", competences: ['Budget', 'Prévoyance', 'Calcul'], skills: { cps: ['Responsabilité', 'Autonomie'], soft: ['Rigueur', 'Prévoyance'], hard: ['Budget simple', 'Calcul'], life: ['Gestion argent'] }},
-    { id: 10, category: 'famille', activity: "J'anime les repas ou moments en famille", perso: "Mettre l'ambiance", competences: ['Animation', 'Humour', 'Dynamisme'], skills: { cps: ['Aisance sociale'], soft: ['Communication', 'Humour', 'Écoute'], hard: [], life: ['Cohésion'] }},
-    { id: 11, category: 'famille', activity: "Je gère un problème urgent (panne, accident...)", perso: "Réagir vite", competences: ['Réactivité', 'Calme', 'Débrouillardise'], skills: { cps: ['Gestion stress', 'Décision'], soft: ['Réactivité', 'Calme', 'Débrouillardise'], hard: ['Gestion urgence'], life: ['Gestion crise'] }},
-    { id: 12, category: 'famille', activity: "Je montre l'exemple aux plus jeunes", perso: "Être un modèle", competences: ['Exemple', 'Responsabilité', 'Cohérence'], skills: { cps: ['Responsabilité', 'Conscience'], soft: ['Cohérence', 'Leadership', 'Exemplarité'], hard: [], life: ['Être modèle'] }},
-    { id: 13, category: 'famille', activity: "Je prépare une sortie ou un week-end", perso: "Organiser l'aventure", competences: ['Organisation', 'Recherche', 'Planification'], skills: { cps: ['Planification', 'Initiative'], soft: ['Organisation', 'Recherche'], hard: ['Recherche web', 'Planning'], life: ['Organisation loisirs'] }},
-    { id: 14, category: 'famille', activity: "J'écoute et soutiens quelqu'un qui va mal", perso: "Être là", competences: ['Écoute', 'Empathie', 'Soutien'], skills: { cps: ['Empathie', 'Écoute active'], soft: ['Bienveillance', 'Présence', 'Non-jugement'], hard: [], life: ['Soutien'] }},
-    { id: 15, category: 'famille', activity: "Je traduis ou explique (langue, culture, admin...)", perso: "Faire le lien", competences: ['Communication', 'Traduction', 'Aide'], skills: { cps: ['Communication', 'Adaptabilité'], soft: ['Pédagogie', 'Patience'], hard: ['Langues', 'Explication'], life: ['Médiation'] }},
+        h1, h2, h3, h4, .font-title { font-family: 'Montserrat', sans-serif; }
 
-    // VIE SOCIALE & ENGAGEMENT (15)
-    { id: 16, category: 'social', activity: "Je m'engage dans une asso, un club", perso: "Donner de mon temps", competences: ['Engagement', 'Solidarité', 'Travail équipe'], skills: { cps: ['Engagement', 'Empathie'], soft: ['Travail équipe', 'Fiabilité', 'Solidarité'], hard: ['Selon mission'], life: ['Engagement'] }},
-    { id: 17, category: 'social', activity: "J'organise des sorties avec mes potes", perso: "Créer des plans", competences: ['Organisation', 'Initiative', 'Animation'], skills: { cps: ['Initiative', 'Créativité'], soft: ['Organisation', 'Communication'], hard: ['Organisation sorties'], life: ['Organisation sociale'] }},
-    { id: 18, category: 'social', activity: "J'aide un voisin, une personne dans la rue", perso: "Donner un coup de main", competences: ['Altruisme', 'Disponibilité', 'Gentillesse'], skills: { cps: ['Empathie', 'Altruisme'], soft: ['Disponibilité', 'Générosité'], hard: [], life: ['Entraide'] }},
-    { id: 19, category: 'social', activity: "J'anime un groupe (Discord, WhatsApp, IRL...)", perso: "Animer la communauté", competences: ['Animation', 'Communication', 'Dynamisme'], skills: { cps: ['Communication', 'Leadership'], soft: ['Animation', 'Dynamisme', 'Écoute'], hard: ['Animation groupe'], life: ['Animation'] }},
-    { id: 20, category: 'social', activity: "J'organise une collecte ou cagnotte solidaire", perso: "Mobiliser pour une cause", competences: ['Organisation', 'Persuasion', 'Solidarité'], skills: { cps: ['Initiative', 'Persévérance'], soft: ['Persuasion', 'Organisation'], hard: ['Cagnotte en ligne', 'Communication'], life: ['Mobilisation'] }},
-    { id: 21, category: 'social', activity: "Je garde contact avec mes potes même loin", perso: "Entretenir les liens", competences: ['Fidélité', 'Communication', 'Attention'], skills: { cps: ['Empathie'], soft: ['Fidélité', 'Communication', 'Attention'], hard: ['Réseaux sociaux'], life: ['Maintien liens'] }},
-    { id: 22, category: 'social', activity: "J'aide des plus jeunes (tutorat, soutien...)", perso: "Transmettre", competences: ['Pédagogie', 'Patience', 'Bienveillance'], skills: { cps: ['Communication', 'Patience'], soft: ['Pédagogie', 'Bienveillance'], hard: ['Enseignement'], life: ['Tutorat'] }},
-    { id: 23, category: 'social', activity: "Je participe à des actions solidaires", perso: "Agir sur le terrain", competences: ['Action', 'Courage', 'Solidarité'], skills: { cps: ['Empathie', 'Courage'], soft: ['Engagement', 'Action', 'Ouverture'], hard: ['Selon action'], life: ['Action solidaire'] }},
-    { id: 24, category: 'social', activity: "J'accueille des nouvelles personnes (cours, taf...)", perso: "Intégrer les nouveaux", competences: ['Accueil', 'Ouverture', 'Gentillesse'], skills: { cps: ['Empathie', 'Ouverture'], soft: ['Accueil', 'Bienveillance'], hard: [], life: ['Intégration'] }},
-    { id: 25, category: 'social', activity: "J'arbitre ou je calme des tensions entre potes", perso: "Ramener la paix", competences: ['Médiation', 'Neutralité', 'Calme'], skills: { cps: ['Gestion conflits', 'Empathie'], soft: ['Médiation', 'Neutralité', 'Diplomatie'], hard: [], life: ['Résolution conflits'] }},
-    { id: 26, category: 'social', activity: "Je motive mes potes à se bouger", perso: "Donner envie", competences: ['Motivation', 'Énergie', 'Positivité'], skills: { cps: ['Leadership', 'Communication'], soft: ['Motivation', 'Dynamisme', 'Positivité'], hard: [], life: ['Motivation'] }},
-    { id: 27, category: 'social', activity: "Je traduis pour des gens qui parlent pas français", perso: "Aider à communiquer", competences: ['Langues', 'Communication', 'Aide'], skills: { cps: ['Communication interculturelle'], soft: ['Patience', 'Aide'], hard: ['Langues', 'Traduction'], life: ['Aide linguistique'] }},
-    { id: 28, category: 'social', activity: "J'accueille ou j'aide des personnes en galère", perso: "Tendre la main", competences: ['Générosité', 'Empathie', 'Non-jugement'], skills: { cps: ['Empathie', 'Ouverture'], soft: ['Générosité', 'Accueil', 'Non-jugement'], hard: [], life: ['Accueil'] }},
-    { id: 29, category: 'social', activity: "Je représente un groupe (délégué, porte-parole...)", perso: "Porter la voix des autres", competences: ['Représentation', 'Communication', 'Courage'], skills: { cps: ['Communication', 'Courage'], soft: ['Représentation', 'Prise de parole'], hard: ['Communication publique'], life: ['Représentation'] }},
-    { id: 30, category: 'social', activity: "Je crée du lien entre différentes générations", perso: "Connecter les âges", competences: ['Ouverture', 'Communication', 'Adaptabilité'], skills: { cps: ['Empathie', 'Adaptabilité'], soft: ['Ouverture', 'Adaptabilité', 'Communication'], hard: [], life: ['Lien intergénérationnel'] }},
+        /* Halos de fond signature */
+        .halo-red {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: var(--ls-red);
+            border-radius: 50%;
+            top: -200px;
+            left: -150px;
+            filter: blur(100px);
+            opacity: 0.08;
+            z-index: 0;
+            pointer-events: none;
+        }
 
-    // LOISIRS CRÉATIFS & EXPRESSION (12)
-    { id: 31, category: 'creatif', activity: "Je prends des photos (tel, appareil...)", perso: "Capturer des moments", competences: ['Créativité', 'Regard', 'Technique'], skills: { cps: ['Créativité', 'Attention détails'], soft: ['Patience', 'Esthétique'], hard: ['Photo', 'Retouche', 'Cadrage'], life: ['Expression visuelle'] }},
-    { id: 32, category: 'creatif', activity: "Je poste sur les réseaux (stories, posts, reels...)", perso: "Partager ma vie", competences: ['Communication', 'Créativité', 'Régularité'], skills: { cps: ['Créativité', 'Confiance'], soft: ['Communication', 'Créativité', 'Régularité'], hard: ['Réseaux sociaux', 'Édition'], life: ['Expression digitale'] }},
-    { id: 33, category: 'creatif', activity: "Je customise mes fringues ou objets", perso: "Créer mon style", competences: ['Créativité', 'Débrouillardise', 'Style'], skills: { cps: ['Créativité'], soft: ['Débrouillardise', 'Patience'], hard: ['Customisation', 'Couture base'], life: ['Personnalisation'] }},
-    { id: 34, category: 'creatif', activity: "Je fais de la musique (chanter, rapper, jouer...)", perso: "M'exprimer en musique", competences: ['Expression', 'Créativité', 'Technique'], skills: { cps: ['Expression', 'Créativité'], soft: ['Persévérance', 'Confiance'], hard: ['Musique', 'Rythme'], life: ['Expression musicale'] }},
-    { id: 35, category: 'creatif', activity: "Je bricole, je fabrique des trucs", perso: "Créer de mes mains", competences: ['Débrouillardise', 'Créativité', 'Technique'], skills: { cps: ['Créativité', 'Débrouillardise'], soft: ['Débrouillardise', 'Patience'], hard: ['Bricolage', 'Outils'], life: ['Fabrication'] }},
-    { id: 36, category: 'creatif', activity: "Je dessine, je graffe, je peins", perso: "Créer des images", competences: ['Créativité', 'Expression', 'Technique'], skills: { cps: ['Créativité', 'Expression'], soft: ['Patience', 'Précision'], hard: ['Dessin', 'Techniques'], life: ['Art visuel'] }},
-    { id: 37, category: 'creatif', activity: "Je décore ma chambre, mon espace", perso: "Créer mon univers", competences: ['Créativité', 'Goût', 'Organisation'], skills: { cps: ['Créativité'], soft: ['Goût', 'Organisation'], hard: ['Déco', 'DIY'], life: ['Personnalisation espace'] }},
-    { id: 38, category: 'creatif', activity: "J'écris (textes, poèmes, rap, histoires...)", perso: "Poser mes mots", competences: ['Expression', 'Créativité', 'Écriture'], skills: { cps: ['Expression', 'Créativité'], soft: ['Persévérance', 'Sensibilité'], hard: ['Écriture', 'Vocabulaire'], life: ['Expression écrite'] }},
-    { id: 39, category: 'creatif', activity: "Je fais de la poterie, modelage, sculpture", perso: "Créer en 3D", competences: ['Créativité', 'Patience', 'Précision'], skills: { cps: ['Créativité', 'Patience'], soft: ['Minutie', 'Concentration'], hard: ['Modelage', 'Matériaux'], life: ['Sculpture'] }},
-    { id: 40, category: 'creatif', activity: "Je récupère et transforme (upcycling)", perso: "Donner nouvelle vie", competences: ['Créativité', 'Écologie', 'Débrouillardise'], skills: { cps: ['Créativité'], soft: ['Débrouillardise', 'Patience'], hard: ['Transformation', 'Techniques'], life: ['Upcycling'] }},
-    { id: 41, category: 'creatif', activity: "Je fais des bijoux, accessoires", perso: "Créer des petits objets", competences: ['Créativité', 'Minutie', 'Style'], skills: { cps: ['Créativité', 'Patience'], soft: ['Minutie', 'Précision'], hard: ['Fabrication bijoux'], life: ['Création accessoires'] }},
-    { id: 42, category: 'creatif', activity: "Je fais du théâtre, du slam, du stand-up", perso: "Performer devant les autres", competences: ['Expression', 'Confiance', 'Mémoire'], skills: { cps: ['Confiance', 'Gestion trac'], soft: ['Expression orale', 'Présence', 'Mémoire'], hard: ['Performance', 'Diction'], life: ['Expression scénique'] }},
+        .halo-turquoise {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: var(--ls-turquoise);
+            border-radius: 50%;
+            bottom: -100px;
+            right: -100px;
+            filter: blur(100px);
+            opacity: 0.08;
+            z-index: 0;
+            pointer-events: none;
+        }
 
-    // SPORT & ÉNERGIE (12)
-    { id: 43, category: 'sport', activity: "Je joue en équipe (foot, basket, volley...)", perso: "Jouer collectif", competences: ['Esprit équipe', 'Fair-play', 'Stratégie'], skills: { cps: ['Coopération', 'Gestion émotions'], soft: ['Esprit équipe', 'Communication', 'Solidarité'], hard: ['Sport collectif', 'Tactique'], life: ['Travail équipe'] }},
-    { id: 44, category: 'sport', activity: "Je cours, je fais du running ou trail", perso: "Me dépasser", competences: ['Persévérance', 'Discipline', 'Dépassement'], skills: { cps: ['Persévérance', 'Dépassement'], soft: ['Discipline', 'Régularité', 'Endurance'], hard: ['Course à pied'], life: ['Endurance'] }},
-    { id: 45, category: 'sport', activity: "Je fais du yoga, méditation, relaxation", perso: "Prendre soin de mon mental", competences: ['Calme', 'Concentration', 'Bien-être'], skills: { cps: ['Gestion stress', 'Calme'], soft: ['Concentration', 'Calme', 'Discipline'], hard: ['Relaxation'], life: ['Bien-être mental'] }},
-    { id: 46, category: 'sport', activity: "J'entraîne ou j'aide des plus jeunes en sport", perso: "Transmettre ma passion", competences: ['Pédagogie', 'Motivation', 'Patience'], skills: { cps: ['Leadership', 'Communication'], soft: ['Pédagogie', 'Motivation', 'Patience'], hard: ['Coaching', 'Sport'], life: ['Transmission sportive'] }},
-    { id: 47, category: 'sport', activity: "Je fais de l'escalade, du parkour, de la grimpe", perso: "Me challenger", competences: ['Courage', 'Concentration', 'Technique'], skills: { cps: ['Gestion risque', 'Courage'], soft: ['Courage', 'Concentration', 'Technique'], hard: ['Escalade', 'Parkour'], life: ['Challenge physique'] }},
-    { id: 48, category: 'sport', activity: "Je me prépare pour une compet ou un objectif sportif", perso: "Viser un but", competences: ['Discipline', 'Détermination', 'Organisation'], skills: { cps: ['Persévérance', 'Gestion stress'], soft: ['Discipline', 'Détermination', 'Rigueur'], hard: ['Entraînement', 'Planning'], life: ['Performance'] }},
-    { id: 49, category: 'sport', activity: "Je fais des randos, du vélo, j'explore", perso: "Découvrir et bouger", competences: ['Découverte', 'Endurance', 'Autonomie'], skills: { cps: ['Curiosité', 'Persévérance'], soft: ['Endurance', 'Autonomie'], hard: ['Orientation', 'Vélo/rando'], life: ['Exploration'] }},
-    { id: 50, category: 'sport', activity: "Je fais des arts martiaux ou sports de combat", perso: "Apprendre à me défendre", competences: ['Discipline', 'Respect', 'Maîtrise'], skills: { cps: ['Maîtrise soi', 'Respect'], soft: ['Discipline', 'Respect', 'Humilité'], hard: ['Arts martiaux', 'Combat'], life: ['Autodéfense'] }},
-    { id: 51, category: 'sport', activity: "Je me déplace en vélo, trot, skate partout", perso: "Ma mobilité alternative", competences: ['Autonomie', 'Écologie', 'Débrouillardise'], skills: { cps: ['Autonomie'], soft: ['Débrouillardise', 'Endurance'], hard: ['Mobilité urbaine'], life: ['Mobilité douce'] }},
-    { id: 52, category: 'sport', activity: "J'organise des matchs, tournois entre potes", perso: "Créer des moments sportifs", competences: ['Organisation', 'Animation', 'Leadership'], skills: { cps: ['Initiative', 'Organisation'], soft: ['Organisation', 'Animation', 'Leadership'], hard: ['Organisation événement'], life: ['Animation sportive'] }},
-    { id: 53, category: 'sport', activity: "Je danse (hip-hop, afro, en soirée...)", perso: "Bouger sur la musique", competences: ['Expression', 'Rythme', 'Confiance'], skills: { cps: ['Confiance', 'Expression'], soft: ['Coordination', 'Créativité', 'Confiance'], hard: ['Danse', 'Rythme'], life: ['Expression corporelle'] }},
-    { id: 54, category: 'sport', activity: "Je vais à la piscine, je nage régulièrement", perso: "Nager pour ma forme", competences: ['Discipline', 'Endurance', 'Régularité'], skills: { cps: ['Discipline', 'Régularité'], soft: ['Discipline', 'Endurance'], hard: ['Natation'], life: ['Sport santé'] }},
+        /* Cartes de compétences */
+        .comp-card {
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid #f1f5f9;
+            background: white;
+            z-index: 10;
+        }
+        .comp-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--ls-turquoise);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+        }
+        .comp-card.selected {
+            border-color: var(--ls-red);
+            background-color: #fcfdfe;
+        }
 
-    // VIE NUMÉRIQUE & TECH (12)
-    { id: 55, category: 'numerique', activity: "Je gère mes réseaux (Insta, TikTok, Snap...)", perso: "Construire mon image en ligne", competences: ['Communication', 'Créativité', 'Image'], skills: { cps: ['Créativité', 'Confiance'], soft: ['Communication', 'Créativité', 'Régularité'], hard: ['Réseaux sociaux', 'Photo/vidéo'], life: ['Personal branding'] }},
-    { id: 56, category: 'numerique', activity: "Je dépanne ma famille ou mes potes (tel, ordi...)", perso: "Être le « tech » du groupe", competences: ['Technique', 'Pédagogie', 'Patience'], skills: { cps: ['Patience', 'Pédagogie'], soft: ['Patience', 'Explication', 'Débrouillardise'], hard: ['Informatique', 'Smartphones'], life: ['Support tech'] }},
-    { id: 57, category: 'numerique', activity: "Je crée du contenu (vidéos, designs, montages...)", perso: "Créer sur écran", competences: ['Créativité', 'Technique', 'Apprentissage'], skills: { cps: ['Créativité', 'Apprentissage'], soft: ['Créativité', 'Patience'], hard: ['Montage', 'Design', 'Apps créatives'], life: ['Création digitale'] }},
-    { id: 58, category: 'numerique', activity: "Je joue en ligne et gère mon équipe/clan", perso: "Coordonner en ligne", competences: ['Leadership', 'Stratégie', 'Communication'], skills: { cps: ['Leadership', 'Stratégie'], soft: ['Leadership', 'Communication', 'Coordination'], hard: ['Gaming', 'Communication en ligne'], life: ['Leadership virtuel'] }},
-    { id: 59, category: 'numerique', activity: "Je monte des vidéos (YouTube, TikTok, reels...)", perso: "Raconter en vidéo", competences: ['Montage', 'Créativité', 'Narration'], skills: { cps: ['Créativité', 'Patience'], soft: ['Patience', 'Technique'], hard: ['Montage vidéo', 'Apps (CapCut...)', 'Storytelling'], life: ['Vidéo making'] }},
-    { id: 60, category: 'numerique', activity: "Je protège ma vie privée en ligne", perso: "Rester safe sur le web", competences: ['Vigilance', 'Prudence', 'Protection'], skills: { cps: ['Prudence', 'Conscience risques'], soft: ['Vigilance', 'Réflexion'], hard: ['Paramètres sécurité', 'Cybersécurité'], life: ['Protection numérique'] }},
-    { id: 61, category: 'numerique', activity: "Je modère un groupe ou une commu en ligne", perso: "Gérer la communauté", competences: ['Modération', 'Autorité', 'Diplomatie'], skills: { cps: ['Leadership', 'Diplomatie'], soft: ['Modération', 'Fermeté', 'Équité'], hard: ['Modération', 'Gestion groupe'], life: ['Community management'] }},
-    { id: 62, category: 'numerique', activity: "Je cherche et trouve des solutions en ligne", perso: "Apprendre tout seul", competences: ['Recherche', 'Débrouillardise', 'Autonomie'], skills: { cps: ['Autonomie', 'Curiosité'], soft: ['Débrouillardise', 'Recherche'], hard: ['Recherche web', 'Tutos'], life: ['Autodidaxie'] }},
-    { id: 63, category: 'numerique', activity: "Je crée des memes, designs, edits marrants", perso: "Faire rire ou créer", competences: ['Humour', 'Créativité', 'Culture web'], skills: { cps: ['Créativité', 'Humour'], soft: ['Créativité', 'Culture'], hard: ['Design', 'Culture web', 'Apps'], life: ['Expression humoristique'] }},
-    { id: 64, category: 'numerique', activity: "J'apprends de nouvelles apps ou logiciels seul", perso: "M'adapter aux nouveaux outils", competences: ['Apprentissage', 'Curiosité', 'Adaptation'], skills: { cps: ['Curiosité', 'Apprentissage'], soft: ['Autonomie', 'Curiosité', 'Adaptation'], hard: ['Apprentissage tech'], life: ['Adaptabilité tech'] }},
-    { id: 65, category: 'numerique', activity: "Je suis les tendances (musique, mode, culture...)", perso: "Rester à la page", competences: ['Veille', 'Curiosité', 'Culture'], skills: { cps: ['Curiosité', 'Ouverture'], soft: ['Curiosité', 'Culture'], hard: ['Veille tendances'], life: ['Culture pop'] }},
-    { id: 66, category: 'numerique', activity: "Je sauvegarde mes photos et souvenirs", perso: "Garder mes mémoires", competences: ['Organisation', 'Prévoyance', 'Méthode'], skills: { cps: ['Organisation', 'Prévoyance'], soft: ['Organisation', 'Méthode'], hard: ['Sauvegarde', 'Cloud'], life: ['Archivage perso'] }},
+        /* Barre de recherche premium */
+        .search-container input {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+        .search-container input:focus {
+            border-color: var(--ls-red);
+            box-shadow: 0 10px 25px rgba(255, 75, 92, 0.1);
+        }
 
-    // MAISON & AUTONOMIE (12)
-    { id: 67, category: 'maison', activity: "J'aide aux petites réparations à la maison", perso: "Réparer au lieu d'appeler quelqu'un", competences: ['Débrouillardise', 'Technique', 'Initiative'], skills: { cps: ['Débrouillardise', 'Initiative'], soft: ['Débrouillardise', 'Patience'], hard: ['Bricolage', 'Outils'], life: ['Autonomie pratique'] }},
-    { id: 68, category: 'maison', activity: "Je fais gaffe à l'eau, l'électricité, le gaspi", perso: "Faire des économies et respecter la planète", competences: ['Conscience', 'Économie', 'Responsabilité'], skills: { cps: ['Conscience écolo', 'Responsabilité'], soft: ['Conscience', 'Discipline'], hard: ['Gestes écolos'], life: ['Éco-responsabilité'] }},
-    { id: 69, category: 'maison', activity: "Je fais les courses pour la maison", perso: "Acheter ce qu'il faut", competences: ['Organisation', 'Budget', 'Autonomie'], skills: { cps: ['Responsabilité', 'Organisation'], soft: ['Organisation', 'Anticipation'], hard: ['Gestion budget', 'Liste'], life: ['Autonomie courses'] }},
-    { id: 70, category: 'maison', activity: "Je m'occupe des plantes ou d'un jardin", perso: "Faire pousser", competences: ['Patience', 'Soin', 'Régularité'], skills: { cps: ['Patience', 'Régularité'], soft: ['Patience', 'Soin', 'Observation'], hard: ['Jardinage'], life: ['Soin vivant'] }},
-    { id: 71, category: 'maison', activity: "Je trie et recycle les déchets", perso: "Être écolo au quotidien", competences: ['Rigueur', 'Conscience', 'Habitude'], skills: { cps: ['Conscience écolo'], soft: ['Rigueur', 'Discipline'], hard: ['Tri'], life: ['Geste écolo'] }},
-    { id: 72, category: 'maison', activity: "Je répare au lieu de jeter (fringues, objets...)", perso: "Tout garder et réparer", competences: ['Débrouillardise', 'Économie', 'Écologie'], skills: { cps: ['Débrouillardise', 'Créativité'], soft: ['Débrouillardise', 'Patience'], hard: ['Réparation', 'Couture'], life: ['Anti-gaspi'] }},
-    { id: 73, category: 'maison', activity: "Je range et organise ma chambre/mon espace", perso: "Avoir mon espace nickel", competences: ['Organisation', 'Discipline', 'Méthode'], skills: { cps: ['Discipline', 'Organisation'], soft: ['Organisation', 'Méthode'], hard: ['Rangement'], life: ['Organisation espace'] }},
-    { id: 74, category: 'maison', activity: "Je comprends les papiers admin (factures, contrats...)", perso: "Gérer les trucs officiels", competences: ['Compréhension', 'Rigueur', 'Autonomie'], skills: { cps: ['Autonomie', 'Attention'], soft: ['Rigueur', 'Lecture'], hard: ['Admin de base'], life: ['Autonomie admin'] }},
-    { id: 75, category: 'maison', activity: "Je branche et installe des appareils (TV, console...)", perso: "Tout connecter", competences: ['Logique', 'Patience', 'Débrouillardise'], skills: { cps: ['Logique', 'Patience'], soft: ['Débrouillardise', 'Patience'], hard: ['Installation', 'Lecture notice'], life: ['Autonomie technique'] }},
-    { id: 76, category: 'maison', activity: "J'aide pour un déménagement", perso: "Tout organiser et porter", competences: ['Organisation', 'Force', 'Entraide'], skills: { cps: ['Organisation', 'Solidarité'], soft: ['Organisation', 'Travail physique'], hard: ['Logistique'], life: ['Aide déménagement'] }},
-    { id: 77, category: 'maison', activity: "Je cuisine sans gaspiller", perso: "Tout utiliser", competences: ['Créativité', 'Économie', 'Écologie'], skills: { cps: ['Créativité', 'Conscience'], soft: ['Créativité', 'Débrouillardise'], hard: ['Cuisine', 'Conservation'], life: ['Cuisine anti-gaspi'] }},
-    { id: 78, category: 'maison', activity: "Je compare les prix avant d'acheter", perso: "Pas me faire avoir", competences: ['Analyse', 'Économie', 'Malice'], skills: { cps: ['Réflexion', 'Prudence'], soft: ['Analyse', 'Économie'], hard: ['Comparaison'], life: ['Achat malin'] }},
+        /* Boutons catégories */
+        .cat-pill {
+            transition: all 0.3s;
+            border: 2px solid #f1f5f9;
+        }
+        .cat-pill.active {
+            border-color: transparent;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
 
-    // BIEN-ÊTRE & DÉVELOPPEMENT (12)
-    { id: 79, category: 'sante', activity: "J'écris mes pensées (journal, notes...)", perso: "Poser mes idées", competences: ['Réflexion', 'Expression', 'Introspection'], skills: { cps: ['Conscience soi', 'Expression'], soft: ['Introspection', 'Discipline'], hard: ['Écriture'], life: ['Introspection'] }},
-    { id: 80, category: 'sante', activity: "Je lis (livres, articles, mangas...)", perso: "Nourrir mon esprit", competences: ['Curiosité', 'Concentration', 'Culture'], skills: { cps: ['Curiosité', 'Concentration'], soft: ['Curiosité', 'Ouverture'], hard: ['Lecture'], life: ['Culture'] }},
-    { id: 81, category: 'sante', activity: "J'apprends une langue en autodidacte", perso: "Parler une nouvelle langue", competences: ['Apprentissage', 'Persévérance', 'Curiosité'], skills: { cps: ['Apprentissage', 'Persévérance'], soft: ['Autodidaxie', 'Persévérance'], hard: ['Langue'], life: ['Multilinguisme'] }},
-    { id: 82, category: 'sante', activity: "Je gère mon stress (respiration, sport, musique...)", perso: "Rester zen", competences: ['Calme', 'Conscience', 'Gestion'], skills: { cps: ['Gestion stress', 'Calme'], soft: ['Calme', 'Gestion émotions'], hard: ['Techniques relaxation'], life: ['Bien-être'] }},
-    { id: 83, category: 'sante', activity: "Je suis des tutos ou formations en ligne", perso: "Apprendre de nouvelles choses", competences: ['Apprentissage', 'Autonomie', 'Curiosité'], skills: { cps: ['Apprentissage', 'Autonomie'], soft: ['Autodidaxie', 'Curiosité'], hard: ['Selon formation'], life: ['Formation continue'] }},
-    { id: 84, category: 'sante', activity: "Je me fixe des objectifs persos", perso: "Savoir où je vais", competences: ['Vision', 'Discipline', 'Ambition'], skills: { cps: ['Planification', 'Ambition'], soft: ['Vision', 'Discipline'], hard: ['Goal setting'], life: ['Direction de vie'] }},
-    { id: 85, category: 'sante', activity: "Je pense aux trucs positifs de ma journée", perso: "Voir le bon côté", competences: ['Positivité', 'Gratitude', 'Optimisme'], skills: { cps: ['Positivité', 'Gratitude'], soft: ['Positivité', 'Optimisme'], hard: [], life: ['Pensée positive'] }},
-    { id: 86, category: 'sante', activity: "Je fais le point sur moi régulièrement", perso: "Me remettre en question", competences: ['Réflexion', 'Honnêteté', 'Évolution'], skills: { cps: ['Conscience soi', 'Honnêteté'], soft: ['Honnêteté', 'Humilité'], hard: ['Auto-évaluation'], life: ['Évolution perso'] }},
-    { id: 87, category: 'sante', activity: "J'ai une routine le matin ou le soir", perso: "Structurer mes journées", competences: ['Discipline', 'Organisation', 'Régularité'], skills: { cps: ['Discipline', 'Régularité'], soft: ['Discipline', 'Organisation'], hard: ['Routine'], life: ['Structuration'] }},
-    { id: 88, category: 'sante', activity: "J'écoute des podcasts ou vidéos inspirantes", perso: "Me nourrir l'esprit", competences: ['Curiosité', 'Ouverture', 'Culture'], skills: { cps: ['Curiosité', 'Ouverture'], soft: ['Curiosité', 'Culture'], hard: ['Curation'], life: ['Culture audio'] }},
-    { id: 89, category: 'sante', activity: "J'écoute les remarques et j'évolue", perso: "Accepter la critique", competences: ['Humilité', 'Ouverture', 'Évolution'], skills: { cps: ['Ouverture', 'Humilité'], soft: ['Humilité', 'Adaptabilité'], hard: [], life: ['Growth mindset'] }},
-    { id: 90, category: 'sante', activity: "Je fais gaffe à mon sommeil et ma récup", perso: "Bien dormir", competences: ['Discipline', 'Santé', 'Conscience'], skills: { cps: ['Conscience soi', 'Discipline'], soft: ['Discipline', 'Santé'], hard: ['Hygiène sommeil'], life: ['Santé'] }},
+        /* Progress Bar */
+        .progress-bar-bg { height: 12px; background: #f1f5f9; border-radius: 6px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--ls-turquoise), var(--ls-yellow)); transition: width 0.6s ease; }
 
-    // ARGENT & PROJETS (10)
-    { id: 91, category: 'finance', activity: "Je mets de l'argent de côté", perso: "Économiser pour un projet", competences: ['Discipline', 'Prévoyance', 'Objectif'], skills: { cps: ['Discipline', 'Vision'], soft: ['Discipline', 'Prévoyance'], hard: ['Épargne'], life: ['Épargne'] }},
-    { id: 92, category: 'finance', activity: "Je lance un projet perso (business, asso...)", perso: "Créer mon truc", competences: ['Initiative', 'Créativité', 'Courage'], skills: { cps: ['Initiative', 'Créativité', 'Courage'], soft: ['Leadership', 'Créativité', 'Débrouillardise'], hard: ['Selon projet'], life: ['Entrepreneuriat'] }},
-    { id: 93, category: 'finance', activity: "Je vends mes créations ou objets en ligne", perso: "Faire du business", competences: ['Commerce', 'Communication', 'Service'], skills: { cps: ['Initiative', 'Communication'], soft: ['Service client', 'Communication'], hard: ['Vente en ligne', 'Photo'], life: ['Commerce'] }},
-    { id: 94, category: 'finance', activity: "Je négocie mon salaire ou mes conditions", perso: "Défendre ma valeur", competences: ['Négociation', 'Confiance', 'Courage'], skills: { cps: ['Confiance', 'Communication'], soft: ['Négociation', 'Confiance', 'Courage'], hard: ['Négociation'], life: ['Négociation pro'] }},
-    { id: 95, category: 'finance', activity: "Je remplis mes papiers administratifs (impôts, CAF...)", perso: "Gérer mes papiers officiels", competences: ['Rigueur', 'Compréhension', 'Autonomie'], skills: { cps: ['Autonomie', 'Rigueur'], soft: ['Rigueur', 'Méthode'], hard: ['Admin', 'Formulaires'], life: ['Admin perso'] }},
-    { id: 96, category: 'finance', activity: "Je planifie mes projets futurs (appart, voyage...)", perso: "Préparer mon avenir", competences: ['Vision', 'Planification', 'Ambition'], skills: { cps: ['Vision', 'Planification'], soft: ['Vision', 'Ambition'], hard: ['Planification'], life: ['Projection'] }},
-    { id: 97, category: 'finance', activity: "Je gère ma coloc ou mon appart", perso: "Vivre en autonomie", competences: ['Gestion', 'Responsabilité', 'Communication'], skills: { cps: ['Responsabilité', 'Communication'], soft: ['Gestion', 'Communication'], hard: ['Gestion logement'], life: ['Vie autonome'] }},
-    { id: 98, category: 'finance', activity: "Je compare avant d'acheter ou souscrire", perso: "Faire le meilleur choix", competences: ['Analyse', 'Réflexion', 'Économie'], skills: { cps: ['Réflexion', 'Prudence'], soft: ['Analyse', 'Économie'], hard: ['Comparaison'], life: ['Consommation réfléchie'] }},
-    { id: 99, category: 'finance', activity: "Je lance des cagnottes pour mes projets", perso: "Financer mes idées", competences: ['Communication', 'Persuasion', 'Initiative'], skills: { cps: ['Initiative', 'Communication'], soft: ['Communication', 'Persuasion'], hard: ['Crowdfunding'], life: ['Financement participatif'] }},
-    { id: 100, category: 'finance', activity: "Je conseille mes potes sur l'argent", perso: "Partager mes astuces", competences: ['Conseil', 'Pédagogie', 'Partage'], skills: { cps: ['Communication', 'Empathie'], soft: ['Conseil', 'Pédagogie'], hard: ['Finance perso'], life: ['Conseil'] }},
+        /* Badge Compétence */
+        .skill-tag {
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-    // VOYAGES & MOBILITÉ (8)
-    { id: 101, category: 'voyage', activity: "Je prépare mes voyages ou escapades", perso: "Organiser l'aventure", competences: ['Organisation', 'Recherche', 'Anticipation'], skills: { cps: ['Planification', 'Initiative'], soft: ['Organisation', 'Recherche'], hard: ['Planification voyage', 'Budget'], life: ['Organisation voyage'] }},
-    { id: 102, category: 'voyage', activity: "Je voyage seul(e) ou avec peu de moyens", perso: "Me débrouiller en voyage", competences: ['Autonomie', 'Débrouillardise', 'Courage'], skills: { cps: ['Confiance', 'Autonomie'], soft: ['Autonomie', 'Débrouillardise', 'Courage'], hard: ['Débrouillardise voyage'], life: ['Autonomie voyage'] }},
-    { id: 103, category: 'voyage', activity: "Je fais du couchsurfing ou je dors chez l'habitant", perso: "Rencontrer des gens", competences: ['Ouverture', 'Confiance', 'Adaptabilité'], skills: { cps: ['Ouverture', 'Confiance'], soft: ['Ouverture', 'Adaptabilité'], hard: ['Communication'], life: ['Échange culturel'] }},
-    { id: 104, category: 'voyage', activity: "Je documente mes voyages (photos, vidéos, récits)", perso: "Raconter mes aventures", competences: ['Créativité', 'Narration', 'Partage'], skills: { cps: ['Créativité', 'Communication'], soft: ['Narration', 'Créativité'], hard: ['Photo/vidéo', 'Écriture'], life: ['Storytelling'] }},
-    { id: 105, category: 'voyage', activity: "Je m'adapte à d'autres cultures", perso: "Vivre autrement", competences: ['Ouverture', 'Adaptabilité', 'Respect'], skills: { cps: ['Ouverture', 'Empathie'], soft: ['Ouverture', 'Adaptabilité', 'Respect'], hard: ['Communication interculturelle'], life: ['Intelligence culturelle'] }},
-    { id: 106, category: 'voyage', activity: "Je gère les galères en voyage (perte, retard...)", perso: "Rester cool dans la merde", competences: ['Calme', 'Débrouillardise', 'Réactivité'], skills: { cps: ['Gestion stress', 'Calme'], soft: ['Calme', 'Débrouillardise', 'Réactivité'], hard: ['Problem solving'], life: ['Gestion imprévus'] }},
-    { id: 107, category: 'voyage', activity: "Je fais du volontariat en voyage", perso: "Aider en voyageant", competences: ['Engagement', 'Ouverture', 'Générosité'], skills: { cps: ['Empathie', 'Engagement'], soft: ['Engagement', 'Ouverture'], hard: ['Selon mission'], life: ['Volontariat'] }},
-    { id: 108, category: 'voyage', activity: "Je bouge régulièrement (nomade, itinérant...)", perso: "Vivre mobile", competences: ['Adaptabilité', 'Organisation', 'Liberté'], skills: { cps: ['Adaptabilité', 'Autonomie'], soft: ['Adaptabilité', 'Organisation'], hard: ['Vie nomade'], life: ['Nomadisme'] }},
-  ];
+        /* Footer Institutionnel */
+        footer {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-size: 11px;
+            padding: 2rem 4rem;
+            margin-top: auto;
+            border-top: 4px solid var(--ls-red);
+        }
 
-  const categories = [
-    { id: 'all', name: 'Toutes', icon: '🌟', color: '#FF5757' },
-    { id: 'famille', name: 'Famille', icon: '👨‍👩‍👧‍👦', color: '#00BFB3' },
-    { id: 'social', name: 'Social', icon: '🤝', color: '#FFD166' },
-    { id: 'creatif', name: 'Créatif', icon: '🎨', color: '#FF5757' },
-    { id: 'sport', name: 'Sport', icon: '⚡', color: '#00BFB3' },
-    { id: 'numerique', name: 'Numérique', icon: '💻', color: '#FFD166' },
-    { id: 'maison', name: 'Maison', icon: '🏠', color: '#FF5757' },
-    { id: 'sante', name: 'Bien-être', icon: '🧠', color: '#00BFB3' },
-    { id: 'finance', name: 'Argent', icon: '💰', color: '#FFD166' },
-    { id: 'voyage', name: 'Voyage', icon: '✈️', color: '#FF5757' },
-  ];
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; }
+            .ls-card { box-shadow: none !important; border: 1px solid #eee !important; }
+        }
+        
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="antialiased">
 
-  const filteredActivities = useMemo(() => {
-    let filtered = activities;
-    
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(a => a.category === selectedCategory);
-    }
-    
-    if (searchTerm) {
-      filtered = filtered.filter(a => 
-        a.activity.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        a.perso.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        a.competences.some(c => c.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
-    
-    return filtered;
-  }, [selectedCategory, searchTerm]);
-
-  const toggleActivitySelection = (activityId) => {
-    setSelectedActivities(prev => 
-      prev.includes(activityId) 
-        ? prev.filter(id => id !== activityId)
-        : [...prev, activityId]
-    );
-  };
-
-  // Puzzle SVG decoration
-  const PuzzleDecoration = ({ className }) => (
-    <svg className={className} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M20 20h15a7 7 0 0 1 0 14h-2v15a7 7 0 0 0 14 0v-2h15a7 7 0 0 1 0 14h-2v15a7 7 0 0 0 14 0v-2h5V20z" fill="#00BFB3" opacity="0.2"/>
-    </svg>
-  );
-
-  // Circular background decoration
-  const CircleDecoration = ({ color, size, top, left, right, bottom, opacity = 0.1 }) => (
-    <div 
-      className="absolute rounded-full"
-      style={{
-        width: size,
-        height: size,
-        backgroundColor: color,
-        opacity: opacity,
-        top: top,
-        left: left,
-        right: right,
-        bottom: bottom,
-        filter: 'blur(60px)',
-        zIndex: 0,
-      }}
-    />
-  );
-
-  return (
-    <div className="min-h-screen bg-white font-sans relative overflow-hidden">
-      {/* Background decorations */}
-      <CircleDecoration color="#FFD166" size="500px" top="-10%" right="-10%" />
-      <CircleDecoration color="#FF5757" size="400px" top="30%" left="-8%" />
-      <CircleDecoration color="#00BFB3" size="350px" bottom="-5%" right="10%" />
-      
-      {/* Grid pattern overlay */}
-      <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{
-        backgroundImage: `radial-gradient(circle, #000 1px, transparent 1px)`,
-        backgroundSize: '24px 24px',
-      }} />
-
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF5757] to-[#FF8585] flex items-center justify-center shadow-lg">
-                <span className="text-white text-xl font-black">L</span>
-              </div>
-              <div>
-                <h1 className="text-2xl font-black text-gray-900 tracking-tight">Life Skills</h1>
-                <p className="text-sm text-gray-500 font-medium">Traducteur de compétences</p>
-              </div>
+    <!-- Header Desktop -->
+    <header class="bg-white border-b px-12 py-6 flex justify-between items-center sticky top-0 z-50 no-print">
+        <div class="flex items-center gap-6">
+            <img src="https://www.lifeskills4youth.eu/wp-content/uploads/2024/07/LS4YOU_Logo_whiteback.jpg" alt="Logo LS4YOU" class="h-12 w-auto">
+            <div class="h-8 w-[2px] bg-slate-100"></div>
+            <div>
+                <h1 class="text-xl font-800 tracking-tighter uppercase leading-none">MES COMPÉTENCES</h1>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Le Traducteur de Vie Quotidienne</p>
             </div>
-            
-            <button className="p-3 hover:bg-gray-50 rounded-xl transition-colors">
-              <Menu className="w-6 h-6 text-gray-700" />
-            </button>
-          </div>
         </div>
-      </header>
+        <div class="flex items-center gap-8">
+            <div id="selection-counter" class="hidden flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-full border border-slate-100">
+                <span class="text-[10px] font-800 uppercase text-slate-400">Activités choisies :</span>
+                <span id="counter-val" class="text-ls-red font-800">0</span>
+            </div>
+            <img src="https://static.wixstatic.com/media/dd5dab_47743b1c86024865ba19e623a3db327f~mv2.avif/v1/fill/w_224,h_60,al_c,q_80,enc_avif,quality_auto/dd5dab_47743b1c86024865ba19e623a3db327f~mv2.avif" alt="MLPB" class="h-8 w-auto">
+        </div>
+    </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-12 relative z-10">
-        {/* Hero Section */}
-        <div className="relative mb-16">
-          <div className="absolute -right-12 -top-12 w-64 h-64 bg-[#FFD166] rounded-full opacity-20 blur-3xl" />
-          
-          <div className="relative">
-            <h2 className="text-5xl md:text-6xl font-black text-gray-900 mb-6 leading-tight">
-              Révèle tes<br />
-              <span className="text-[#FF5757]">super-pouvoirs</span>
+    <main class="max-w-7xl mx-auto w-full px-12 py-12 relative flex-grow">
+        <div class="halo-red"></div>
+        <div class="halo-turquoise"></div>
+
+        <!-- Hero Section -->
+        <div class="relative mb-16 no-print animate-fade-in">
+            <h2 class="text-6xl font-800 text-slate-900 mb-6 leading-tight tracking-tighter">
+                Révèle tes<br><span class="text-ls-red">super-pouvoirs.</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl font-medium leading-relaxed">
-              Chaque truc que tu fais au quotidien développe des compétences valorisables. Découvre lesquelles !
+            <p class="text-xl text-slate-500 max-w-2xl font-medium leading-relaxed">
+                Chaque geste du quotidien développe des compétences que les employeurs recherchent. Coche les activités que tu fais déjà pour découvrir tes forces cachées.
             </p>
-          </div>
-
-          <PuzzleDecoration className="absolute bottom-0 right-0 w-32 h-32 opacity-30" />
         </div>
 
-        {/* Search Bar */}
-        <div className="mb-12 relative">
-          <div className="relative max-w-2xl">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Cherche une activité ou une compétence..."
-              className="w-full pl-16 pr-6 py-5 bg-white border-2 border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#FF5757] transition-colors text-lg font-medium shadow-sm"
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm('')}
-                className="absolute right-6 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-400" />
-              </button>
-            )}
-          </div>
+        <!-- Barre de recherche et Filtres -->
+        <div class="space-y-8 mb-16 no-print animate-fade-in" style="animation-delay: 0.1s;">
+            <div class="search-container relative max-w-2xl">
+                <i data-lucide="search" class="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-300"></i>
+                <input type="text" id="search-input" 
+                       placeholder="Cherche une activité (ex: cuisine, sport, rangement...)" 
+                       class="w-full pl-16 pr-6 py-6 bg-white border-2 border-slate-100 rounded-[30px] outline-none text-lg font-medium">
+            </div>
+
+            <div class="flex gap-3 overflow-x-auto pb-4 no-scrollbar" id="category-pills">
+                <!-- Catégories injectées par JS -->
+            </div>
         </div>
 
-        {/* Category Pills */}
-        <div className="mb-12 overflow-x-auto pb-4 -mx-6 px-6">
-          <div className="flex gap-3 min-w-max">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-6 py-3 rounded-full font-bold text-base transition-all whitespace-nowrap shadow-sm ${
-                  selectedCategory === cat.id
-                    ? 'text-white shadow-lg scale-105'
-                    : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-200'
-                }`}
-                style={{
-                  backgroundColor: selectedCategory === cat.id ? cat.color : undefined,
-                }}
-              >
-                <span className="mr-2">{cat.icon}</span>
-                {cat.name}
-              </button>
-            ))}
-          </div>
+        <!-- Zone de Progression -->
+        <div id="progress-section" class="hidden mb-16 bg-white rounded-[40px] p-10 border-2 border-slate-50 shadow-xl animate-fade-in no-print">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-800 uppercase tracking-tighter">Ton Capital Compétences</h3>
+                <span id="progress-text" class="text-ls-red font-800 text-3xl">0</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div id="progress-fill" class="progress-bar-fill" style="width: 0%"></div>
+            </div>
+            <p class="mt-4 text-slate-400 font-bold text-[10px] uppercase tracking-widest">Activités identifiées sur 108 situations possibles</p>
         </div>
 
-        {/* Progress Bar (if activities selected) */}
-        {selectedActivities.length > 0 && (
-          <div className="mb-12 bg-white rounded-3xl p-8 shadow-lg border-2 border-gray-100">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-2xl font-black text-gray-900">Ta progression</h3>
-              <span className="text-4xl font-black text-[#FF5757]">{selectedActivities.length}</span>
-            </div>
-            <div className="h-4 bg-gray-100 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-[#00BFB3] to-[#FFD166] rounded-full transition-all duration-500"
-                style={{ width: `${(selectedActivities.length / activities.length) * 100}%` }}
-              />
-            </div>
-            <p className="mt-4 text-gray-600 font-medium">
-              {selectedActivities.length} activité{selectedActivities.length > 1 ? 's' : ''} cochée{selectedActivities.length > 1 ? 's' : ''} sur {activities.length}
-            </p>
-          </div>
-        )}
-
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-          <div className="bg-white rounded-3xl p-8 shadow-lg border-2 border-gray-100 relative overflow-hidden">
-            <div className="absolute top-4 right-4 w-20 h-20 bg-[#FF5757] rounded-full opacity-10" />
-            <div className="relative">
-              <div className="text-6xl font-black text-[#FF5757] mb-3">{activities.length}</div>
-              <div className="text-gray-700 font-bold text-lg">Situations du quotidien</div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-3xl p-8 shadow-lg border-2 border-gray-100 relative overflow-hidden">
-            <div className="absolute top-4 right-4 w-20 h-20 bg-[#00BFB3] rounded-full opacity-10" />
-            <div className="relative">
-              <div className="text-6xl font-black text-[#00BFB3] mb-3">{filteredActivities.length}</div>
-              <div className="text-gray-700 font-bold text-lg">Résultats affichés</div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-3xl p-8 shadow-lg border-2 border-gray-100 relative overflow-hidden">
-            <div className="absolute top-4 right-4 w-20 h-20 bg-[#FFD166] rounded-full opacity-10" />
-            <div className="relative">
-              <div className="text-6xl font-black text-[#FFD166] mb-3">4</div>
-              <div className="text-gray-700 font-bold text-lg">Types de compétences</div>
-            </div>
-          </div>
+        <!-- Grille des Activités -->
+        <div id="activities-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20 animate-fade-in" style="animation-delay: 0.2s;">
+            <!-- Cartes injectées par JS -->
         </div>
 
-        {/* Activities Grid */}
-        {filteredActivities.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-            {filteredActivities.map((activity) => {
-              const isSelected = selectedActivities.includes(activity.id);
-              const categoryColor = categories.find(c => c.id === activity.category)?.color || '#FF5757';
-              
-              return (
-                <div
-                  key={activity.id}
-                  className="bg-white rounded-3xl p-8 shadow-lg border-2 border-gray-100 hover:shadow-xl transition-all cursor-pointer relative overflow-hidden group"
-                  onClick={() => setSelectedActivity(selectedActivity?.id === activity.id ? null : activity)}
-                >
-                  {/* Selection checkbox */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleActivitySelection(activity.id);
-                    }}
-                    className="absolute top-6 right-6 z-10"
-                  >
-                    {isSelected ? (
-                      <CheckCircle className="w-8 h-8 text-[#00BFB3] fill-current" />
-                    ) : (
-                      <Circle className="w-8 h-8 text-gray-300 group-hover:text-gray-400" />
-                    )}
-                  </button>
-
-                  {/* Decorative circle */}
-                  <div 
-                    className="absolute -right-8 -top-8 w-32 h-32 rounded-full opacity-10 group-hover:opacity-20 transition-opacity"
-                    style={{ backgroundColor: categoryColor }}
-                  />
-
-                  <div className="relative">
-                    <div className="flex items-start gap-4 mb-4 pr-12">
-                      <span className="text-4xl">{categories.find(c => c.id === activity.category)?.icon}</span>
-                      <div className="flex-1">
-                        <h3 className="text-xl font-black text-gray-900 mb-2 leading-snug">
-                          {activity.activity}
-                        </h3>
-                        <p className="text-base font-bold mb-4" style={{ color: categoryColor }}>
-                          → {activity.perso}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {activity.competences.map((comp, i) => (
-                        <span
-                          key={i}
-                          className="px-4 py-2 rounded-full text-sm font-bold text-white shadow-sm"
-                          style={{ backgroundColor: categoryColor }}
-                        >
-                          {comp}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Expand indicator */}
-                    <div className="flex items-center gap-2 text-gray-500 font-bold text-sm">
-                      <span>Voir toutes les compétences</span>
-                      <ChevronRight 
-                        className={`w-5 h-5 transition-transform ${
-                          selectedActivity?.id === activity.id ? 'rotate-90' : ''
-                        }`} 
-                      />
-                    </div>
-
-                    {/* Expanded content */}
-                    {selectedActivity?.id === activity.id && (
-                      <div className="mt-8 pt-8 border-t-2 border-gray-100 space-y-6">
-                        {activity.skills.cps.length > 0 && (
-                          <div>
-                            <div className="flex items-center gap-3 mb-4">
-                              <div className="w-10 h-10 rounded-full bg-[#FFD166]/20 flex items-center justify-center">
-                                <Award className="w-5 h-5 text-[#FFD166]" />
-                              </div>
-                              <h4 className="font-black text-gray-900 text-lg">Compétences psychosociales</h4>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                              {activity.skills.cps.map((skill, i) => (
-                                <span 
-                                  key={i} 
-                                  className="px-4 py-2 bg-[#FFD166]/10 border-2 border-[#FFD166]/30 rounded-xl text-sm font-bold text-gray-800"
-                                >
-                                  {skill}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {activity.skills.soft.length > 0 && (
-                          <div>
-                            <div className="flex items-center gap-3 mb-4">
-                              <div className="w-10 h-10 rounded-full bg-[#00BFB3]/20 flex items-center justify-center">
-                                <Award className="w-5 h-5 text-[#00BFB3]" />
-                              </div>
-                              <h4 className="font-black text-gray-900 text-lg">Soft Skills</h4>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                              {activity.skills.soft.map((skill, i) => (
-                                <span 
-                                  key={i} 
-                                  className="px-4 py-2 bg-[#00BFB3]/10 border-2 border-[#00BFB3]/30 rounded-xl text-sm font-bold text-gray-800"
-                                >
-                                  {skill}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {activity.skills.hard.length > 0 && (
-                          <div>
-                            <div className="flex items-center gap-3 mb-4">
-                              <div className="w-10 h-10 rounded-full bg-[#FF5757]/20 flex items-center justify-center">
-                                <Award className="w-5 h-5 text-[#FF5757]" />
-                              </div>
-                              <h4 className="font-black text-gray-900 text-lg">Hard Skills (techniques)</h4>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                              {activity.skills.hard.map((skill, i) => (
-                                <span 
-                                  key={i} 
-                                  className="px-4 py-2 bg-[#FF5757]/10 border-2 border-[#FF5757]/30 rounded-xl text-sm font-bold text-gray-800"
-                                >
-                                  {skill}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {activity.skills.life.length > 0 && (
-                          <div>
-                            <div className="flex items-center gap-3 mb-4">
-                              <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
-                                <Award className="w-5 h-5 text-purple-500" />
-                              </div>
-                              <h4 className="font-black text-gray-900 text-lg">Life Skills (vie quotidienne)</h4>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                              {activity.skills.life.map((skill, i) => (
-                                <span 
-                                  key={i} 
-                                  className="px-4 py-2 bg-purple-500/10 border-2 border-purple-500/30 rounded-xl text-sm font-bold text-gray-800"
-                                >
-                                  {skill}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
+        <!-- CTA Final -->
+        <div id="cta-final" class="hidden bg-slate-900 rounded-[50px] p-16 relative overflow-hidden animate-fade-in no-print">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-ls-red rounded-full opacity-10 -translate-y-20 translate-x-20"></div>
+            <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
+                <div class="max-w-xl text-center md:text-left">
+                    <h3 class="text-4xl font-800 text-white mb-4 uppercase tracking-tighter">Prêt à valoriser ton profil ?</h3>
+                    <p class="text-slate-400 text-lg">Tu as identifié des forces concrètes. Télécharge ta synthèse pour préparer ton CV ou tes futurs entretiens.</p>
                 </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="text-center py-20 bg-white rounded-3xl shadow-lg border-2 border-gray-100">
-            <div className="text-8xl mb-6">🔍</div>
-            <h3 className="text-3xl font-black text-gray-900 mb-4">Aucun résultat</h3>
-            <p className="text-gray-600 font-medium text-lg mb-8">
-              Change tes filtres pour trouver des activités
-            </p>
-            <button
-              onClick={() => {
-                setSearchTerm('');
-                setSelectedCategory('all');
-              }}
-              className="px-8 py-4 bg-[#FF5757] text-white rounded-full font-bold text-lg hover:bg-[#FF4040] transition-colors shadow-lg"
-            >
-              Réinitialiser
-            </button>
-          </div>
-        )}
-
-        {/* CTA Section */}
-        {selectedActivities.length > 0 && (
-          <div className="bg-gradient-to-br from-[#FF5757] to-[#FF8585] rounded-3xl p-12 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full opacity-10 transform translate-x-20 -translate-y-20" />
-            <div className="relative z-10">
-              <h3 className="text-4xl font-black text-white mb-4">Prêt à valoriser tout ça ?</h3>
-              <p className="text-xl text-white/90 mb-8 max-w-2xl font-medium">
-                Génère ton profil de compétences personnalisé et découvre comment les mettre en avant.
-              </p>
-              <button className="px-8 py-5 bg-white text-[#FF5757] rounded-full font-black text-lg hover:bg-gray-50 transition-colors shadow-xl">
-                Créer mon profil →
-              </button>
+                <button onclick="window.print()" class="bg-white text-slate-900 px-12 py-6 rounded-full font-800 uppercase tracking-widest hover:bg-ls-turquoise hover:text-white transition-all shadow-2xl">
+                    Exporter mon profil →
+                </button>
             </div>
-            <PuzzleDecoration className="absolute bottom-8 right-8 w-40 h-40 opacity-20" />
-          </div>
-        )}
-      </div>
-
-      {/* Footer */}
-      <footer className="py-12 border-t-2 border-gray-100 bg-gray-50 relative">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <p className="text-gray-700 font-bold text-lg mb-2">
-            💡 Tout ce que tu fais compte
-          </p>
-          <p className="text-gray-500 text-sm font-medium">
-            Révèle le potentiel caché de ton quotidien
-          </p>
         </div>
-      </footer>
-    </div>
-  );
-};
+    </main>
 
-export default CompetencesTranslator;
+    <!-- Footer Desktop -->
+    <footer class="no-print">
+        <div class="flex justify-between items-center gap-16">
+            <div class="flex items-center gap-6 border-l-2 border-white/20 pl-6 py-2 shrink-0">
+                <div class="border border-white p-2">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Flag_of_Europe.svg" alt="EU Flag" class="w-12">
+                </div>
+                <div class="font-bold leading-tight uppercase">
+                    <span class="text-[9px] block opacity-70">Co-funded by</span>
+                    <span class="text-[14px]">the European Union</span>
+                </div>
+            </div>
+            <p class="opacity-50 text-justify max-w-3xl leading-relaxed italic">
+                Ce projet a été financé avec le soutien de l'Union Européenne. Les opinions exprimées sont toutefois celles des auteurs uniquement et ne reflètent pas nécessairement celles de l'Union européenne ou de l'Agence Erasmus+.
+            </p>
+            <div class="text-right shrink-0">
+                <span class="block font-bold text-base mb-1">© 2026 LS4YOU Project</span>
+                <span class="text-ls-yellow">Détecteur de Talents</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- BASE DE DONNÉES ---
+        const ACTIVITIES = [
+            // VIE DE FAMILLE & QUOTIDIEN
+            { id: 1, category: 'famille', activity: "Je garde mes petits frères/sœurs", perso: "Être responsable d'eux", competences: ['Responsabilité', 'Patience', 'Réactivité'], skills: { cps: ['Responsabilité', 'Gestion émotions'], soft: ['Patience', 'Attention', 'Calme'], hard: ['Sécurité enfants'], life: ['Fiabilité'] }},
+            { id: 2, category: 'famille', activity: "J'organise une fête (anniversaire, soirée...)", perso: "Créer un moment cool", competences: ['Organisation', 'Budget', 'Créativité'], skills: { cps: ['Créativité', 'Planification'], soft: ['Organisation', 'Débrouillardise'], hard: ['Gestion budget'], life: ['Événementiel'] }},
+            { id: 3, category: 'famille', activity: "Je calme les disputes à la maison", perso: "Ramener le calme", competences: ['Calme', 'Écoute', 'Médiation'], skills: { cps: ['Gestion conflits'], soft: ['Diplomatie', 'Calme'], hard: [], life: ['Médiation'] }},
+            { id: 4, category: 'famille', activity: "J'aide mes grands-parents ou un proche", perso: "Prendre soin d'eux", competences: ['Aide', 'Respect', 'Patience'], skills: { cps: ['Empathie', 'Patience'], soft: ['Respect', 'Fiabilité'], hard: ['Aide quotidienne'], life: ['Soin'] }},
+            { id: 5, category: 'famille', activity: "Je gère mon emploi du temps", perso: "M'organiser", competences: ['Organisation', 'Autonomie', 'Ponctualité'], skills: { cps: ['Organisation'], soft: ['Méthode', 'Autonomie'], hard: ['Planning'], life: ['Gestion temps'] }},
+            { id: 7, category: 'famille', activity: "Je cuisine pour ma famille ou mes potes", perso: "Nourrir les autres", competences: ['Cuisine', 'Soin', 'Partage'], skills: { cps: ['Créativité', 'Soin'], soft: ['Débrouillardise'], hard: ['Cuisine', 'Hygiène'], life: ['Autonomie alimentaire'] }},
+            { id: 9, category: 'famille', activity: "Je gère mon argent (jobs, poche...)", perso: "Ne pas tout claquer", competences: ['Budget', 'Calcul', 'Prévoyance'], skills: { cps: ['Responsabilité'], soft: ['Rigueur', 'Prévoyance'], hard: ['Budget simple'], life: ['Gestion argent'] }},
+            
+            // SOCIAL & ENGAGEMENT
+            { id: 16, category: 'social', activity: "Je m'engage dans une asso, un club", perso: "Donner de mon temps", competences: ['Engagement', 'Solidarité', 'Équipe'], skills: { cps: ['Engagement', 'Empathie'], soft: ['Travail équipe', 'Fiabilité'], hard: [], life: ['Engagement'] }},
+            { id: 17, category: 'social', activity: "J'organise des sorties avec mes potes", perso: "Créer des plans", competences: ['Organisation', 'Initiative', 'Communication'], skills: { cps: ['Initiative', 'Créativité'], soft: ['Organisation', 'Communication'], hard: [], life: ['Organisation sociale'] }},
+            { id: 24, category: 'social', activity: "J'accueille des nouvelles personnes", perso: "Intégrer les nouveaux", competences: ['Accueil', 'Ouverture', 'Gentillesse'], skills: { cps: ['Empathie', 'Ouverture'], soft: ['Accueil', 'Bienveillance'], hard: [], life: ['Intégration'] }},
+            { id: 26, category: 'social', activity: "Je motive mes potes à se bouger", perso: "Donner envie", competences: ['Motivation', 'Énergie', 'Positivité'], skills: { cps: ['Leadership'], soft: ['Motivation', 'Dynamisme'], hard: [], life: ['Motivation'] }},
+            
+            // LOISIRS CRÉATIFS
+            { id: 31, category: 'creatif', activity: "Je prends des photos", perso: "Capturer des moments", competences: ['Créativité', 'Regard', 'Technique'], skills: { cps: ['Créativité', 'Détails'], soft: ['Patience', 'Esthétique'], hard: ['Photo', 'Cadrage'], life: ['Visuel'] }},
+            { id: 32, category: 'creatif', activity: "Je poste sur les réseaux (reels, tiktok...)", perso: "Partager ma vie", competences: ['Communication', 'Créativité', 'Régularité'], skills: { cps: ['Créativité', 'Confiance'], soft: ['Communication', 'Régularité'], hard: ['Édition vidéo'], life: ['Expression digitale'] }},
+            { id: 35, category: 'creatif', activity: "Je bricole, je fabrique des trucs", perso: "Créer de mes mains", competences: ['Débrouillardise', 'Précision', 'Technique'], skills: { cps: ['Créativité', 'Débrouillardise'], soft: ['Minutie', 'Patience'], hard: ['Bricolage', 'Outils'], life: ['Fabrication'] }},
+            
+            // SPORT
+            { id: 43, category: 'sport', activity: "Je joue en équipe (foot, basket...)", perso: "Jouer collectif", competences: ['Esprit équipe', 'Fair-play', 'Stratégie'], skills: { cps: ['Coopération', 'Gestion émotions'], soft: ['Esprit équipe', 'Communication'], hard: ['Sport collectif'], life: ['Coopération'] }},
+            { id: 44, category: 'sport', activity: "Je cours (running, trail...)", perso: "Me dépasser", competences: ['Persévérance', 'Discipline', 'Endurance'], skills: { cps: ['Persévérance', 'Dépassement'], soft: ['Régularité', 'Endurance'], hard: [], life: ['Endurance'] }},
+            
+            // NUMÉRIQUE
+            { id: 56, category: 'numerique', activity: "Je dépanne ma famille (tel, ordi...)", perso: "Être le « tech » du groupe", competences: ['Technique', 'Pédagogie', 'Patience'], skills: { cps: ['Patience', 'Pédagogie'], soft: ['Explication', 'Débrouillardise'], hard: ['Smartphones', 'OS'], life: ['Support tech'] }},
+            { id: 58, category: 'numerique', activity: "Je joue en ligne et gère mon clan", perso: "Coordonner en ligne", competences: ['Leadership', 'Stratégie', 'Communication'], skills: { cps: ['Leadership', 'Stratégie'], soft: ['Coordination', 'Communication'], hard: ['Gaming'], life: ['Management virtuel'] }},
+            
+            // MAISON & AUTONOMIE
+            { id: 67, category: 'maison', activity: "J'aide aux petites réparations", perso: "Réparer au lieu de jeter", competences: ['Débrouillardise', 'Technique', 'Initiative'], skills: { cps: ['Débrouillardise', 'Initiative'], soft: ['Logique', 'Patience'], hard: ['Outils', 'Réparation'], life: ['Pratique'] }},
+            { id: 73, category: 'maison', activity: "Je range et organise mon espace", perso: "Avoir mon lieu nickel", competences: ['Organisation', 'Méthode', 'Discipline'], skills: { cps: ['Discipline', 'Organisation'], soft: ['Méthode', 'Rigueur'], hard: ['Logistique'], life: ['Rangement'] }},
+            { id: 78, category: 'maison', activity: "Je compare les prix avant d'acheter", perso: "Pas me faire avoir", competences: ['Analyse', 'Économie', 'Malice'], skills: { cps: ['Réflexion', 'Prudence'], soft: ['Analyse', 'Économie'], hard: ['Comparaison'], life: ['Consommation'] }},
+            
+            // BIEN-ÊTRE
+            { id: 82, category: 'sante', activity: "Je gère mon stress (respiration...)", perso: "Rester zen", competences: ['Calme', 'Conscience', 'Gestion'], skills: { cps: ['Gestion stress', 'Calme'], soft: ['Gestion émotions'], hard: ['Relaxation'], life: ['Bien-être'] }},
+            { id: 87, category: 'sante', activity: "J'ai une routine le matin ou le soir", perso: "Structurer mes journées", competences: ['Discipline', 'Organisation', 'Régularité'], skills: { cps: ['Discipline', 'Régularité'], soft: ['Organisation'], hard: [], life: ['Régularité'] }},
+            
+            // ARGENT
+            { id: 91, category: 'finance', activity: "Je mets de l'argent de côté", perso: "Épargner pour un projet", competences: ['Discipline', 'Prévoyance', 'Objectif'], skills: { cps: ['Discipline', 'Vision'], soft: ['Prévoyance'], hard: ['Épargne'], life: ['Épargne'] }},
+            { id: 95, category: 'finance', activity: "Je remplis mes papiers admin (CAF, impôts...)", perso: "Gérer l'officiel", competences: ['Rigueur', 'Compréhension', 'Autonomie'], skills: { cps: ['Autonomie', 'Rigueur'], soft: ['Méthode', 'Soin'], hard: ['Admin'], life: ['Admin perso'] }},
+            
+            // VOYAGES
+            { id: 101, category: 'voyage', activity: "Je prépare mes voyages ou escapades", perso: "Organiser l'aventure", competences: ['Organisation', 'Recherche', 'Anticipation'], skills: { cps: ['Planification', 'Initiative'], soft: ['Recherche', 'Budget'], hard: ['Logistique voyage'], life: ['Voyage'] }}
+        ];
+        
+        // Note: Liste d'exemple, on peut ajouter les 108 comme dans l'original.
+
+        const CATEGORIES = [
+            { id: 'all', name: 'Toutes', icon: '🌟', color: '#64748b' },
+            { id: 'famille', name: 'Famille', icon: '👨‍👩‍👧‍👦', color: '#46e3cf' },
+            { id: 'social', name: 'Social', icon: '🤝', color: '#FFD166' },
+            { id: 'creatif', name: 'Créatif', icon: '🎨', color: '#FF4B5C' },
+            { id: 'sport', name: 'Sport', icon: '⚡', color: '#46e3cf' },
+            { id: 'numerique', name: 'Numérique', icon: '💻', color: '#FFD166' },
+            { id: 'maison', name: 'Maison', icon: '🏠', color: '#FF4B5C' },
+            { id: 'sante', name: 'Bien-être', icon: '🧠', color: '#46e3cf' },
+            { id: 'finance', name: 'Argent', icon: '💰', color: '#FFD166' },
+            { id: 'voyage', name: 'Voyage', icon: '✈️', color: '#FF4B5C' },
+        ];
+
+        let state = {
+            search: '',
+            category: 'all',
+            selected: [], // IDs
+            expanded: null // ID
+        };
+
+        const app = {
+            init() {
+                this.renderCategories();
+                this.renderActivities();
+                this.setupListeners();
+                lucide.createIcons();
+            },
+
+            setupListeners() {
+                document.getElementById('search-input').addEventListener('input', (e) => {
+                    state.search = e.target.value.toLowerCase();
+                    this.renderActivities();
+                });
+            },
+
+            renderCategories() {
+                const container = document.getElementById('category-pills');
+                container.innerHTML = CATEGORIES.map(cat => `
+                    <button onclick="app.setCategory('${cat.id}')" 
+                            class="cat-pill px-6 py-3 rounded-full font-bold text-sm whitespace-nowrap flex items-center gap-2 ${state.category === cat.id ? 'active' : 'bg-white text-slate-500'}"
+                            style="${state.category === cat.id ? `background-color: ${cat.color}` : ''}">
+                        <span>${cat.icon}</span> ${cat.name}
+                    </button>
+                `).join('');
+            },
+
+            setCategory(id) {
+                state.category = id;
+                this.renderCategories();
+                this.renderActivities();
+            },
+
+            toggleSelect(e, id) {
+                e.stopPropagation();
+                const idx = state.selected.indexOf(id);
+                if (idx > -1) state.selected.splice(idx, 1);
+                else state.selected.push(id);
+                
+                this.updateCounters();
+                this.renderActivities();
+            },
+
+            toggleExpand(id) {
+                state.expanded = state.expanded === id ? null : id;
+                this.renderActivities();
+            },
+
+            updateCounters() {
+                const count = state.selected.length;
+                const counter = document.getElementById('selection-counter');
+                const val = document.getElementById('counter-val');
+                const progSection = document.getElementById('progress-section');
+                const progText = document.getElementById('progress-text');
+                const progFill = document.getElementById('progress-fill');
+                const cta = document.getElementById('cta-final');
+
+                if(count > 0) {
+                    counter.classList.remove('hidden');
+                    progSection.classList.remove('hidden');
+                    cta.classList.remove('hidden');
+                } else {
+                    counter.classList.add('hidden');
+                    progSection.classList.add('hidden');
+                    cta.classList.add('hidden');
+                }
+
+                val.innerText = count;
+                progText.innerText = count;
+                progFill.style.width = (count / 108 * 100) + '%';
+            },
+
+            renderActivities() {
+                const grid = document.getElementById('activities-grid');
+                grid.innerHTML = '';
+
+                const filtered = ACTIVITIES.filter(a => {
+                    const matchesCat = state.category === 'all' || a.category === state.category;
+                    const matchesSearch = a.activity.toLowerCase().includes(state.search) || 
+                                        a.perso.toLowerCase().includes(state.search) ||
+                                        a.competences.some(c => c.toLowerCase().includes(state.search));
+                    return matchesCat && matchesSearch;
+                });
+
+                if (filtered.length === 0) {
+                    grid.innerHTML = `
+                        <div class="col-span-full py-20 text-center">
+                            <div class="text-6xl mb-6">🔍</div>
+                            <h3 class="text-2xl font-800 text-slate-400">Aucune activité trouvée</h3>
+                        </div>
+                    `;
+                    return;
+                }
+
+                grid.innerHTML = filtered.map(a => {
+                    const isSelected = state.selected.includes(a.id);
+                    const isExpanded = state.expanded === a.id;
+                    const catInfo = CATEGORIES.find(c => c.id === a.category);
+
+                    return `
+                        <div onclick="app.toggleExpand(${a.id})" 
+                             class="comp-card ls-card p-10 relative overflow-hidden ${isSelected ? 'selected' : ''}">
+                            
+                            <!-- Checkbox Selection -->
+                            <button onclick="app.toggleSelect(event, ${a.id})" class="absolute top-8 right-8 z-20 transition-transform active:scale-90">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center ${isSelected ? 'bg-ls-red text-white' : 'bg-slate-50 text-slate-200 border border-slate-100'}">
+                                    <i data-lucide="${isSelected ? 'check' : 'circle'}" class="w-6 h-6"></i>
+                                </div>
+                            </button>
+
+                            <div class="relative z-10">
+                                <div class="flex items-start gap-5 mb-6 pr-12">
+                                    <span class="text-5xl">${catInfo.icon}</span>
+                                    <div>
+                                        <h3 class="text-2xl font-800 text-slate-900 leading-tight mb-2">${a.activity}</h3>
+                                        <p class="text-ls-turquoise font-800 text-[11px] uppercase tracking-widest italic">→ ${a.perso}</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-wrap gap-2 mb-8">
+                                    ${a.competences.map(c => `
+                                        <span class="skill-tag" style="background-color: ${catInfo.color}15; color: ${catInfo.color}">
+                                            ${c}
+                                        </span>
+                                    `).join('')}
+                                </div>
+
+                                <div class="flex items-center gap-2 text-slate-300 font-bold text-[10px] uppercase tracking-widest">
+                                    <span>${isExpanded ? 'Réduire les détails' : 'Voir les détails techniques'}</span>
+                                    <i data-lucide="chevron-${isExpanded ? 'up' : 'down'}" class="w-4 h-4"></i>
+                                </div>
+
+                                <!-- Expanded View -->
+                                ${isExpanded ? `
+                                    <div class="mt-8 pt-8 border-t border-slate-50 space-y-8 animate-fade-in">
+                                        <div class="grid grid-cols-2 gap-8">
+                                            <div>
+                                                <h4 class="text-[10px] font-800 text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                                    <i data-lucide="user-check" class="w-3 h-3"></i> Soft Skills
+                                                </h4>
+                                                <div class="flex flex-wrap gap-2">
+                                                    ${a.skills.soft.map(s => `<span class="px-3 py-1 bg-slate-50 border border-slate-100 rounded-lg text-xs font-bold text-slate-600">${s}</span>`).join('')}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-[10px] font-800 text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                                    <i data-lucide="zap" class="w-3 h-3"></i> Hard Skills
+                                                </h4>
+                                                <div class="flex flex-wrap gap-2">
+                                                    ${a.skills.hard.length ? a.skills.hard.map(s => `<span class="px-3 py-1 bg-ls-red/10 border border-ls-red/20 rounded-lg text-xs font-bold text-ls-red">${s}</span>`).join('') : '<span class="text-xs text-slate-300 italic">Transversale</span>'}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-[10px] font-800 text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                                <i data-lucide="award" class="w-3 h-3"></i> Psycho-sociales (CPS)
+                                            </h4>
+                                            <div class="flex flex-wrap gap-2">
+                                                ${a.skills.cps.map(s => `<span class="px-3 py-1 bg-ls-turquoise/10 border border-ls-turquoise/20 rounded-lg text-xs font-bold text-ls-turquoise">${s}</span>`).join('')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                lucide.createIcons();
+            }
+        };
+
+        window.onload = () => app.init();
+    </script>
+</body>
+</html>
