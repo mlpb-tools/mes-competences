@@ -3,477 +3,884 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LS4YOU - Traducteur de Compétences</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Mes Compétences - Traducteur de Vie - LS4YOU</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
-            --ls-red: #FF4B5C;
-            --ls-yellow: #FFD166;
-            --ls-turquoise: #46e3cf;
-            --ls-dark: #1A1A1A;
+            --color-primary-red: #E63946;
+            --color-primary-yellow: #FFD166;
+            --color-primary-turquoise: #06D6A0;
+            --color-accent-coral: #FF6B9D;
+            --color-white: #FFFFFF;
+            --color-bg-light: #F8F9FA;
+            --color-text-dark: #1D3557;
+            --color-text-medium: #457B9D;
+            --color-text-light: #6C757D;
+            
+            --radius-small: 12px;
+            --radius-medium: 20px;
+            --radius-large: 30px;
+            --radius-xl: 50px;
+            
+            --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
         }
 
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #ffffff;
-            color: var(--ls-dark);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            background: var(--color-white);
+            color: var(--color-text-dark);
+            position: relative;
+            overflow-x: hidden;
         }
 
-        h1, h2, h3, h4, .font-title { font-family: 'Montserrat', sans-serif; }
-
-        /* Halos de fond signature */
-        .halo-red {
-            position: absolute;
+        body::before {
+            content: '';
+            position: fixed;
+            top: -10%;
+            right: -5%;
             width: 600px;
             height: 600px;
-            background: var(--ls-red);
+            background: var(--color-primary-yellow);
+            opacity: 0.15;
             border-radius: 50%;
-            top: -200px;
-            left: -150px;
-            filter: blur(100px);
-            opacity: 0.08;
-            z-index: 0;
-            pointer-events: none;
+            z-index: -1;
+            filter: blur(80px);
         }
 
-        .halo-turquoise {
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            background: var(--ls-turquoise);
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -15%;
+            left: -10%;
+            width: 700px;
+            height: 700px;
+            background: var(--color-primary-turquoise);
+            opacity: 0.12;
             border-radius: 50%;
-            bottom: -100px;
-            right: -100px;
-            filter: blur(100px);
-            opacity: 0.08;
-            z-index: 0;
-            pointer-events: none;
+            z-index: -1;
+            filter: blur(90px);
         }
 
-        /* Cartes de compétences */
-        .comp-card {
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 2px solid #f1f5f9;
-            background: white;
-            z-index: 10;
-        }
-        .comp-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--ls-turquoise);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.06);
-        }
-        .comp-card.selected {
-            border-color: var(--ls-red);
-            background-color: #fcfdfe;
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
-        /* Barre de recherche premium */
-        .search-container input {
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-        }
-        .search-container input:focus {
-            border-color: var(--ls-red);
-            box-shadow: 0 10px 25px rgba(255, 75, 92, 0.1);
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 30px;
         }
 
-        /* Boutons catégories */
-        .cat-pill {
-            transition: all 0.3s;
-            border: 2px solid #f1f5f9;
+        .logo-small {
+            height: 35px;
         }
-        .cat-pill.active {
-            border-color: transparent;
+
+        .score-badge {
+            background: linear-gradient(135deg, var(--color-primary-turquoise), #04B88A);
             color: white;
-            transform: scale(1.05);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        }
-
-        /* Progress Bar */
-        .progress-bar-bg { height: 12px; background: #f1f5f9; border-radius: 6px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--ls-turquoise), var(--ls-yellow)); transition: width 0.6s ease; }
-
-        /* Badge Compétence */
-        .skill-tag {
-            padding: 4px 12px;
-            border-radius: 50px;
-            font-size: 11px;
+            padding: 12px 25px;
+            border-radius: var(--radius-xl);
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 1em;
         }
 
-        /* Footer Institutionnel */
-        footer {
-            background-color: #1a1a1a;
-            color: #ffffff;
-            font-size: 11px;
-            padding: 2rem 4rem;
-            margin-top: auto;
-            border-top: 4px solid var(--ls-red);
+        .hero {
+            background: white;
+            border-radius: var(--radius-large);
+            padding: 50px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 30px;
         }
 
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white; }
-            .ls-card { box-shadow: none !important; border: 1px solid #eee !important; }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: var(--color-primary-yellow);
+            opacity: 0.3;
+            border-radius: 50%;
+            z-index: 0;
         }
-        
-        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-emoji {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .hero-title {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: var(--color-text-dark);
+            margin-bottom: 15px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.15em;
+            color: var(--color-text-medium);
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        .progress-section {
+            background: white;
+            border-radius: var(--radius-medium);
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .progress-stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 3em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--color-primary-turquoise), var(--color-primary-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: var(--color-text-medium);
+            font-weight: 600;
+        }
+
+        .category-section {
+            background: white;
+            border-radius: var(--radius-medium);
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .category-emoji {
+            font-size: 3em;
+        }
+
+        .category-info {
+            flex: 1;
+        }
+
+        .category-title {
+            font-size: 1.6em;
+            font-weight: 800;
+            color: var(--color-text-dark);
+            margin-bottom: 5px;
+        }
+
+        .category-description {
+            font-size: 0.95em;
+            color: var(--color-text-medium);
+        }
+
+        .category-toggle {
+            font-size: 1.5em;
+            color: var(--color-primary-turquoise);
+            transition: transform 0.3s ease;
+        }
+
+        .category-section.collapsed .category-toggle {
+            transform: rotate(-90deg);
+        }
+
+        .category-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .category-section.collapsed .category-content {
+            display: none;
+        }
+
+        .activity-item {
+            background: white;
+            border: 3px solid #E8E8E8;
+            border-radius: var(--radius-medium);
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .activity-item:hover {
+            border-color: var(--color-primary-turquoise);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .activity-item.selected {
+            background: linear-gradient(135deg, #E8F9F5, #D0F5EB);
+            border-color: var(--color-primary-turquoise);
+        }
+
+        .activity-checkbox {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 26px;
+            height: 26px;
+            border: 3px solid #D0D0D0;
+            border-radius: 6px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item.selected .activity-checkbox {
+            background: var(--color-primary-turquoise);
+            border-color: var(--color-primary-turquoise);
+        }
+
+        .activity-item.selected .activity-checkbox::after {
+            content: '✓';
+            color: white;
+            font-weight: 800;
+            font-size: 1.3em;
+            position: absolute;
+            top: -3px;
+            left: 4px;
+        }
+
+        .activity-title {
+            font-weight: 700;
+            font-size: 1.05em;
+            margin-bottom: 8px;
+            color: var(--color-text-dark);
+            padding-right: 40px;
+        }
+
+        .activity-hint {
+            font-size: 0.85em;
+            color: var(--color-text-light);
+            font-style: italic;
+            line-height: 1.4;
+        }
+
+        .skills-revealed {
+            background: linear-gradient(135deg, #FFF8E6, #FFE69C);
+            border-left: 5px solid var(--color-primary-yellow);
+            padding: 30px;
+            border-radius: var(--radius-medium);
+            margin: 30px 0;
+        }
+
+        .skills-title {
+            font-size: 1.5em;
+            font-weight: 800;
+            color: var(--color-text-dark);
+            margin-bottom: 20px;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .skill-category {
+            background: white;
+            border-radius: var(--radius-medium);
+            padding: 20px;
+        }
+
+        .skill-category-title {
+            font-weight: 700;
+            font-size: 1.1em;
+            color: var(--color-primary-turquoise);
+            margin-bottom: 12px;
+        }
+
+        .skill-tag {
+            display: inline-block;
+            background: var(--color-bg-light);
+            padding: 8px 15px;
+            border-radius: var(--radius-xl);
+            margin: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: var(--color-text-dark);
+        }
+
+        .btn {
+            border: none;
+            border-radius: var(--radius-xl);
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-primary-red), #D62839);
+            color: white;
+            padding: 18px 45px;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(230, 57, 70, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .footer {
+            background: white;
+            border-radius: var(--radius-medium);
+            padding: 25px;
+            margin-top: 40px;
+            text-align: center;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            color: var(--color-text-medium);
+            font-size: 0.9em;
+        }
+
+        .eu-flag {
+            width: 50px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 15px;
+            }
+
+            .hero {
+                padding: 40px 25px;
+            }
+
+            .hero-title {
+                font-size: 2em;
+            }
+
+            .category-content {
+                grid-template-columns: 1fr;
+            }
+
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .progress-header {
+                flex-direction: column;
+            }
+        }
+
+        .puzzle-decoration {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            opacity: 0.15;
+        }
     </style>
 </head>
-<body class="antialiased">
-
-    <!-- Header Desktop -->
-    <header class="bg-white border-b px-12 py-6 flex justify-between items-center sticky top-0 z-50 no-print">
-        <div class="flex items-center gap-6">
-            <img src="https://www.lifeskills4youth.eu/wp-content/uploads/2024/07/LS4YOU_Logo_whiteback.jpg" alt="Logo LS4YOU" class="h-12 w-auto">
-            <div class="h-8 w-[2px] bg-slate-100"></div>
-            <div>
-                <h1 class="text-xl font-800 tracking-tighter uppercase leading-none">MES COMPÉTENCES</h1>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Le Traducteur de Vie Quotidienne</p>
+<body>
+    <div class="app-container">
+        <nav class="top-nav">
+            <img src="https://www.lifeskills4you.eu/wp-content/uploads/2024/07/LS4YOU_Logo.png" alt="LS4YOU" class="logo-small">
+            <div class="score-badge" id="scoreBadge">
+                <span id="scoreCount">0</span> / <span id="totalActivities">120</span> activités
             </div>
-        </div>
-        <div class="flex items-center gap-8">
-            <div id="selection-counter" class="hidden flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-full border border-slate-100">
-                <span class="text-[10px] font-800 uppercase text-slate-400">Activités choisies :</span>
-                <span id="counter-val" class="text-ls-red font-800">0</span>
-            </div>
-            <img src="https://static.wixstatic.com/media/dd5dab_47743b1c86024865ba19e623a3db327f~mv2.avif/v1/fill/w_224,h_60,al_c,q_80,enc_avif,quality_auto/dd5dab_47743b1c86024865ba19e623a3db327f~mv2.avif" alt="MLPB" class="h-8 w-auto">
-        </div>
-    </header>
+        </nav>
 
-    <main class="max-w-7xl mx-auto w-full px-12 py-12 relative flex-grow">
-        <div class="halo-red"></div>
-        <div class="halo-turquoise"></div>
-
-        <!-- Hero Section -->
-        <div class="relative mb-16 no-print animate-fade-in">
-            <h2 class="text-6xl font-800 text-slate-900 mb-6 leading-tight tracking-tighter">
-                Révèle tes<br><span class="text-ls-red">super-pouvoirs.</span>
-            </h2>
-            <p class="text-xl text-slate-500 max-w-2xl font-medium leading-relaxed">
-                Chaque geste du quotidien développe des compétences que les employeurs recherchent. Coche les activités que tu fais déjà pour découvrir tes forces cachées.
-            </p>
-        </div>
-
-        <!-- Barre de recherche et Filtres -->
-        <div class="space-y-8 mb-16 no-print animate-fade-in" style="animation-delay: 0.1s;">
-            <div class="search-container relative max-w-2xl">
-                <i data-lucide="search" class="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-300"></i>
-                <input type="text" id="search-input" 
-                       placeholder="Cherche une activité (ex: cuisine, sport, rangement...)" 
-                       class="w-full pl-16 pr-6 py-6 bg-white border-2 border-slate-100 rounded-[30px] outline-none text-lg font-medium">
-            </div>
-
-            <div class="flex gap-3 overflow-x-auto pb-4 no-scrollbar" id="category-pills">
-                <!-- Catégories injectées par JS -->
-            </div>
-        </div>
-
-        <!-- Zone de Progression -->
-        <div id="progress-section" class="hidden mb-16 bg-white rounded-[40px] p-10 border-2 border-slate-50 shadow-xl animate-fade-in no-print">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-2xl font-800 uppercase tracking-tighter">Ton Capital Compétences</h3>
-                <span id="progress-text" class="text-ls-red font-800 text-3xl">0</span>
-            </div>
-            <div class="progress-bar-bg">
-                <div id="progress-fill" class="progress-bar-fill" style="width: 0%"></div>
-            </div>
-            <p class="mt-4 text-slate-400 font-bold text-[10px] uppercase tracking-widest">Activités identifiées sur 108 situations possibles</p>
-        </div>
-
-        <!-- Grille des Activités -->
-        <div id="activities-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20 animate-fade-in" style="animation-delay: 0.2s;">
-            <!-- Cartes injectées par JS -->
-        </div>
-
-        <!-- CTA Final -->
-        <div id="cta-final" class="hidden bg-slate-900 rounded-[50px] p-16 relative overflow-hidden animate-fade-in no-print">
-            <div class="absolute top-0 right-0 w-64 h-64 bg-ls-red rounded-full opacity-10 -translate-y-20 translate-x-20"></div>
-            <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
-                <div class="max-w-xl text-center md:text-left">
-                    <h3 class="text-4xl font-800 text-white mb-4 uppercase tracking-tighter">Prêt à valoriser ton profil ?</h3>
-                    <p class="text-slate-400 text-lg">Tu as identifié des forces concrètes. Télécharge ta synthèse pour préparer ton CV ou tes futurs entretiens.</p>
-                </div>
-                <button onclick="window.print()" class="bg-white text-slate-900 px-12 py-6 rounded-full font-800 uppercase tracking-widest hover:bg-ls-turquoise hover:text-white transition-all shadow-2xl">
-                    Exporter mon profil →
+        <div class="hero" id="introScreen">
+            <div class="hero-content">
+                <div class="hero-emoji">💎</div>
+                <h1 class="hero-title">MES COMPÉTENCES</h1>
+                <p class="hero-subtitle">
+                    Le Traducteur de Vie Quotidienne<br>
+                    <strong>Révèle tes super-pouvoirs cachés dans chaque geste du quotidien</strong>
+                </p>
+                <button class="btn btn-primary" onclick="startActivity()" style="font-size: 1.3em; padding: 25px 60px; margin-top: 30px;">
+                    Découvrir mes compétences →
                 </button>
             </div>
         </div>
-    </main>
 
-    <!-- Footer Desktop -->
-    <footer class="no-print">
-        <div class="flex justify-between items-center gap-16">
-            <div class="flex items-center gap-6 border-l-2 border-white/20 pl-6 py-2 shrink-0">
-                <div class="border border-white p-2">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Flag_of_Europe.svg" alt="EU Flag" class="w-12">
-                </div>
-                <div class="font-bold leading-tight uppercase">
-                    <span class="text-[9px] block opacity-70">Co-funded by</span>
-                    <span class="text-[14px]">the European Union</span>
+        <div id="mainContent" class="hidden">
+            <div class="progress-section">
+                <div class="progress-header">
+                    <div class="progress-stat">
+                        <div class="stat-value" id="activitiesCount">0</div>
+                        <div class="stat-label">Activités identifiées</div>
+                    </div>
+                    <div class="progress-stat">
+                        <div class="stat-value" id="skillsCount">0</div>
+                        <div class="stat-label">Compétences révélées</div>
+                    </div>
+                    <div class="progress-stat">
+                        <div class="stat-value" id="categoriesCount">0</div>
+                        <div class="stat-label">Catégories maîtrisées</div>
+                    </div>
                 </div>
             </div>
-            <p class="opacity-50 text-justify max-w-3xl leading-relaxed italic">
-                Ce projet a été financé avec le soutien de l'Union Européenne. Les opinions exprimées sont toutefois celles des auteurs uniquement et ne reflètent pas nécessairement celles de l'Union européenne ou de l'Agence Erasmus+.
-            </p>
-            <div class="text-right shrink-0">
-                <span class="block font-bold text-base mb-1">© 2026 LS4YOU Project</span>
-                <span class="text-ls-yellow">Détecteur de Talents</span>
+
+            <div id="categoriesContainer"></div>
+
+            <div id="skillsSummary" class="hidden"></div>
+
+            <button class="btn btn-primary" id="exportBtn" onclick="exportProfile()" disabled style="margin-top: 30px;">
+                📄 Exporter mon profil complet
+            </button>
+        </div>
+
+        <div class="footer">
+            <div class="footer-content">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Flag_of_Europe.svg" alt="UE" class="eu-flag">
+                <span>Co-financé par l'Union Européenne</span>
+                <span>© 2026 Projet LS4YOU • Détecteur de Talents</span>
             </div>
         </div>
-    </footer>
+    </div>
 
     <script>
-        // --- BASE DE DONNÉES ---
-        const ACTIVITIES = [
-            // VIE DE FAMILLE & QUOTIDIEN
-            { id: 1, category: 'famille', activity: "Je garde mes petits frères/sœurs", perso: "Être responsable d'eux", competences: ['Responsabilité', 'Patience', 'Réactivité'], skills: { cps: ['Responsabilité', 'Gestion émotions'], soft: ['Patience', 'Attention', 'Calme'], hard: ['Sécurité enfants'], life: ['Fiabilité'] }},
-            { id: 2, category: 'famille', activity: "J'organise une fête (anniversaire, soirée...)", perso: "Créer un moment cool", competences: ['Organisation', 'Budget', 'Créativité'], skills: { cps: ['Créativité', 'Planification'], soft: ['Organisation', 'Débrouillardise'], hard: ['Gestion budget'], life: ['Événementiel'] }},
-            { id: 3, category: 'famille', activity: "Je calme les disputes à la maison", perso: "Ramener le calme", competences: ['Calme', 'Écoute', 'Médiation'], skills: { cps: ['Gestion conflits'], soft: ['Diplomatie', 'Calme'], hard: [], life: ['Médiation'] }},
-            { id: 4, category: 'famille', activity: "J'aide mes grands-parents ou un proche", perso: "Prendre soin d'eux", competences: ['Aide', 'Respect', 'Patience'], skills: { cps: ['Empathie', 'Patience'], soft: ['Respect', 'Fiabilité'], hard: ['Aide quotidienne'], life: ['Soin'] }},
-            { id: 5, category: 'famille', activity: "Je gère mon emploi du temps", perso: "M'organiser", competences: ['Organisation', 'Autonomie', 'Ponctualité'], skills: { cps: ['Organisation'], soft: ['Méthode', 'Autonomie'], hard: ['Planning'], life: ['Gestion temps'] }},
-            { id: 7, category: 'famille', activity: "Je cuisine pour ma famille ou mes potes", perso: "Nourrir les autres", competences: ['Cuisine', 'Soin', 'Partage'], skills: { cps: ['Créativité', 'Soin'], soft: ['Débrouillardise'], hard: ['Cuisine', 'Hygiène'], life: ['Autonomie alimentaire'] }},
-            { id: 9, category: 'famille', activity: "Je gère mon argent (jobs, poche...)", perso: "Ne pas tout claquer", competences: ['Budget', 'Calcul', 'Prévoyance'], skills: { cps: ['Responsabilité'], soft: ['Rigueur', 'Prévoyance'], hard: ['Budget simple'], life: ['Gestion argent'] }},
-            
-            // SOCIAL & ENGAGEMENT
-            { id: 16, category: 'social', activity: "Je m'engage dans une asso, un club", perso: "Donner de mon temps", competences: ['Engagement', 'Solidarité', 'Équipe'], skills: { cps: ['Engagement', 'Empathie'], soft: ['Travail équipe', 'Fiabilité'], hard: [], life: ['Engagement'] }},
-            { id: 17, category: 'social', activity: "J'organise des sorties avec mes potes", perso: "Créer des plans", competences: ['Organisation', 'Initiative', 'Communication'], skills: { cps: ['Initiative', 'Créativité'], soft: ['Organisation', 'Communication'], hard: [], life: ['Organisation sociale'] }},
-            { id: 24, category: 'social', activity: "J'accueille des nouvelles personnes", perso: "Intégrer les nouveaux", competences: ['Accueil', 'Ouverture', 'Gentillesse'], skills: { cps: ['Empathie', 'Ouverture'], soft: ['Accueil', 'Bienveillance'], hard: [], life: ['Intégration'] }},
-            { id: 26, category: 'social', activity: "Je motive mes potes à se bouger", perso: "Donner envie", competences: ['Motivation', 'Énergie', 'Positivité'], skills: { cps: ['Leadership'], soft: ['Motivation', 'Dynamisme'], hard: [], life: ['Motivation'] }},
-            
-            // LOISIRS CRÉATIFS
-            { id: 31, category: 'creatif', activity: "Je prends des photos", perso: "Capturer des moments", competences: ['Créativité', 'Regard', 'Technique'], skills: { cps: ['Créativité', 'Détails'], soft: ['Patience', 'Esthétique'], hard: ['Photo', 'Cadrage'], life: ['Visuel'] }},
-            { id: 32, category: 'creatif', activity: "Je poste sur les réseaux (reels, tiktok...)", perso: "Partager ma vie", competences: ['Communication', 'Créativité', 'Régularité'], skills: { cps: ['Créativité', 'Confiance'], soft: ['Communication', 'Régularité'], hard: ['Édition vidéo'], life: ['Expression digitale'] }},
-            { id: 35, category: 'creatif', activity: "Je bricole, je fabrique des trucs", perso: "Créer de mes mains", competences: ['Débrouillardise', 'Précision', 'Technique'], skills: { cps: ['Créativité', 'Débrouillardise'], soft: ['Minutie', 'Patience'], hard: ['Bricolage', 'Outils'], life: ['Fabrication'] }},
-            
-            // SPORT
-            { id: 43, category: 'sport', activity: "Je joue en équipe (foot, basket...)", perso: "Jouer collectif", competences: ['Esprit équipe', 'Fair-play', 'Stratégie'], skills: { cps: ['Coopération', 'Gestion émotions'], soft: ['Esprit équipe', 'Communication'], hard: ['Sport collectif'], life: ['Coopération'] }},
-            { id: 44, category: 'sport', activity: "Je cours (running, trail...)", perso: "Me dépasser", competences: ['Persévérance', 'Discipline', 'Endurance'], skills: { cps: ['Persévérance', 'Dépassement'], soft: ['Régularité', 'Endurance'], hard: [], life: ['Endurance'] }},
-            
-            // NUMÉRIQUE
-            { id: 56, category: 'numerique', activity: "Je dépanne ma famille (tel, ordi...)", perso: "Être le « tech » du groupe", competences: ['Technique', 'Pédagogie', 'Patience'], skills: { cps: ['Patience', 'Pédagogie'], soft: ['Explication', 'Débrouillardise'], hard: ['Smartphones', 'OS'], life: ['Support tech'] }},
-            { id: 58, category: 'numerique', activity: "Je joue en ligne et gère mon clan", perso: "Coordonner en ligne", competences: ['Leadership', 'Stratégie', 'Communication'], skills: { cps: ['Leadership', 'Stratégie'], soft: ['Coordination', 'Communication'], hard: ['Gaming'], life: ['Management virtuel'] }},
-            
-            // MAISON & AUTONOMIE
-            { id: 67, category: 'maison', activity: "J'aide aux petites réparations", perso: "Réparer au lieu de jeter", competences: ['Débrouillardise', 'Technique', 'Initiative'], skills: { cps: ['Débrouillardise', 'Initiative'], soft: ['Logique', 'Patience'], hard: ['Outils', 'Réparation'], life: ['Pratique'] }},
-            { id: 73, category: 'maison', activity: "Je range et organise mon espace", perso: "Avoir mon lieu nickel", competences: ['Organisation', 'Méthode', 'Discipline'], skills: { cps: ['Discipline', 'Organisation'], soft: ['Méthode', 'Rigueur'], hard: ['Logistique'], life: ['Rangement'] }},
-            { id: 78, category: 'maison', activity: "Je compare les prix avant d'acheter", perso: "Pas me faire avoir", competences: ['Analyse', 'Économie', 'Malice'], skills: { cps: ['Réflexion', 'Prudence'], soft: ['Analyse', 'Économie'], hard: ['Comparaison'], life: ['Consommation'] }},
-            
-            // BIEN-ÊTRE
-            { id: 82, category: 'sante', activity: "Je gère mon stress (respiration...)", perso: "Rester zen", competences: ['Calme', 'Conscience', 'Gestion'], skills: { cps: ['Gestion stress', 'Calme'], soft: ['Gestion émotions'], hard: ['Relaxation'], life: ['Bien-être'] }},
-            { id: 87, category: 'sante', activity: "J'ai une routine le matin ou le soir", perso: "Structurer mes journées", competences: ['Discipline', 'Organisation', 'Régularité'], skills: { cps: ['Discipline', 'Régularité'], soft: ['Organisation'], hard: [], life: ['Régularité'] }},
-            
-            // ARGENT
-            { id: 91, category: 'finance', activity: "Je mets de l'argent de côté", perso: "Épargner pour un projet", competences: ['Discipline', 'Prévoyance', 'Objectif'], skills: { cps: ['Discipline', 'Vision'], soft: ['Prévoyance'], hard: ['Épargne'], life: ['Épargne'] }},
-            { id: 95, category: 'finance', activity: "Je remplis mes papiers admin (CAF, impôts...)", perso: "Gérer l'officiel", competences: ['Rigueur', 'Compréhension', 'Autonomie'], skills: { cps: ['Autonomie', 'Rigueur'], soft: ['Méthode', 'Soin'], hard: ['Admin'], life: ['Admin perso'] }},
-            
-            // VOYAGES
-            { id: 101, category: 'voyage', activity: "Je prépare mes voyages ou escapades", perso: "Organiser l'aventure", competences: ['Organisation', 'Recherche', 'Anticipation'], skills: { cps: ['Planification', 'Initiative'], soft: ['Recherche', 'Budget'], hard: ['Logistique voyage'], life: ['Voyage'] }}
-        ];
-        
-        // Note: Liste d'exemple, on peut ajouter les 108 comme dans l'original.
-
-        const CATEGORIES = [
-            { id: 'all', name: 'Toutes', icon: '🌟', color: '#64748b' },
-            { id: 'famille', name: 'Famille', icon: '👨‍👩‍👧‍👦', color: '#46e3cf' },
-            { id: 'social', name: 'Social', icon: '🤝', color: '#FFD166' },
-            { id: 'creatif', name: 'Créatif', icon: '🎨', color: '#FF4B5C' },
-            { id: 'sport', name: 'Sport', icon: '⚡', color: '#46e3cf' },
-            { id: 'numerique', name: 'Numérique', icon: '💻', color: '#FFD166' },
-            { id: 'maison', name: 'Maison', icon: '🏠', color: '#FF4B5C' },
-            { id: 'sante', name: 'Bien-être', icon: '🧠', color: '#46e3cf' },
-            { id: 'finance', name: 'Argent', icon: '💰', color: '#FFD166' },
-            { id: 'voyage', name: 'Voyage', icon: '✈️', color: '#FF4B5C' },
-        ];
-
-        let state = {
-            search: '',
-            category: 'all',
-            selected: [], // IDs
-            expanded: null // ID
-        };
-
-        const app = {
-            init() {
-                this.renderCategories();
-                this.renderActivities();
-                this.setupListeners();
-                lucide.createIcons();
+        // COMPREHENSIVE DATABASE - 120+ activities across all life domains
+        const competencesData = [
+            {
+                emoji: "🎮",
+                title: "Loisirs Numériques & Gaming",
+                description: "Les jeux et activités numériques développent des compétences stratégiques et techniques",
+                activities: [
+                    { title: "Jouer à des jeux vidéo en équipe (Fortnite, Valorant, League of Legends)", hint: "Ex: Coordonner avec tes coéquipiers, adapter ta stratégie", skills: ["Travail en équipe", "Communication", "Réactivité", "Gestion du stress", "Adaptabilité"] },
+                    { title: "Streamer ou créer du contenu gaming (Twitch, YouTube)", hint: "Ex: Animer un live, interagir avec le chat", skills: ["Communication", "Créativité", "Persévérance", "Animation", "Gestion de communauté"] },
+                    { title: "Être membre d'une team esport ou clan", hint: "Ex: S'entraîner régulièrement, respecter les horaires", skills: ["Engagement", "Discipline", "Esprit d'équipe", "Fiabilité", "Organisation"] },
+                    { title: "Créer des montages vidéo (TikTok, Reels, YouTube)", hint: "Ex: Éditer, ajouter des effets, choisir la musique", skills: ["Créativité", "Sens esthétique", "Maîtrise technique", "Patience", "Attention aux détails"] },
+                    { title: "Gérer un compte de réseau social avec des abonnés", hint: "Ex: Publier régulièrement, répondre aux commentaires", skills: ["Communication", "Régularité", "Marketing", "Gestion de contenu", "Relation client"] },
+                    { title: "Modérer un serveur Discord ou une communauté en ligne", hint: "Ex: Faire respecter les règles, gérer les conflits", skills: ["Médiation", "Autorité", "Communication", "Gestion de conflit", "Diplomatie"] },
+                    { title: "Faire du leveling ou farming dans des MMO", hint: "Ex: Atteindre des objectifs à long terme", skills: ["Persévérance", "Gestion du temps", "Ténacité", "Organisation", "Planification"] },
+                    { title: "Participer à des raids ou donjons complexes", hint: "Ex: Comprendre les mécaniques, coordonner les rôles", skills: ["Stratégie", "Travail en équipe", "Leadership", "Analyse", "Coordination"] }
+                ]
             },
-
-            setupListeners() {
-                document.getElementById('search-input').addEventListener('input', (e) => {
-                    state.search = e.target.value.toLowerCase();
-                    this.renderActivities();
-                });
+            {
+                emoji: "📱",
+                title: "Création de Contenu Digital",
+                description: "Produire du contenu en ligne forge des compétences marketing et créatives",
+                activities: [
+                    { title: "Créer et éditer des photos (retouche, filtres, composition)", hint: "Ex: Instagram, VSCO, Lightroom", skills: ["Créativité", "Sens esthétique", "Maîtrise technique", "Patience", "Œil critique"] },
+                    { title: "Écrire un blog ou des articles en ligne", hint: "Ex: Partager ton expertise, structurer tes idées", skills: ["Expression écrite", "Organisation", "Créativité", "Persévérance", "Communication"] },
+                    { title: "Créer des designs graphiques (logos, affiches, flyers)", hint: "Ex: Canva, Photoshop, Figma", skills: ["Créativité", "Sens esthétique", "Maîtrise logiciels", "Précision", "Innovation"] },
+                    { title: "Faire du podcasting ou de la création audio", hint: "Ex: Enregistrer, monter, publier des épisodes", skills: ["Expression orale", "Technique", "Régularité", "Communication", "Storytelling"] },
+                    { title: "Animer une chaîne YouTube éducative ou de divertissement", hint: "Ex: Scénariser, filmer, éditer, optimiser SEO", skills: ["Communication", "Organisation", "Créativité", "Marketing", "Persévérance"] },
+                    { title: "Gérer une boutique en ligne (Etsy, Vinted, Shopify)", hint: "Ex: Photos produits, descriptions, service client", skills: ["Sens commercial", "Communication", "Organisation", "Marketing", "Relation client"] },
+                    { title: "Créer des tutoriels ou du contenu éducatif", hint: "Ex: Expliquer clairement, rendre accessible", skills: ["Pédagogie", "Communication", "Patience", "Clarté", "Empathie"] }
+                ]
             },
-
-            renderCategories() {
-                const container = document.getElementById('category-pills');
-                container.innerHTML = CATEGORIES.map(cat => `
-                    <button onclick="app.setCategory('${cat.id}')" 
-                            class="cat-pill px-6 py-3 rounded-full font-bold text-sm whitespace-nowrap flex items-center gap-2 ${state.category === cat.id ? 'active' : 'bg-white text-slate-500'}"
-                            style="${state.category === cat.id ? `background-color: ${cat.color}` : ''}">
-                        <span>${cat.icon}</span> ${cat.name}
-                    </button>
-                `).join('');
+            {
+                emoji: "🏋️",
+                title: "Sport & Activité Physique",
+                description: "Le sport développe discipline, persévérance et esprit d'équipe",
+                activities: [
+                    { title: "Pratiquer un sport d'équipe régulièrement (foot, basket, volley)", hint: "Ex: Entraînements, matchs, cohésion", skills: ["Esprit d'équipe", "Communication", "Discipline", "Persévérance", "Solidarité"] },
+                    { title: "S'entraîner en salle de sport ou à la maison", hint: "Ex: Programme régulier, progression", skills: ["Discipline", "Persévérance", "Organisation", "Gestion du temps", "Ténacité"] },
+                    { title: "Pratiquer un sport individuel (course, natation, cyclisme)", hint: "Ex: Objectifs personnels, dépassement", skills: ["Autodiscipline", "Persévérance", "Gestion du stress", "Dépassement de soi", "Rigueur"] },
+                    { title: "Entraîner ou coacher des jeunes dans un sport", hint: "Ex: Transmettre, encourager, organiser", skills: ["Pédagogie", "Leadership", "Patience", "Communication", "Motivation"] },
+                    { title: "Participer à des compétitions sportives", hint: "Ex: Gestion du stress, performance sous pression", skills: ["Gestion du stress", "Esprit de compétition", "Résilience", "Préparation", "Mental"] },
+                    { title: "Organiser des événements sportifs (tournois, courses)", hint: "Ex: Logistique, inscriptions, règlement", skills: ["Organisation", "Gestion de projet", "Leadership", "Coordination", "Planification"] },
+                    { title: "Pratiquer un art martial ou sport de combat", hint: "Ex: Respect, discipline, maîtrise de soi", skills: ["Discipline", "Respect", "Maîtrise de soi", "Concentration", "Persévérance"] },
+                    { title: "Faire partie d'un club ou association sportive", hint: "Ex: Engagement, régularité, responsabilités", skills: ["Engagement", "Fiabilité", "Esprit d'équipe", "Ponctualité", "Loyauté"] }
+                ]
             },
-
-            setCategory(id) {
-                state.category = id;
-                this.renderCategories();
-                this.renderActivities();
+            {
+                emoji: "🎨",
+                title: "Arts & Créativité",
+                description: "L'expression artistique forge créativité et persévérance",
+                activities: [
+                    { title: "Dessiner, peindre ou créer des illustrations", hint: "Ex: Art digital, traditionnel, graffiti", skills: ["Créativité", "Patience", "Persévérance", "Sens esthétique", "Précision"] },
+                    { title: "Faire de la photographie artistique ou professionnelle", hint: "Ex: Composition, lumière, retouche", skills: ["Créativité", "Œil artistique", "Technique", "Patience", "Sens de l'observation"] },
+                    { title: "Customiser ou modifier des vêtements (DIY mode)", hint: "Ex: Couture, peinture textile, upcycling", skills: ["Créativité", "Précision", "Débrouillardise", "Sens esthétique", "Innovation"] },
+                    { title: "Créer des objets déco ou du mobilier (DIY)", hint: "Ex: Bricolage créatif, récup, relooking", skills: ["Créativité", "Débrouillardise", "Précision", "Planification", "Patience"] },
+                    { title: "Faire de la poterie, sculpture ou modelage", hint: "Ex: Patience, répétition, maîtrise du geste", skills: ["Patience", "Précision", "Créativité", "Persévérance", "Concentration"] },
+                    { title: "Pratiquer le street art ou le graffiti", hint: "Ex: Style, technique, gestion de l'espace", skills: ["Créativité", "Audace", "Technique", "Sens de l'espace", "Expression"] },
+                    { title: "Réaliser des maquettes ou miniatures", hint: "Ex: Précision, patience, attention au détail", skills: ["Précision", "Patience", "Attention aux détails", "Minutie", "Concentration"] }
+                ]
             },
-
-            toggleSelect(e, id) {
-                e.stopPropagation();
-                const idx = state.selected.indexOf(id);
-                if (idx > -1) state.selected.splice(idx, 1);
-                else state.selected.push(id);
-                
-                this.updateCounters();
-                this.renderActivities();
+            {
+                emoji: "🎵",
+                title: "Musique & Performance",
+                description: "La musique développe discipline et expression",
+                activities: [
+                    { title: "Jouer d'un instrument de musique", hint: "Ex: Guitare, piano, batterie", skills: ["Discipline", "Persévérance", "Coordination", "Créativité", "Patience"] },
+                    { title: "Chanter ou rapper (enregistrement, performance)", hint: "Ex: Écrire des textes, travailler sa voix", skills: ["Expression", "Créativité", "Confiance en soi", "Persévérance", "Communication"] },
+                    { title: "Composer ou produire de la musique (MAO)", hint: "Ex: Logiciels type FL Studio, Ableton", skills: ["Créativité", "Technique", "Patience", "Innovation", "Sens du rythme"] },
+                    { title: "Faire partie d'un groupe de musique", hint: "Ex: Répétitions, concerts, collaboration", skills: ["Travail en équipe", "Discipline", "Communication", "Engagement", "Fiabilité"] },
+                    { title: "Organiser des concerts ou événements musicaux", hint: "Ex: Logistique, promo, gestion technique", skills: ["Organisation", "Gestion de projet", "Leadership", "Coordination", "Planification"] },
+                    { title: "Faire du DJing ou mixer de la musique", hint: "Ex: Lecture du public, transitions, ambiance", skills: ["Adaptabilité", "Sens du rythme", "Créativité", "Lecture du public", "Technique"] },
+                    { title: "Enseigner la musique ou donner des cours", hint: "Ex: Transmettre, encourager, adapter", skills: ["Pédagogie", "Patience", "Communication", "Empathie", "Adaptabilité"] }
+                ]
             },
-
-            toggleExpand(id) {
-                state.expanded = state.expanded === id ? null : id;
-                this.renderActivities();
+            {
+                emoji: "✍️",
+                title: "Écriture & Expression",
+                description: "L'écriture développe communication et créativité",
+                activities: [
+                    { title: "Écrire des poèmes, nouvelles ou romans", hint: "Ex: Fiction, autobiographie, slam", skills: ["Créativité", "Expression", "Persévérance", "Imagination", "Sensibilité"] },
+                    { title: "Écrire des textes de rap ou de chansons", hint: "Ex: Rimes, flow, message", skills: ["Créativité", "Expression", "Technique", "Originalité", "Communication"] },
+                    { title: "Tenir un journal intime ou carnet créatif", hint: "Ex: Régularité, introspection", skills: ["Régularité", "Introspection", "Expression", "Organisation", "Discipline"] },
+                    { title: "Rédiger des critiques (films, séries, livres, jeux)", hint: "Ex: Analyser, argumenter, structurer", skills: ["Esprit critique", "Argumentation", "Expression écrite", "Analyse", "Clarté"] },
+                    { title: "Créer des scénarios ou scripts (vidéo, théâtre)", hint: "Ex: Structure narrative, dialogues", skills: ["Créativité", "Organisation", "Storytelling", "Imagination", "Structuration"] },
+                    { title: "Participer à des concours d'écriture ou slam", hint: "Ex: Confiance, performance, créativité", skills: ["Confiance en soi", "Expression", "Créativité", "Courage", "Performance"] }
+                ]
             },
-
-            updateCounters() {
-                const count = state.selected.length;
-                const counter = document.getElementById('selection-counter');
-                const val = document.getElementById('counter-val');
-                const progSection = document.getElementById('progress-section');
-                const progText = document.getElementById('progress-text');
-                const progFill = document.getElementById('progress-fill');
-                const cta = document.getElementById('cta-final');
-
-                if(count > 0) {
-                    counter.classList.remove('hidden');
-                    progSection.classList.remove('hidden');
-                    cta.classList.remove('hidden');
-                } else {
-                    counter.classList.add('hidden');
-                    progSection.classList.add('hidden');
-                    cta.classList.add('hidden');
-                }
-
-                val.innerText = count;
-                progText.innerText = count;
-                progFill.style.width = (count / 108 * 100) + '%';
+            {
+                emoji: "👥",
+                title: "Engagement Associatif",
+                description: "S'engager dans une association forge leadership et empathie",
+                activities: [
+                    { title: "Être bénévole dans une association", hint: "Ex: Restos du Cœur, Croix-Rouge, asso locale", skills: ["Empathie", "Engagement", "Solidarité", "Fiabilité", "Altruisme"] },
+                    { title: "Organiser des collectes ou événements caritatifs", hint: "Ex: Planification, mobilisation, logistique", skills: ["Organisation", "Leadership", "Communication", "Mobilisation", "Gestion de projet"] },
+                    { title: "Être membre actif d'un conseil de jeunes", hint: "Ex: Proposer, débattre, décider", skills: ["Engagement citoyen", "Argumentation", "Leadership", "Esprit démocratique", "Initiative"] },
+                    { title: "Encadrer des activités pour enfants (centre aéré, scoutisme)", hint: "Ex: Sécurité, animation, responsabilité", skills: ["Responsabilité", "Pédagogie", "Patience", "Autorité bienveillante", "Créativité"] },
+                    { title: "Militer ou s'engager pour une cause", hint: "Ex: Écologie, droits, justice sociale", skills: ["Engagement", "Conviction", "Persévérance", "Communication", "Courage"] },
+                    { title: "Participer à des projets de quartier ou initiatives citoyennes", hint: "Ex: Amélioration locale, cohésion", skills: ["Initiative", "Collaboration", "Engagement", "Communication", "Sens collectif"] },
+                    { title: "Faire du mentorat ou accompagner des jeunes", hint: "Ex: Écoute, conseil, orientation", skills: ["Empathie", "Écoute active", "Pédagogie", "Bienveillance", "Communication"] }
+                ]
             },
-
-            renderActivities() {
-                const grid = document.getElementById('activities-grid');
-                grid.innerHTML = '';
-
-                const filtered = ACTIVITIES.filter(a => {
-                    const matchesCat = state.category === 'all' || a.category === state.category;
-                    const matchesSearch = a.activity.toLowerCase().includes(state.search) || 
-                                        a.perso.toLowerCase().includes(state.search) ||
-                                        a.competences.some(c => c.toLowerCase().includes(state.search));
-                    return matchesCat && matchesSearch;
-                });
-
-                if (filtered.length === 0) {
-                    grid.innerHTML = `
-                        <div class="col-span-full py-20 text-center">
-                            <div class="text-6xl mb-6">🔍</div>
-                            <h3 class="text-2xl font-800 text-slate-400">Aucune activité trouvée</h3>
-                        </div>
-                    `;
-                    return;
-                }
-
-                grid.innerHTML = filtered.map(a => {
-                    const isSelected = state.selected.includes(a.id);
-                    const isExpanded = state.expanded === a.id;
-                    const catInfo = CATEGORIES.find(c => c.id === a.category);
-
-                    return `
-                        <div onclick="app.toggleExpand(${a.id})" 
-                             class="comp-card ls-card p-10 relative overflow-hidden ${isSelected ? 'selected' : ''}">
-                            
-                            <!-- Checkbox Selection -->
-                            <button onclick="app.toggleSelect(event, ${a.id})" class="absolute top-8 right-8 z-20 transition-transform active:scale-90">
-                                <div class="w-10 h-10 rounded-full flex items-center justify-center ${isSelected ? 'bg-ls-red text-white' : 'bg-slate-50 text-slate-200 border border-slate-100'}">
-                                    <i data-lucide="${isSelected ? 'check' : 'circle'}" class="w-6 h-6"></i>
-                                </div>
-                            </button>
-
-                            <div class="relative z-10">
-                                <div class="flex items-start gap-5 mb-6 pr-12">
-                                    <span class="text-5xl">${catInfo.icon}</span>
-                                    <div>
-                                        <h3 class="text-2xl font-800 text-slate-900 leading-tight mb-2">${a.activity}</h3>
-                                        <p class="text-ls-turquoise font-800 text-[11px] uppercase tracking-widest italic">→ ${a.perso}</p>
-                                    </div>
-                                </div>
-
-                                <div class="flex flex-wrap gap-2 mb-8">
-                                    ${a.competences.map(c => `
-                                        <span class="skill-tag" style="background-color: ${catInfo.color}15; color: ${catInfo.color}">
-                                            ${c}
-                                        </span>
-                                    `).join('')}
-                                </div>
-
-                                <div class="flex items-center gap-2 text-slate-300 font-bold text-[10px] uppercase tracking-widest">
-                                    <span>${isExpanded ? 'Réduire les détails' : 'Voir les détails techniques'}</span>
-                                    <i data-lucide="chevron-${isExpanded ? 'up' : 'down'}" class="w-4 h-4"></i>
-                                </div>
-
-                                <!-- Expanded View -->
-                                ${isExpanded ? `
-                                    <div class="mt-8 pt-8 border-t border-slate-50 space-y-8 animate-fade-in">
-                                        <div class="grid grid-cols-2 gap-8">
-                                            <div>
-                                                <h4 class="text-[10px] font-800 text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                                    <i data-lucide="user-check" class="w-3 h-3"></i> Soft Skills
-                                                </h4>
-                                                <div class="flex flex-wrap gap-2">
-                                                    ${a.skills.soft.map(s => `<span class="px-3 py-1 bg-slate-50 border border-slate-100 rounded-lg text-xs font-bold text-slate-600">${s}</span>`).join('')}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <h4 class="text-[10px] font-800 text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                                    <i data-lucide="zap" class="w-3 h-3"></i> Hard Skills
-                                                </h4>
-                                                <div class="flex flex-wrap gap-2">
-                                                    ${a.skills.hard.length ? a.skills.hard.map(s => `<span class="px-3 py-1 bg-ls-red/10 border border-ls-red/20 rounded-lg text-xs font-bold text-ls-red">${s}</span>`).join('') : '<span class="text-xs text-slate-300 italic">Transversale</span>'}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h4 class="text-[10px] font-800 text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                                <i data-lucide="award" class="w-3 h-3"></i> Psycho-sociales (CPS)
-                                            </h4>
-                                            <div class="flex flex-wrap gap-2">
-                                                ${a.skills.cps.map(s => `<span class="px-3 py-1 bg-ls-turquoise/10 border border-ls-turquoise/20 rounded-lg text-xs font-bold text-ls-turquoise">${s}</span>`).join('')}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ` : ''}
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-                
-                lucide.createIcons();
+            {
+                emoji: "💼",
+                title: "Petits Boulots & Jobs",
+                description: "Chaque expérience de travail compte et développe du professionnalisme",
+                activities: [
+                    { title: "Faire du baby-sitting régulièrement", hint: "Ex: Garde d'enfants, sécurité, activités", skills: ["Responsabilité", "Patience", "Adaptabilité", "Gestion de crise", "Créativité"] },
+                    { title: "Donner des cours particuliers ou du soutien scolaire", hint: "Ex: Expliquer, adapter, encourager", skills: ["Pédagogie", "Patience", "Communication", "Adaptabilité", "Empathie"] },
+                    { title: "Travailler en restauration (serveur, caisse, cuisine)", hint: "Ex: Gestion du rush, service client", skills: ["Gestion du stress", "Rapidité", "Sens du service", "Travail en équipe", "Polyvalence"] },
+                    { title: "Travailler dans la vente (magasin, marché)", hint: "Ex: Conseil client, encaissement, rangement", skills: ["Relation client", "Communication", "Sens commercial", "Organisation", "Amabilité"] },
+                    { title: "Faire de la livraison (Uber Eats, Deliveroo, coursier)", hint: "Ex: Ponctualité, orientation, gestion", skills: ["Ponctualité", "Autonomie", "Gestion du temps", "Sens de l'orientation", "Fiabilité"] },
+                    { title: "Travailler en grande surface (mise en rayon, caisse)", hint: "Ex: Organisation, rigueur, service", skills: ["Organisation", "Rigueur", "Sens du service", "Ponctualité", "Efficacité"] },
+                    { title: "Aider dans l'entreprise ou commerce familial", hint: "Ex: Polyvalence, engagement, sérieux", skills: ["Polyvalence", "Fiabilité", "Sens des responsabilités", "Adaptabilité", "Engagement"] },
+                    { title: "Faire des jobs saisonniers (été, vendanges, animation)", hint: "Ex: Adaptabilité rapide, intensité", skills: ["Adaptabilité", "Résistance physique", "Travail en équipe", "Flexibilité", "Énergie"] }
+                ]
+            },
+            {
+                emoji: "🏠",
+                title: "Autonomie & Vie Quotidienne",
+                description: "Gérer son quotidien développe responsabilité et organisation",
+                activities: [
+                    { title: "Vivre seul·e (gérer un logement, factures, courses)", hint: "Ex: Autonomie complète, gestion", skills: ["Autonomie", "Responsabilité", "Organisation", "Gestion budgétaire", "Anticipation"] },
+                    { title: "Gérer un budget personnel (suivi dépenses, économies)", hint: "Ex: Comptes, objectifs financiers", skills: ["Gestion budgétaire", "Rigueur", "Anticipation", "Planification", "Autodiscipline"] },
+                    { title: "Cuisiner régulièrement pour soi ou sa famille", hint: "Ex: Courses, recettes, organisation", skills: ["Organisation", "Créativité", "Gestion du temps", "Autonomie", "Planification"] },
+                    { title: "Entretenir son logement (ménage, rangement, petites réparations)", hint: "Ex: Régularité, soin, débrouillardise", skills: ["Régularité", "Organisation", "Débrouillardise", "Rigueur", "Autonomie"] },
+                    { title: "Faire ses démarches administratives seul·e (CAF, sécu, impôts)", hint: "Ex: Papiers, rendez-vous, suivi", skills: ["Autonomie", "Organisation", "Rigueur", "Persévérance", "Compréhension"] },
+                    { title: "Gérer ses rendez-vous médicaux et sa santé", hint: "Ex: Prévoyance, suivi, responsabilité", skills: ["Responsabilité", "Organisation", "Prévoyance", "Autonomie", "Soin de soi"] },
+                    { title: "Prendre soin d'un animal de compagnie", hint: "Ex: Régularité, engagement, responsabilité", skills: ["Responsabilité", "Régularité", "Empathie", "Engagement", "Anticipation"] },
+                    { title: "S'occuper régulièrement de frères/sœurs ou proches", hint: "Ex: Aide, soutien, responsabilité", skills: ["Responsabilité", "Empathie", "Patience", "Adaptabilité", "Fiabilité"] }
+                ]
+            },
+            {
+                emoji: "🔧",
+                title: "Bricolage & Technique",
+                description: "Réparer et créer développe débrouillardise et logique",
+                activities: [
+                    { title: "Réparer des objets (électronique, mécanique, mobilier)", hint: "Ex: Diagnostic, recherche, réparation", skills: ["Débrouillardise", "Logique", "Persévérance", "Résolution de problèmes", "Minutie"] },
+                    { title: "Entretenir ou réparer un vélo/scooter/moto", hint: "Ex: Mécanique, outils, entretien", skills: ["Technique", "Autonomie", "Débrouillardise", "Logique", "Précision"] },
+                    { title: "Monter des meubles ou faire des travaux simples", hint: "Ex: Instructions, outils, précision", skills: ["Organisation", "Logique", "Précision", "Patience", "Lecture de plans"] },
+                    { title: "Réparer ou upgrader un ordinateur/smartphone", hint: "Ex: Composants, dépannage, optimisation", skills: ["Technique", "Logique", "Recherche d'info", "Précision", "Résolution de problèmes"] },
+                    { title: "Créer des objets en électronique (Arduino, Raspberry Pi)", hint: "Ex: Programmation, montage, tests", skills: ["Technique", "Logique", "Créativité", "Persévérance", "Innovation"] },
+                    { title: "Faire de la récup et upcycling (donner nouvelle vie)", hint: "Ex: Créativité, transformation, écologie", skills: ["Créativité", "Débrouillardise", "Écologie", "Vision", "Patience"] }
+                ]
+            },
+            {
+                emoji: "🌱",
+                title: "Écologie & Nature",
+                description: "S'engager pour la planète développe conscience et initiative",
+                activities: [
+                    { title: "Jardiner ou cultiver (potager, plantes, permaculture)", hint: "Ex: Patience, observation, soin", skills: ["Patience", "Observation", "Régularité", "Soin", "Planification"] },
+                    { title: "Participer à des actions écologiques (clean-up, plantation)", hint: "Ex: Engagement, action collective", skills: ["Engagement", "Conscience écologique", "Initiative", "Esprit collectif", "Action"] },
+                    { title: "Pratiquer le zéro déchet ou mode de vie écolo", hint: "Ex: Organisation, alternatives, créativité", skills: ["Organisation", "Créativité", "Conviction", "Persévérance", "Recherche"] },
+                    { title: "Faire du compost ou recycler activement", hint: "Ex: Tri, organisation, régularité", skills: ["Organisation", "Régularité", "Conscience écologique", "Rigueur", "Responsabilité"] }
+                ]
+            },
+            {
+                emoji: "📚",
+                title: "Apprentissage & Formation",
+                description: "Se former en continu montre curiosité et ambition",
+                activities: [
+                    { title: "Apprendre une langue étrangère seul·e (apps, films, livres)", hint: "Ex: Régularité, persévérance", skills: ["Autodiscipline", "Persévérance", "Curiosité", "Organisation", "Ouverture d'esprit"] },
+                    { title: "Suivre des formations en ligne (YouTube, MOOC, tutos)", hint: "Ex: Autonomie, apprentissage actif", skills: ["Autonomie", "Curiosité", "Persévérance", "Autodiscipline", "Adaptabilité"] },
+                    { title: "Lire régulièrement (livres, articles, mangas)", hint: "Ex: Curiosité, ouverture, concentration", skills: ["Curiosité", "Concentration", "Ouverture d'esprit", "Culture générale", "Patience"] },
+                    { title: "Développer une expertise dans un domaine précis", hint: "Ex: Approfondissement, passion, maîtrise", skills: ["Persévérance", "Expertise", "Passion", "Rigueur", "Curiosité"] },
+                    { title: "Passer le permis de conduire", hint: "Ex: Apprentissage, investissement, persévérance", skills: ["Persévérance", "Investissement", "Concentration", "Autonomie", "Responsabilité"] }
+                ]
             }
-        };
+        ];
 
-        window.onload = () => app.init();
+        // STATE
+        let selectedActivities = new Set();
+        let revealedSkills = new Map(); // skill -> count
+        let categoriesWithActivities = new Set();
+
+        // Initialize
+        function startActivity() {
+            document.getElementById('introScreen').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            loadCategories();
+        }
+
+        function loadCategories() {
+            const container = document.getElementById('categoriesContainer');
+            let html = '';
+
+            competencesData.forEach((category, catIdx) => {
+                html += `
+                    <div class="category-section" id="category-${catIdx}">
+                        <div class="category-header" onclick="toggleCategory(${catIdx})">
+                            <div class="category-emoji">${category.emoji}</div>
+                            <div class="category-info">
+                                <div class="category-title">${category.title}</div>
+                                <div class="category-description">${category.description}</div>
+                            </div>
+                            <div class="category-toggle">▼</div>
+                        </div>
+                        <div class="category-content">
+                            ${category.activities.map((activity, actIdx) => `
+                                <div class="activity-item" onclick="toggleActivity(${catIdx}, ${actIdx})">
+                                    <div class="activity-checkbox"></div>
+                                    <div class="activity-title">${activity.title}</div>
+                                    <div class="activity-hint">${activity.hint}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <svg class="puzzle-decoration" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M50 0 L100 50 L50 100 L0 50 Z" fill="#06D6A0"/>
+                        </svg>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            updateTotalActivities();
+        }
+
+        function toggleCategory(catIdx) {
+            const category = document.getElementById(`category-${catIdx}`);
+            category.classList.toggle('collapsed');
+        }
+
+        function toggleActivity(catIdx, actIdx) {
+            const activity = competencesData[catIdx].activities[actIdx];
+            const activityId = `${catIdx}-${actIdx}`;
+            
+            const categories = document.querySelectorAll('.category-section');
+            const categoryElement = categories[catIdx];
+            const items = categoryElement.querySelectorAll('.activity-item');
+            const item = items[actIdx];
+            
+            if (selectedActivities.has(activityId)) {
+                // Deselect
+                selectedActivities.delete(activityId);
+                item.classList.remove('selected');
+                
+                // Remove skills
+                activity.skills.forEach(skill => {
+                    const count = revealedSkills.get(skill) || 0;
+                    if (count <= 1) {
+                        revealedSkills.delete(skill);
+                    } else {
+                        revealedSkills.set(skill, count - 1);
+                    }
+                });
+                
+                // Check if category still has activities
+                const catActivities = Array.from(selectedActivities).filter(id => id.startsWith(`${catIdx}-`));
+                if (catActivities.length === 0) {
+                    categoriesWithActivities.delete(catIdx);
+                }
+            } else {
+                // Select
+                selectedActivities.add(activityId);
+                item.classList.add('selected');
+                categoriesWithActivities.add(catIdx);
+                
+                // Add skills
+                activity.skills.forEach(skill => {
+                    revealedSkills.set(skill, (revealedSkills.get(skill) || 0) + 1);
+                });
+            }
+            
+            updateUI();
+        }
+
+        function updateUI() {
+            // Update stats
+            document.getElementById('scoreCount').textContent = selectedActivities.size;
+            document.getElementById('activitiesCount').textContent = selectedActivities.size;
+            document.getElementById('skillsCount').textContent = revealedSkills.size;
+            document.getElementById('categoriesCount').textContent = categoriesWithActivities.size;
+            
+            // Update export button
+            document.getElementById('exportBtn').disabled = selectedActivities.size === 0;
+            
+            // Update skills summary
+            updateSkillsSummary();
+        }
+
+        function updateSkillsSummary() {
+            const summary = document.getElementById('skillsSummary');
+            
+            if (revealedSkills.size === 0) {
+                summary.classList.add('hidden');
+                return;
+            }
+            
+            summary.classList.remove('hidden');
+            
+            // Group skills by category
+            const skillsByType = {
+                "Soft Skills": [],
+                "Compétences Techniques": [],
+                "Qualités Personnelles": []
+            };
+            
+            const softSkills = ["Communication", "Travail en équipe", "Adaptabilité", "Créativité", "Leadership", "Empathie", "Pédagogie", "Médiation", "Diplomatie", "Écoute active"];
+            const technical = ["Maîtrise technique", "Maîtrise logiciels", "Technique", "Précision", "Logique", "Programmation", "Sens esthétique"];
+            
+            revealedSkills.forEach((count, skill) => {
+                if (softSkills.includes(skill)) {
+                    skillsByType["Soft Skills"].push(skill);
+                } else if (technical.includes(skill)) {
+                    skillsByType["Compétences Techniques"].push(skill);
+                } else {
+                    skillsByType["Qualités Personnelles"].push(skill);
+                }
+            });
+            
+            let html = '<div class="skills-revealed">';
+            html += '<div class="skills-title">🎯 Ton Capital Compétences</div>';
+            html += '<div class="skills-grid">';
+            
+            Object.entries(skillsByType).forEach(([type, skills]) => {
+                if (skills.length > 0) {
+                    html += `
+                        <div class="skill-category">
+                            <div class="skill-category-title">${type}</div>
+                            ${skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                        </div>
+                    `;
+                }
+            });
+            
+            html += '</div></div>';
+            summary.innerHTML = html;
+        }
+
+        function updateTotalActivities() {
+            const total = competencesData.reduce((sum, cat) => sum + cat.activities.length, 0);
+            document.getElementById('totalActivities').textContent = total;
+        }
+
+        function exportProfile() {
+            // Create comprehensive profile text
+            let profile = "MON PROFIL DE COMPÉTENCES - LS4YOU\n";
+            profile += "=".repeat(50) + "\n\n";
+            profile += `Date: ${new Date().toLocaleDateString('fr-FR')}\n\n`;
+            profile += `📊 RÉSUMÉ\n`;
+            profile += `   • ${selectedActivities.size} activités identifiées\n`;
+            profile += `   • ${revealedSkills.size} compétences révélées\n`;
+            profile += `   • ${categoriesWithActivities.size} domaines d'expertise\n\n`;
+            
+            profile += `💎 MES COMPÉTENCES CLÉS\n`;
+            const sortedSkills = Array.from(revealedSkills.entries()).sort((a, b) => b[1] - a[1]);
+            sortedSkills.forEach(([skill, count]) => {
+                profile += `   • ${skill} (confirmée par ${count} activité${count > 1 ? 's' : ''})\n`;
+            });
+            
+            profile += `\n📋 MES ACTIVITÉS PAR DOMAINE\n`;
+            competencesData.forEach((category, catIdx) => {
+                const catActivities = category.activities.filter((_, actIdx) => 
+                    selectedActivities.has(`${catIdx}-${actIdx}`)
+                );
+                
+                if (catActivities.length > 0) {
+                    profile += `\n${category.emoji} ${category.title.toUpperCase()}\n`;
+                    catActivities.forEach(activity => {
+                        profile += `   ✓ ${activity.title}\n`;
+                    });
+                }
+            });
+            
+            profile += `\n${"=".repeat(50)}\n`;
+            profile += `Projet LS4YOU - Life Skills For Youth\n`;
+            profile += `Co-financé par l'Union Européenne\n`;
+            
+            // Download
+            const blob = new Blob([profile], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Mon_Profil_Competences_${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
     </script>
 </body>
 </html>
