@@ -1,633 +1,527 @@
-import React, { useState, useEffect } from 'react';
-import { Download, RefreshCw, Star, Rocket, ChevronRight, Puzzle, CheckCircle2, Circle } from 'lucide-react';
-
-// --- STYLE & THEME CONSTANTS ---
-const THEME = {
-    colors: {
-        red: '#E63946',
-        yellow: '#FFB703',
-        turquoise: '#2EC4B6',
-        pink: '#FF99AC',
-        dark: '#1D3557',
-        white: '#FFFFFF',
-        slate: '#F1FAEE', // Un blanc cassé très léger pour le fond
-    },
-    fonts: {
-        header: '"Montserrat", sans-serif',
-        body: '"Poppins", sans-serif',
-    }
-};
-
-// --- DATA: Les compétences et les situations ---
-const skillsData = [
-    {
-        id: 1,
-        title: "Esprit d'analyse",
-        definition: "Comprendre le 'pourquoi' et le 'comment' d'une situation.",
-        situation: "Tu dois choisir un nouveau téléphone ou une destination de vacances. Tu compares les prix, les avis, la batterie et les options avant de te décider.",
-        keywords: ["Comparaison", "Diagnostic", "Étude"]
-    },
-    {
-        id: 2,
-        title: "Capacité de résolution",
-        definition: "Trouver des solutions face à un problème bloquant.",
-        situation: "Ton PC plante, ta console ne se connecte pas ou une fermeture éclair est coincée. Tu testes plusieurs trucs jusqu'à ce que ça remarche.",
-        keywords: ["Dépannage", "Solution", "Débrouillardise"]
-    },
-    {
-        id: 3,
-        title: "Discernement / Vigilance",
-        definition: "Ne pas se faire avoir, savoir évaluer la fiabilité.",
-        situation: "Tu reçois un mail bizarre t'annonçant que tu as gagné un iPhone, ou tu vois une info choc sur TikTok. Tu vérifies la source avant de cliquer ou de partager.",
-        keywords: ["Esprit critique", "Vérification", "Prudence"]
-    },
-    {
-        id: 4,
-        title: "Aisance relationnelle",
-        definition: "Facilité à entrer en contact avec les autres.",
-        situation: "En soirée ou dans un nouveau groupe, tu arrives facilement à discuter avec des gens que tu ne connais pas encore.",
-        keywords: ["Communication", "Contact", "Sociabilité"]
-    },
-    {
-        id: 5,
-        title: "Sens de la coopération",
-        definition: "Travailler avec les autres vers un but commun.",
-        situation: "Dans un jeu vidéo en équipe ou pour organiser l'anniversaire d'un ami, tu te coordonnes avec les autres pour que le plan fonctionne.",
-        keywords: ["Travail d'équipe", "Entraide", "Collectif"]
-    },
-    {
-        id: 6,
-        title: "Prise d'initiative",
-        definition: "Agir sans attendre qu'on te le demande.",
-        situation: "Personne ne sait quoi faire ce soir. Tu proposes un lieu, une heure et tu lances le mouvement.",
-        keywords: ["Proactivité", "Moteur", "Proposition"]
-    },
-    {
-        id: 7,
-        title: "Maîtrise de soi",
-        definition: "Garder son calme sous la pression.",
-        situation: "Tu perds une partie importante en ligne ou tu rates ton bus de justesse. Tu es frustré, mais tu ne casses rien et tu restes poli.",
-        keywords: ["Sang-froid", "Patience", "Gestion des émotions"]
-    },
-    {
-        id: 8,
-        title: "Persévérance",
-        definition: "Ne pas abandonner face à la difficulté.",
-        situation: "Tu essaies d'apprendre un trick de skate, un morceau de guitare ou de passer un niveau difficile. Tu rates 10 fois, mais tu recommences.",
-        keywords: ["Tenacité", "Effort", "Motivation"]
-    },
-    {
-        id: 9,
-        title: "Affirmation professionnelle",
-        definition: "Savoir dire ce qu'on pense ou veut, avec respect.",
-        situation: "Tes amis veulent aller voir un film qui ne te tente pas du tout. Tu oses dire 'Non, ça ne me dit rien, je préfère faire autre chose' sans être agressif.",
-        keywords: ["Confiance", "Assertivité", "Positionnement"]
-    },
-    {
-        id: 10,
-        title: "Capacité d'apprentissage",
-        definition: "Acquérir de nouvelles connaissances par soi-même.",
-        situation: "Tu ne sais pas faire quelque chose (monter un meuble, utiliser un logiciel). Tu regardes un tuto YouTube et tu apprends à le faire.",
-        keywords: ["Curiosité", "Auto-formation", "Adaptation"]
-    },
-    {
-        id: 11,
-        title: "Créativité appliquée",
-        definition: "Inventer ou adapter avec ce qu'on a.",
-        situation: "Tu dois cuisiner mais il manque la moitié des ingrédients. Tu improvises avec ce qu'il y a dans le frigo et c'est bon.",
-        keywords: ["Innovation", "Système D", "Imagination"]
-    },
-    {
-        id: 12,
-        title: "Ouverture d'esprit",
-        definition: "Accepter la nouveauté et la différence.",
-        situation: "On te propose de goûter un plat étranger bizarre ou d'écouter un style de musique que tu ne connais pas. Tu testes avant de juger.",
-        keywords: ["Tolérance", "Curiosité", "Inclusion"]
-    },
-    {
-        id: 13,
-        title: "Organisation personnelle",
-        definition: "Structurer ses tâches pour être efficace.",
-        situation: "Tu pars en voyage. Tu prépares ta valise la veille avec une liste pour être sûr de ne rien oublier (chargeur, brosse à dents...).",
-        keywords: ["Planification", "Ordre", "Méthode"]
-    },
-    {
-        id: 14,
-        title: "Autonomie décisionnelle",
-        definition: "Faire des choix seul et les assumer.",
-        situation: "Tu dois choisir tes vêtements, ta coiffure ou tes options au lycée. Tu écoutes les avis, mais au final, c'est toi qui tranches.",
-        keywords: ["Choix", "Indépendance", "Responsabilité"]
-    },
-    {
-        id: 15,
-        title: "Agilité professionnelle",
-        definition: "S'adapter rapidement au changement.",
-        situation: "Une sortie était prévue mais il pleut des cordes. Tu ne restes pas bloqué, tu trouves tout de suite un plan B sympa.",
-        keywords: ["Adaptabilité", "Flexibilité", "Réactivité"]
-    },
-    {
-        id: 16,
-        title: "Responsabilité numérique",
-        definition: "Gérer sa présence et ses traces en ligne.",
-        situation: "Tu fais attention aux photos que tu postes et tu règles tes paramètres de confidentialité pour que tout le monde ne voie pas ta vie privée.",
-        keywords: ["Cyber-sécurité", "E-réputation", "Vie privée"]
-    },
-    {
-        id: 17,
-        title: "Usage raisonné de l'IA",
-        definition: "Utiliser l'intelligence artificielle comme un outil, pas une béquille.",
-        situation: "Tu utilises ChatGPT pour t'expliquer un texte compliqué ou te donner des idées, mais tu rédiges toi-même la réponse finale.",
-        keywords: ["Prompting", "Esprit critique", "Outil"]
-    },
-    {
-        id: 18,
-        title: "Conscience environnementale",
-        definition: "Agir pour limiter son impact écologique.",
-        situation: "Tu tries tes déchets, tu revends tes vieux jeux/vêtements sur Vinted au lieu de jeter, ou tu prends le vélo quand c'est possible.",
-        keywords: ["Écologie", "Sobriété", "Durabilité"]
-    },
-    {
-        id: 19,
-        title: "Ponctualité et assiduité",
-        definition: "Respecter le temps et l'engagement.",
-        situation: "Quand tu as rendez-vous avec des potes pour un ciné à 20h, tu t'arranges pour être là à 19h55, pas 20h30.",
-        keywords: ["Rigueur", "Fiabilité", "Respect des horaires"]
-    },
-    {
-        id: 20,
-        title: "Respect des codes",
-        definition: "Adapter son comportement au contexte.",
-        situation: "Tu ne parles pas à ton prof, à un commerçant ou à ta grand-mère de la même façon qu'à ton meilleur ami.",
-        keywords: ["Savoir-être", "Politesse", "Adaptation"]
-    },
-    {
-        id: 21,
-        title: "Sens de la confidentialité",
-        definition: "Savoir garder une information pour soi.",
-        situation: "Un ami te confie un secret important. Même si d'autres insistent pour savoir, tu gardes le silence.",
-        keywords: ["Discrétion", "Confiance", "Secret professionnel"]
-    },
-    {
-        id: 22,
-        title: "Prévention des risques",
-        definition: "Anticiper le danger pour soi et les autres.",
-        situation: "En voiture, tu mets ta ceinture. En soirée, tu t'assures que celui qui conduit n'a pas bu.",
-        keywords: ["Sécurité", "Prudence", "Anticipation"]
-    },
-    {
-        id: 23,
-        title: "Gestion du capital santé",
-        definition: "Prendre soin de sa capacité à travailler.",
-        situation: "Tu as un gros examen ou un match le lendemain. Tu te couches plus tôt pour être en forme.",
-        keywords: ["Hygiène de vie", "Énergie", "Équilibre"]
-    },
-    {
-        id: 24,
-        title: "Intelligence interculturelle",
-        definition: "Comprendre et respecter les différences culturelles.",
-        situation: "Tu as un ami qui a des coutumes ou une religion différente. Tu poses des questions pour comprendre et tu respectes ses interdits alimentaires.",
-        keywords: ["Diversité", "Inclusion", "Ouverture"]
-    },
-    {
-        id: 25,
-        title: "Médiation / CNV",
-        definition: "Résoudre les conflits par le dialogue.",
-        situation: "Deux de tes amis s'embrouillent. Au lieu de mettre de l'huile sur le feu, tu essaies de calmer le jeu et de les faire discuter.",
-        keywords: ["Négociation", "Pacification", "Écoute"]
-    },
-    {
-        id: 26,
-        title: "Compréhension du cadre",
-        definition: "Accepter les règles du jeu.",
-        situation: "Avant de rejoindre un serveur Discord ou un club de sport, tu lis le règlement pour savoir ce qui est banni ou autorisé.",
-        keywords: ["Règlement", "Conformité", "Limites"]
-    },
-    {
-        id: 27,
-        title: "Autonomie administrative",
-        definition: "Gérer ses papiers et formalités.",
-        situation: "Tu dois t'inscrire quelque part ou refaire ta carte d'identité. Tu remplis le dossier et rassembles les pièces sans que tes parents fassent tout.",
-        keywords: ["Gestion", "Rigueur", "Formalités"]
-    },
-    {
-        id: 28,
-        title: "Connaissance du territoire",
-        definition: "Savoir utiliser les ressources autour de soi.",
-        situation: "Tu sais où se trouve la mairie, où prendre le bus pour aller en ville, ou où trouver une asso de sport dans ton quartier.",
-        keywords: ["Mobilité", "Réseau", "Ressources"]
-    }
-];
-
-// --- COMPONENTS STYLE LS4YOU ---
-
-// Background Decoration (Points)
-const DotGrid = () => (
-    <div 
-        className="absolute inset-0 pointer-events-none opacity-10"
-        style={{
-            backgroundImage: `radial-gradient(${THEME.colors.dark} 1px, transparent 1px)`,
-            backgroundSize: '12px 12px'
-        }}
-    />
-);
-
-const LogoHeader = () => (
-    <div className="flex items-center gap-4 mb-8">
-         <img src="https://www.lifeskills4youth.eu/wp-content/uploads/2024/07/LS4YOU_Logo_whiteback.jpg" alt="Logo LS4YOU" className="h-10 md:h-12" />
-         <div className="hidden sm:block h-8 w-[1px] bg-slate-300"></div>
-         <div className="hidden sm:block text-[10px] uppercase tracking-widest font-bold text-slate-400">
-            Programme Mission Locale<br/>Life Skills For Youth
-         </div>
-    </div>
-);
-
-const ProgressBar = ({ current, total }) => {
-    const percentage = Math.round(((current) / total) * 100);
-    return (
-        <div className="w-full bg-slate-200 rounded-full h-3 mb-6 overflow-hidden border border-slate-300">
-            <div 
-                className="h-full rounded-full transition-all duration-500" 
-                style={{ 
-                    width: `${percentage}%`,
-                    backgroundColor: THEME.colors.turquoise
-                }}
-            ></div>
-        </div>
-    );
-};
-
-const WelcomeScreen = ({ onStart }) => (
-    <div className="relative flex flex-col items-center justify-center min-h-[70vh] text-center px-4 animate-[fadeIn_0.6s_ease-out]">
-        <div className="relative bg-white p-10 rounded-3xl shadow-2xl max-w-3xl w-full border border-slate-100 overflow-hidden">
-            {/* Déco forme jaune */}
-            <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-50" style={{backgroundColor: THEME.colors.yellow}}></div>
-            
-            {/* Logo Partenaire sur le rond jaune (Miroir) */}
-            <div className="absolute top-8 right-8 z-10">
-                 <img src="https://static.wixstatic.com/media/dd5dab_47743b1c86024865ba19e623a3db327f~mv2.avif/v1/fill/w_224,h_60,al_c,q_80,enc_avif,quality_auto/dd5dab_47743b1c86024865ba19e623a3db327f~mv2.avif" alt="Logo Partenaire" className="h-8 md:h-10 object-contain" />
-            </div>
-
-            <LogoHeader />
-            
-            <h1 className="text-4xl md:text-6xl font-black text-gray-800 mb-6 uppercase tracking-tight" style={{ fontFamily: THEME.fonts.header, color: THEME.colors.dark }}>
-                Révélateur de<br/>
-                <span style={{ color: THEME.colors.red }}>Compétences</span>
-            </h1>
-            
-            <div className="flex justify-center gap-2 mb-8">
-                <div className="w-20 h-2 rounded-full" style={{backgroundColor: THEME.colors.turquoise}}></div>
-                <div className="w-8 h-2 rounded-full" style={{backgroundColor: THEME.colors.yellow}}></div>
-                <div className="w-4 h-2 rounded-full" style={{backgroundColor: THEME.colors.pink}}></div>
-            </div>
-
-            <p className="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed font-medium" style={{ fontFamily: THEME.fonts.body }}>
-                Tu penses ne pas avoir d'expérience professionnelle ? Détrompe-toi.<br/>
-                Tes habitudes de vie cachent des <span className="font-bold text-gray-800">soft skills</span> recherchées.
-            </p>
-            
-            <button 
-                onClick={onStart}
-                className="group relative inline-flex items-center justify-center py-4 px-10 text-white font-black uppercase tracking-widest text-sm rounded-lg shadow-lg transition-all transform hover:-translate-y-1 hover:shadow-xl"
-                style={{ backgroundColor: THEME.colors.red, fontFamily: THEME.fonts.header }}
-            >
-                C'est parti ! 
-                <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
-        </div>
-    </div>
-);
-
-const ResultScreen = ({ answers, onReset }) => {
-    // Séparer les compétences
-    const acquired = answers.filter(a => a.rating === 2); 
-    const partial = answers.filter(a => a.rating === 1); 
-    const todo = answers.filter(a => a.rating === 0);
-
-    const downloadPDF = () => {
-        if (!window.jspdf) {
-            alert("Erreur: La librairie PDF n'est pas encore chargée. Veuillez réessayer dans quelques secondes.");
-            return;
-        }
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        // Header
-        doc.setFillColor(230, 57, 70); // Red
-        doc.rect(0, 0, 210, 20, 'F');
-        
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(22);
-        doc.text("LS4YOU - MON PROFIL", 105, 13, { align: "center" });
-        
-        doc.setTextColor(29, 53, 87); // Dark Blue
-        doc.setFontSize(10);
-        doc.text(`Généré le ${new Date().toLocaleDateString()}`, 20, 30);
-
-        let yPos = 45;
-
-        // Points Forts
-        if (acquired.length > 0) {
-            doc.setFillColor(46, 196, 182); // Turquoise
-            doc.rect(20, yPos - 6, 170, 10, 'F');
-            doc.setTextColor(255);
-            doc.setFontSize(12);
-            doc.text("MES POINTS FORTS (Acquis)", 25, yPos);
-            yPos += 15;
-            
-            doc.setTextColor(0);
-            doc.setFontSize(11);
-            
-            acquired.forEach(item => {
-                const skill = skillsData.find(s => s.id === item.id);
-                if (yPos > 270) { doc.addPage(); yPos = 20; }
-                doc.setFont("helvetica", "bold");
-                doc.text(`• ${skill.title}`, 25, yPos);
-                doc.setFont("helvetica", "normal");
-                doc.setFontSize(10);
-                doc.setTextColor(100);
-                doc.text(`  ${skill.keywords.join(" - ")}`, 25, yPos + 5);
-                doc.setTextColor(0);
-                doc.setFontSize(11);
-                yPos += 12;
-            });
-            yPos += 10;
-        }
-
-        // En cours
-        if (partial.length > 0) {
-            if (yPos > 270) { doc.addPage(); yPos = 20; }
-            doc.setFillColor(255, 183, 3); // Yellow
-            doc.rect(20, yPos - 6, 170, 10, 'F');
-            doc.setTextColor(29, 53, 87); // Dark text on yellow
-            doc.setFontSize(12);
-            doc.setFont("helvetica", "bold");
-            doc.text("EN DÉVELOPPEMENT", 25, yPos);
-            yPos += 15;
-            
-            doc.setTextColor(0);
-            doc.setFontSize(11);
-
-            partial.forEach(item => {
-                const skill = skillsData.find(s => s.id === item.id);
-                if (yPos > 270) { doc.addPage(); yPos = 20; }
-                doc.text(`• ${skill.title}`, 25, yPos);
-                yPos += 8;
-            });
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LS4YOU - Révélateur de Compétences</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         
-        doc.save("mon-profil-LS4YOU.pdf");
-    };
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #F1FAEE;
+            overflow-x: hidden;
+        }
+        
+        .font-header {
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .dot-grid {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.1;
+            background-image: radial-gradient(#1D3557 1px, transparent 1px);
+            background-size: 12px 12px;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
 
-    return (
-        <div className="max-w-5xl mx-auto py-8 px-4 animate-[fadeIn_0.8s_ease-out]">
-            <div className="text-center mb-10 relative">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-yellow-400 rounded-full blur-3xl opacity-20 -z-10"></div>
-                <h2 className="text-4xl md:text-5xl font-black uppercase mb-2" style={{ fontFamily: THEME.fonts.header, color: THEME.colors.dark }}>
-                    Mon Panorama
-                </h2>
-                <div className="w-24 h-2 mx-auto rounded-full mb-4" style={{ backgroundColor: THEME.colors.red }}></div>
-                <p className="text-lg text-slate-600" style={{ fontFamily: THEME.fonts.body }}>Voici la traduction professionnelle de ton vécu.</p>
-            </div>
+    <script>
+        // --- CONFIGURATION & DATA ---
+        const THEME = {
+            colors: {
+                red: '#E63946',
+                yellow: '#FFB703',
+                turquoise: '#2EC4B6',
+                pink: '#FF99AC',
+                dark: '#1D3557',
+                white: '#FFFFFF',
+                slate: '#F1FAEE',
+            }
+        };
 
-            <div className="grid md:grid-cols-2 gap-8 mb-12">
-                {/* Carte Points Forts */}
-                <div className="bg-white p-8 rounded-2xl shadow-xl relative overflow-hidden border-t-8" style={{ borderColor: THEME.colors.turquoise }}>
-                     <div className="absolute top-0 right-0 p-4 opacity-10">
-                        <Star size={100} color={THEME.colors.turquoise} fill={THEME.colors.turquoise} />
-                    </div>
-                    <h3 className="text-2xl font-black mb-6 flex items-center" style={{ fontFamily: THEME.fonts.header, color: THEME.colors.dark }}>
-                        <span className="w-8 h-8 rounded-full flex items-center justify-center mr-3 text-white" style={{ backgroundColor: THEME.colors.turquoise }}>✓</span>
-                        Points Forts
-                    </h3>
-                    {acquired.length === 0 ? <p className="text-gray-400 italic">Aucune compétence validée à 100%.</p> : (
-                        <ul className="space-y-4 relative z-10">
-                            {acquired.map(a => {
-                                const skill = skillsData.find(s => s.id === a.id);
-                                return (
-                                    <li key={skill.id} className="pb-3 border-b border-slate-100 last:border-0">
-                                        <div className="font-bold text-lg text-slate-800">{skill.title}</div>
-                                        <div className="flex flex-wrap gap-2 mt-1">
-                                            {skill.keywords.map(k => (
-                                                <span key={k} className="text-[10px] uppercase font-bold px-2 py-1 rounded bg-slate-100 text-slate-500">
-                                                    {k}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </li>
-                                )
-                            })}
-                        </ul>
-                    )}
-                </div>
+        const skillsData = [
+            { id: 1, title: "Esprit d'analyse", definition: "Comprendre le 'pourquoi' et le 'comment' d'une situation.", situation: "Tu dois choisir un nouveau téléphone ou une destination de vacances. Tu compares les prix, les avis, la batterie et les options avant de te décider.", keywords: ["Comparaison", "Diagnostic", "Étude"] },
+            { id: 2, title: "Capacité de résolution", definition: "Trouver des solutions face à un problème bloquant.", situation: "Ton PC plante, ta console ne se connecte pas ou une fermeture éclair est coincée. Tu testes plusieurs trucs jusqu'à ce que ça remarche.", keywords: ["Dépannage", "Solution", "Débrouillardise"] },
+            { id: 3, title: "Discernement / Vigilance", definition: "Ne pas se faire avoir, savoir évaluer la fiabilité.", situation: "Tu reçois un mail bizarre t'annonçant que tu as gagné un iPhone, ou tu vois une info choc sur TikTok. Tu vérifies la source avant de cliquer ou de partager.", keywords: ["Esprit critique", "Vérification", "Prudence"] },
+            { id: 4, title: "Aisance relationnelle", definition: "Facilité à entrer en contact avec les autres.", situation: "En soirée ou dans un nouveau groupe, tu arrives facilement à discuter avec des gens que tu ne connais pas encore.", keywords: ["Communication", "Contact", "Sociabilité"] },
+            { id: 5, title: "Sens de la coopération", definition: "Travailler avec les autres vers un but commun.", situation: "Dans un jeu vidéo en équipe ou pour organiser l'anniversaire d'un ami, tu te coordonnes avec les autres pour que le plan fonctionne.", keywords: ["Travail d'équipe", "Entraide", "Collectif"] },
+            { id: 6, title: "Prise d'initiative", definition: "Agir sans attendre qu'on te le demande.", situation: "Personne ne sait quoi faire ce soir. Tu proposes un lieu, une heure et tu lances le mouvement.", keywords: ["Proactivité", "Moteur", "Proposition"] },
+            { id: 7, title: "Maîtrise de soi", definition: "Garder son calme sous la pression.", situation: "Tu perds une partie importante en ligne ou tu rates ton bus de justesse. Tu es frustré, mais tu ne casses rien et tu restes poli.", keywords: ["Sang-froid", "Patience", "Gestion des émotions"] },
+            { id: 8, title: "Persévérance", definition: "Ne pas abandonner face à la difficulté.", situation: "Tu essaies d'apprendre un trick de skate, un morceau de guitare ou de passer un niveau difficile. Tu rates 10 fois, mais tu recommences.", keywords: ["Tenacité", "Effort", "Motivation"] },
+            { id: 9, title: "Affirmation professionnelle", definition: "Savoir dire ce qu'on pense ou veut, avec respect.", situation: "Tes amis veulent aller voir un film qui ne te tente pas du tout. Tu oses dire 'Non, ça ne me dit rien, je préfère faire autre chose' sans être agressif.", keywords: ["Confiance", "Assertivité", "Positionnement"] },
+            { id: 10, title: "Capacité d'apprentissage", definition: "Acquérir de nouvelles connaissances par soi-même.", situation: "Tu ne sais pas faire quelque chose (monter un meuble, utiliser un logiciel). Tu regardes un tuto YouTube et tu apprends à le faire.", keywords: ["Curiosité", "Auto-formation", "Adaptation"] },
+            { id: 11, title: "Créativité appliquée", definition: "Inventer ou adapter avec ce qu'on a.", situation: "Tu dois cuisiner mais il manque la moitié des ingrédients. Tu improvises avec ce qu'il y a dans le frigo et c'est bon.", keywords: ["Innovation", "Système D", "Imagination"] },
+            { id: 12, title: "Ouverture d'esprit", definition: "Accepter la nouveauté et la différence.", situation: "On te propose de goûter un plat étranger bizarre ou d'écouter un style de musique que tu ne connais pas. Tu testes avant de juger.", keywords: ["Tolérance", "Curiosité", "Inclusion"] },
+            { id: 13, title: "Organisation personnelle", definition: "Structurer ses tâches pour être efficace.", situation: "Tu pars en voyage. Tu prépares ta valise la veille avec une liste pour être sûr de ne rien oublier (chargeur, brosse à dents...).", keywords: ["Planification", "Ordre", "Méthode"] },
+            { id: 14, title: "Autonomie décisionnelle", definition: "Faire des choix seul et les assumer.", situation: "Tu dois choisir tes vêtements, ta coiffure ou tes options au lycée. Tu écoutes les avis, mais au final, c'est toi qui tranches.", keywords: ["Choix", "Indépendance", "Responsabilité"] },
+            { id: 15, title: "Agilité professionnelle", definition: "S'adapter rapidement au changement.", situation: "Une sortie était prévue mais il pleut des cordes. Tu ne restes pas bloqué, tu trouves tout de suite un plan B sympa.", keywords: ["Adaptabilité", "Flexibilité", "Réactivité"] },
+            { id: 16, title: "Responsabilité numérique", definition: "Gérer sa présence et ses traces en ligne.", situation: "Tu fais attention aux photos que tu postes et tu règles tes paramètres de confidentialité pour que tout le monde ne voie pas ta vie privée.", keywords: ["Cyber-sécurité", "E-réputation", "Vie privée"] },
+            { id: 17, title: "Usage raisonné de l'IA", definition: "Utiliser l'intelligence artificielle comme un outil, pas une béquille.", situation: "Tu utilises ChatGPT pour t'expliquer un texte compliqué ou te donner des idées, mais tu rédiges toi-même la réponse finale.", keywords: ["Prompting", "Esprit critique", "Outil"] },
+            { id: 18, title: "Conscience environnementale", definition: "Agir pour limiter son impact écologique.", situation: "Tu tries tes déchets, tu revends tes vieux jeux/vêtements sur Vinted au lieu de jeter, ou tu prends le vélo quand c'est possible.", keywords: ["Écologie", "Sobriété", "Durabilité"] },
+            { id: 19, title: "Ponctualité et assiduité", definition: "Respecter le temps et l'engagement.", situation: "Quand tu as rendez-vous avec des potes pour un ciné à 20h, tu t'arranges pour être là à 19h55, pas 20h30.", keywords: ["Rigueur", "Fiabilité", "Respect des horaires"] },
+            { id: 20, title: "Respect des codes", definition: "Adapter son comportement au contexte.", situation: "Tu ne parles pas à ton prof, à un commerçant ou à ta grand-mère de la même façon qu'à ton meilleur ami.", keywords: ["Savoir-être", "Politesse", "Adaptation"] },
+            { id: 21, title: "Sens de la confidentialité", definition: "Savoir garder une information pour soi.", situation: "Un ami te confie un secret important. Même si d'autres insistent pour savoir, tu gardes le silence.", keywords: ["Discrétion", "Confiance", "Secret professionnel"] },
+            { id: 22, title: "Prévention des risques", definition: "Anticiper le danger pour soi et les autres.", situation: "En voiture, tu mets ta ceinture. En soirée, tu t'assures que celui qui conduit n'a pas bu.", keywords: ["Sécurité", "Prudence", "Anticipation"] },
+            { id: 23, title: "Gestion du capital santé", definition: "Prendre soin de sa capacité à travailler.", situation: "Tu as un gros examen ou un match le lendemain. Tu te couches plus tôt pour être en forme.", keywords: ["Hygiène de vie", "Énergie", "Équilibre"] },
+            { id: 24, title: "Intelligence interculturelle", definition: "Comprendre et respecter les différences culturelles.", situation: "Tu as un ami qui a des coutumes ou une religion différente. Tu poses des questions pour comprendre et tu respectes ses interdits alimentaires.", keywords: ["Diversité", "Inclusion", "Ouverture"] },
+            { id: 25, title: "Médiation / CNV", definition: "Résoudre les conflits par le dialogue.", situation: "Deux de tes amis s'embrouillent. Au lieu de mettre de l'huile sur le feu, tu essaies de calmer le jeu et de les faire discuter.", keywords: ["Négociation", "Pacification", "Écoute"] },
+            { id: 26, title: "Compréhension du cadre", definition: "Accepter les règles du jeu.", situation: "Avant de rejoindre un serveur Discord ou un club de sport, tu lis le règlement pour savoir ce qui est banni ou autorisé.", keywords: ["Règlement", "Conformité", "Limites"] },
+            { id: 27, title: "Autonomie administrative", definition: "Gérer ses papiers et formalités.", situation: "Tu dois t'inscrire quelque part ou refaire ta carte d'identité. Tu remplis le dossier et rassembles les pièces sans que tes parents fassent tout.", keywords: ["Gestion", "Rigueur", "Formalités"] },
+            { id: 28, title: "Connaissance du territoire", definition: "Savoir utiliser les ressources autour de soi.", situation: "Tu sais où se trouve la mairie, où prendre le bus pour aller en ville, ou où trouver une asso de sport dans ton quartier.", keywords: ["Mobilité", "Réseau", "Ressources"] }
+        ];
 
-                {/* Carte En Développement */}
-                <div className="bg-white p-8 rounded-2xl shadow-xl relative overflow-hidden border-t-8" style={{ borderColor: THEME.colors.yellow }}>
-                     <div className="absolute top-0 right-0 p-4 opacity-10">
-                        <Rocket size={100} color={THEME.colors.yellow} fill={THEME.colors.yellow} />
-                    </div>
-                    <h3 className="text-2xl font-black mb-6 flex items-center" style={{ fontFamily: THEME.fonts.header, color: THEME.colors.dark }}>
-                         <span className="w-8 h-8 rounded-full flex items-center justify-center mr-3 text-white" style={{ backgroundColor: THEME.colors.yellow }}>~</span>
-                        En développement
-                    </h3>
-                    {partial.length === 0 && todo.length === 0 ? <p className="text-gray-500 italic">Tout est acquis ? Bravo !</p> : (
-                        <ul className="space-y-3 relative z-10">
-                            {partial.map(a => {
-                                const skill = skillsData.find(s => s.id === a.id);
-                                return (
-                                    <li key={skill.id} className="flex items-center text-slate-700 font-medium">
-                                        <div className="w-2 h-2 rounded-full mr-3" style={{ backgroundColor: THEME.colors.yellow }}></div>
-                                        {skill.title}
-                                    </li>
-                                )
-                            })}
-                            {todo.length > 0 && <li className="text-sm text-gray-400 mt-6 pt-4 border-t italic">+ {todo.length} compétences à explorer.</li>}
-                        </ul>
-                    )}
-                </div>
-            </div>
+        // --- STATE ---
+        let gameState = 'welcome';
+        let currentSkillIndex = 0;
+        let userAnswers = [];
 
-            <div className="flex flex-col sm:flex-row justify-center gap-6">
-                <button 
-                    onClick={downloadPDF} 
-                    className="flex items-center justify-center py-4 px-8 text-white font-black uppercase tracking-widest text-sm rounded shadow-lg hover:shadow-xl transition-transform transform hover:-translate-y-1"
-                    style={{ backgroundColor: THEME.colors.dark, fontFamily: THEME.fonts.header }}
-                >
-                    <Download className="w-5 h-5 mr-3" />
-                    Télécharger PDF
-                </button>
-                <button 
-                    onClick={onReset} 
-                    className="flex items-center justify-center py-4 px-8 font-black uppercase tracking-widest text-sm rounded border-2 hover:bg-slate-50 transition-colors"
-                    style={{ borderColor: THEME.colors.dark, color: THEME.colors.dark, fontFamily: THEME.fonts.header }}
-                >
-                    <RefreshCw className="w-5 h-5 mr-3" />
-                    Recommencer
-                </button>
-            </div>
-        </div>
-    );
-};
-
-const SkillCard = ({ skill, onAnswer, currentNumber, totalNumber }) => {
-    return (
-        <div className="max-w-2xl mx-auto w-full px-4 animate-[fadeIn_0.5s_ease-out]">
-            <div className="flex justify-between items-end mb-2 px-2">
-                 <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">Question</span>
-                 <span className="text-sm font-bold" style={{ color: THEME.colors.dark }}>{currentNumber} <span className="text-slate-300">/</span> {totalNumber}</span>
-            </div>
-            <ProgressBar current={currentNumber} total={totalNumber} />
+        // --- RENDER FUNCTIONS ---
+        function render() {
+            const app = document.getElementById('app');
             
-            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden relative border border-slate-100">
-                {/* Header Situation */}
-                <div className="p-8 text-white relative overflow-hidden" style={{ backgroundColor: THEME.colors.dark }}>
-                     <div className="absolute -right-4 -top-4 opacity-10 transform rotate-12">
-                        <Puzzle size={120} />
-                     </div>
-                    <h2 className="text-[10px] uppercase tracking-[0.2em] font-black opacity-70 mb-3" style={{ fontFamily: THEME.fonts.header }}>Mise en situation</h2>
-                    <p className="text-xl md:text-2xl font-medium italic leading-relaxed" style={{ fontFamily: THEME.fonts.body }}>
-                        "{skill.situation}"
-                    </p>
-                </div>
+            let content = `
+                <div class="min-h-screen relative overflow-hidden">
+                    <div class="dot-grid"></div>
+                    
+                    <header class="relative z-10 p-6 flex justify-between items-center no-print">
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 rounded-full" style="background-color: ${THEME.colors.red};"></div>
+                            <span class="text-xs md:text-sm font-black uppercase tracking-widest text-slate-400">LS4YOU • Tools</span>
+                        </div>
+                    </header>
 
-                {/* Body Analysis */}
-                <div className="p-8">
-                    <div className="mb-10 p-6 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50">
-                        <h3 className="text-xl font-black mb-2 flex items-center uppercase" style={{ fontFamily: THEME.fonts.header, color: THEME.colors.red }}>
-                            <span className="w-2 h-8 mr-3 rounded-full" style={{ backgroundColor: THEME.colors.red }}></span>
-                            {skill.title}
-                        </h3>
-                        <p className="text-slate-600 pl-5 font-medium">
-                            {skill.definition}
+                    <main class="relative z-10 pb-12 flex items-center justify-center min-h-[85vh]">
+            `;
+
+            if (gameState === 'welcome') {
+                content += renderWelcomeScreen();
+            } else if (gameState === 'playing') {
+                content += renderSkillCard();
+            } else if (gameState === 'results') {
+                content += renderResultScreen();
+            }
+
+            content += `
+                    </main>
+
+                    <footer class="relative z-10 text-center py-6 text-xs font-bold uppercase tracking-widest text-slate-300">
+                        <p>Cofinancé par l'Union européenne</p>
+                    </footer>
+                </div>
+            `;
+
+            app.innerHTML = content;
+            
+            // Initialize Lucide icons
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+            
+            attachEventListeners();
+        }
+
+        function renderWelcomeScreen() {
+            return `
+                <div class="relative flex flex-col items-center justify-center min-h-[70vh] text-center px-4 fade-in">
+                    <div class="relative bg-white p-8 md:p-12 rounded-3xl shadow-2xl max-w-4xl w-full border border-slate-100 overflow-hidden">
+                        <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full opacity-60" style="background-color: ${THEME.colors.yellow};"></div>
+                        
+                        <div class="absolute top-4 right-4 md:top-8 md:right-8 z-10">
+                            <img src="https://static.wixstatic.com/media/dd5dab_47743b1c86024865ba19e623a3db327f~mv2.avif/v1/fill/w_224,h_60,al_c,q_80,enc_avif,quality_auto/dd5dab_47743b1c86024865ba19e623a3db327f~mv2.avif" alt="Logo Partenaire" class="h-8 md:h-12 object-contain" />
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row items-center gap-4 mb-8">
+                            <img src="https://www.lifeskills4youth.eu/wp-content/uploads/2024/07/LS4YOU_Logo_whiteback.jpg" alt="Logo LS4YOU" class="h-10 md:h-12" />
+                            <div class="hidden sm:block h-8 w-[1px] bg-slate-300"></div>
+                            <div class="text-[10px] uppercase tracking-widest font-bold text-slate-400 text-center sm:text-left">
+                                Programme Mission Locale<br/>Life Skills For Youth
+                            </div>
+                        </div>
+                        
+                        <h1 class="text-4xl md:text-7xl font-black text-gray-800 mb-8 uppercase tracking-tight leading-tight font-header" style="color: ${THEME.colors.dark};">
+                            Révélateur de<br/>
+                            <span style="color: ${THEME.colors.red};">Compétences</span>
+                        </h1>
+                        
+                        <div class="flex justify-center gap-2 mb-10">
+                            <div class="w-24 h-3 rounded-full" style="background-color: ${THEME.colors.turquoise};"></div>
+                            <div class="w-10 h-3 rounded-full" style="background-color: ${THEME.colors.yellow};"></div>
+                            <div class="w-6 h-3 rounded-full" style="background-color: ${THEME.colors.pink};"></div>
+                        </div>
+
+                        <p class="text-lg md:text-2xl text-gray-600 mb-12 leading-relaxed font-medium max-w-2xl mx-auto">
+                            Tu penses ne pas avoir d'expérience professionnelle ? Détrompe-toi.<br/>
+                            Tes habitudes de vie cachent des <span class="font-bold text-gray-800">soft skills</span> recherchées.
                         </p>
+                        
+                        <button 
+                            onclick="startQuiz()"
+                            class="group relative inline-flex items-center justify-center py-5 px-12 text-white font-black uppercase tracking-widest text-base md:text-lg rounded-lg shadow-lg transition-all transform hover:-translate-y-1 hover:shadow-2xl font-header"
+                            style="background-color: ${THEME.colors.red};"
+                        >
+                            C'est parti ! 
+                            <i data-lucide="chevron-right" class="ml-2 w-6 h-6"></i>
+                        </button>
                     </div>
+                </div>
+            `;
+        }
 
-                    <div className="text-center">
-                        <p className="text-slate-400 text-xs font-black uppercase tracking-widest mb-6">Est-ce que cela te correspond ?</p>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <button 
-                                onClick={() => onAnswer(skill.id, 2)}
-                                className="group relative py-4 px-2 rounded-xl border-2 bg-white transition-all duration-300 hover:shadow-lg"
-                                style={{ borderColor: THEME.colors.turquoise }}
-                            >
-                                <div className="absolute inset-0 bg-teal-50 opacity-0 group-hover:opacity-100 rounded-xl transition-opacity"></div>
-                                <div className="relative z-10 flex flex-col items-center">
-                                    <CheckCircle2 className="w-8 h-8 mb-2" color={THEME.colors.turquoise} fill={THEME.colors.turquoise + '20'} />
-                                    <span className="font-bold text-slate-800">C'est tout moi</span>
-                                </div>
-                            </button>
-                            
-                            <button 
-                                onClick={() => onAnswer(skill.id, 1)}
-                                className="group relative py-4 px-2 rounded-xl border-2 bg-white transition-all duration-300 hover:shadow-lg"
-                                style={{ borderColor: THEME.colors.yellow }}
-                            >
-                                <div className="absolute inset-0 bg-yellow-50 opacity-0 group-hover:opacity-100 rounded-xl transition-opacity"></div>
-                                <div className="relative z-10 flex flex-col items-center">
-                                     <div className="w-8 h-8 mb-2 rounded-full border-4 flex items-center justify-center" style={{ borderColor: THEME.colors.yellow }}>
-                                        <span className="block w-2 h-2 rounded-full" style={{ backgroundColor: THEME.colors.yellow }}></span>
-                                     </div>
-                                    <span className="font-bold text-slate-800">Ça m'arrive</span>
-                                </div>
-                            </button>
+        function renderSkillCard() {
+            const skill = skillsData[currentSkillIndex];
+            const percentage = Math.round(((currentSkillIndex) / skillsData.length) * 100);
+            
+            return `
+                <div class="max-w-3xl mx-auto w-full px-4 fade-in">
+                    <div class="flex justify-between items-end mb-3 px-2">
+                        <span class="text-xs font-black uppercase tracking-widest text-slate-400">Question</span>
+                        <span class="text-base font-bold" style="color: ${THEME.colors.dark};">${currentSkillIndex + 1} <span class="text-slate-300">/</span> ${skillsData.length}</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-3 mb-6 overflow-hidden border border-slate-300">
+                        <div 
+                            class="h-full rounded-full transition-all duration-500 ease-out" 
+                            style="width: ${percentage}%; background-color: ${THEME.colors.turquoise};"
+                        ></div>
+                    </div>
+                    
+                    <div class="bg-white rounded-3xl shadow-2xl overflow-hidden relative border border-slate-100 transition-all">
+                        <div class="p-8 md:p-12 text-white relative overflow-hidden" style="background-color: ${THEME.colors.dark};">
+                            <div class="absolute -right-6 -top-6 opacity-10 transform rotate-12">
+                                <i data-lucide="puzzle" style="width: 200px; height: 200px;"></i>
+                            </div>
+                            <h2 class="text-xs uppercase tracking-[0.2em] font-black opacity-70 mb-4 font-header">Mise en situation</h2>
+                            <p class="text-xl md:text-3xl font-medium italic leading-relaxed">
+                                "${skill.situation}"
+                            </p>
+                        </div>
 
-                            <button 
-                                onClick={() => onAnswer(skill.id, 0)}
-                                className="group relative py-4 px-2 rounded-xl border-2 border-slate-200 bg-white transition-all duration-300 hover:shadow-lg hover:border-slate-300"
-                            >
-                                <div className="absolute inset-0 bg-slate-50 opacity-0 group-hover:opacity-100 rounded-xl transition-opacity"></div>
-                                <div className="relative z-10 flex flex-col items-center">
-                                    <Circle className="w-8 h-8 mb-2 text-slate-300" />
-                                    <span className="font-bold text-slate-400 group-hover:text-slate-600">Pas vraiment</span>
+                        <div class="p-8 md:p-12">
+                            <div class="mb-12 p-8 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50">
+                                <h3 class="text-2xl font-black mb-3 flex items-center uppercase font-header" style="color: ${THEME.colors.red};">
+                                    <span class="w-2 h-10 mr-4 rounded-full" style="background-color: ${THEME.colors.red};"></span>
+                                    ${skill.title}
+                                </h3>
+                                <p class="text-slate-600 pl-6 text-lg font-medium">
+                                    ${skill.definition}
+                                </p>
+                            </div>
+
+                            <div class="text-center">
+                                <p class="text-slate-400 text-sm font-black uppercase tracking-widest mb-8">Est-ce que cela te correspond ?</p>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <button 
+                                        onclick="handleAnswer(${skill.id}, 2)"
+                                        class="group relative py-6 px-4 rounded-2xl border-2 bg-white transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                                        style="border-color: ${THEME.colors.turquoise};"
+                                    >
+                                        <div class="absolute inset-0 bg-teal-50 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity"></div>
+                                        <div class="relative z-10 flex flex-col items-center">
+                                            <i data-lucide="check-circle-2" class="w-10 h-10 mb-3" style="color: ${THEME.colors.turquoise};"></i>
+                                            <span class="font-bold text-lg text-slate-800">C'est tout moi</span>
+                                        </div>
+                                    </button>
+                                    
+                                    <button 
+                                        onclick="handleAnswer(${skill.id}, 1)"
+                                        class="group relative py-6 px-4 rounded-2xl border-2 bg-white transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                                        style="border-color: ${THEME.colors.yellow};"
+                                    >
+                                        <div class="absolute inset-0 bg-yellow-50 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity"></div>
+                                        <div class="relative z-10 flex flex-col items-center">
+                                            <div class="w-10 h-10 mb-3 rounded-full border-4 flex items-center justify-center" style="border-color: ${THEME.colors.yellow};">
+                                                <span class="block w-3 h-3 rounded-full" style="background-color: ${THEME.colors.yellow};"></span>
+                                            </div>
+                                            <span class="font-bold text-lg text-slate-800">Ça m'arrive</span>
+                                        </div>
+                                    </button>
+
+                                    <button 
+                                        onclick="handleAnswer(${skill.id}, 0)"
+                                        class="group relative py-6 px-4 rounded-2xl border-2 border-slate-200 bg-white transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-slate-300"
+                                    >
+                                        <div class="absolute inset-0 bg-slate-50 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity"></div>
+                                        <div class="relative z-10 flex flex-col items-center">
+                                            <i data-lucide="circle" class="w-10 h-10 mb-3 text-slate-300"></i>
+                                            <span class="font-bold text-lg text-slate-400 group-hover:text-slate-600">Pas vraiment</span>
+                                        </div>
+                                    </button>
                                 </div>
-                            </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    );
-};
-
-export default function App() {
-    const [gameState, setGameState] = useState('welcome'); // welcome, playing, results
-    const [currentSkillIndex, setCurrentSkillIndex] = useState(0);
-    const [userAnswers, setUserAnswers] = useState([]);
-
-    // Injection des polices Google Fonts et du script PDF
-    useEffect(() => {
-        // Font Link
-        const link = document.createElement('link');
-        link.href = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Poppins:wght@400;500;600;700&display=swap';
-        link.rel = 'stylesheet';
-        document.head.appendChild(link);
-
-        // PDF Script
-        const script = document.createElement('script');
-        script.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
-        script.async = true;
-        document.body.appendChild(script);
-
-        return () => {
-            document.head.removeChild(link);
-            document.body.removeChild(script);
+            `;
         }
-    }, []);
 
-    const startQuiz = () => {
-        setGameState('playing');
-        setCurrentSkillIndex(0);
-        setUserAnswers([]);
-    };
+        function renderResultScreen() {
+            const acquired = userAnswers.filter(a => a.rating === 2);
+            const partial = userAnswers.filter(a => a.rating === 1);
+            const todo = userAnswers.filter(a => a.rating === 0);
 
-    const handleAnswer = (skillId, rating) => {
-        const newAnswer = { id: skillId, rating: rating };
-        const newAnswers = [...userAnswers, newAnswer];
-        setUserAnswers(newAnswers);
+            let acquiredHTML = '';
+            if (acquired.length === 0) {
+                acquiredHTML = '<p class="text-gray-400 italic text-lg">Aucune compétence validée à 100%.</p>';
+            } else {
+                acquiredHTML = '<ul class="space-y-6 relative z-10">';
+                acquired.forEach(a => {
+                    const skill = skillsData.find(s => s.id === a.id);
+                    acquiredHTML += `
+                        <li class="pb-4 border-b border-slate-100 last:border-0">
+                            <div class="font-bold text-xl text-slate-800 mb-2">${skill.title}</div>
+                            <div class="flex flex-wrap gap-2">
+                                ${skill.keywords.map(k => `
+                                    <span class="text-xs uppercase font-bold px-3 py-1.5 rounded-md bg-slate-50 text-slate-500 border border-slate-100">
+                                        ${k}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </li>
+                    `;
+                });
+                acquiredHTML += '</ul>';
+            }
 
-        if (currentSkillIndex < skillsData.length - 1) {
-            setTimeout(() => {
-                setCurrentSkillIndex(currentSkillIndex + 1);
-            }, 200);
-        } else {
-            setGameState('results');
+            let partialHTML = '';
+            if (partial.length === 0 && todo.length === 0) {
+                partialHTML = '<p class="text-gray-500 italic text-lg">Tout est acquis ? Bravo !</p>';
+            } else {
+                partialHTML = '<ul class="space-y-4 relative z-10">';
+                partial.forEach(a => {
+                    const skill = skillsData.find(s => s.id === a.id);
+                    partialHTML += `
+                        <li class="flex items-center text-slate-700 font-bold text-lg p-3 rounded-lg bg-yellow-50 border border-yellow-100">
+                            <div class="w-3 h-3 rounded-full mr-4" style="background-color: ${THEME.colors.yellow};"></div>
+                            ${skill.title}
+                        </li>
+                    `;
+                });
+                if (todo.length > 0) {
+                    partialHTML += `<li class="text-sm text-gray-400 mt-8 pt-6 border-t border-slate-200 italic font-medium">+ ${todo.length} compétences à explorer.</li>`;
+                }
+                partialHTML += '</ul>';
+            }
+
+            return `
+                <div class="max-w-6xl mx-auto py-8 px-4 fade-in">
+                    <div class="text-center mb-12 relative">
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-yellow-400 rounded-full blur-3xl opacity-20 -z-10"></div>
+                        <h2 class="text-4xl md:text-6xl font-black uppercase mb-4 font-header" style="color: ${THEME.colors.dark};">
+                            Mon Panorama
+                        </h2>
+                        <div class="w-32 h-3 mx-auto rounded-full mb-6" style="background-color: ${THEME.colors.red};"></div>
+                        <p class="text-lg md:text-xl text-slate-600 font-medium">Voici la traduction professionnelle de ton vécu.</p>
+                    </div>
+
+                    <div class="grid lg:grid-cols-2 gap-8 md:gap-12 mb-16">
+                        <div class="bg-white p-8 md:p-10 rounded-3xl shadow-xl relative overflow-hidden border-t-8 transition-transform hover:-translate-y-2 duration-300" style="border-color: ${THEME.colors.turquoise};">
+                            <div class="absolute top-0 right-0 p-4 opacity-10 transform translate-x-1/4 -translate-y-1/4">
+                                <i data-lucide="star" style="width: 180px; height: 180px; color: ${THEME.colors.turquoise}; fill: ${THEME.colors.turquoise};"></i>
+                            </div>
+                            <h3 class="text-2xl md:text-3xl font-black mb-8 flex items-center font-header" style="color: ${THEME.colors.dark};">
+                                <span class="w-10 h-10 rounded-full flex items-center justify-center mr-4 text-white shadow-md" style="background-color: ${THEME.colors.turquoise};">✓</span>
+                                Points Forts
+                            </h3>
+                            ${acquiredHTML}
+                        </div>
+
+                        <div class="bg-white p-8 md:p-10 rounded-3xl shadow-xl relative overflow-hidden border-t-8 transition-transform hover:-translate-y-2 duration-300" style="border-color: ${THEME.colors.yellow};">
+                            <div class="absolute top-0 right-0 p-4 opacity-10 transform translate-x-1/4 -translate-y-1/4">
+                                <i data-lucide="rocket" style="width: 180px; height: 180px; color: ${THEME.colors.yellow}; fill: ${THEME.colors.yellow};"></i>
+                            </div>
+                            <h3 class="text-2xl md:text-3xl font-black mb-8 flex items-center font-header" style="color: ${THEME.colors.dark};">
+                                <span class="w-10 h-10 rounded-full flex items-center justify-center mr-4 text-white shadow-md" style="background-color: ${THEME.colors.yellow};">~</span>
+                                En développement
+                            </h3>
+                            ${partialHTML}
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-center gap-6 pb-8">
+                        <button 
+                            onclick="downloadPDF()" 
+                            class="flex items-center justify-center py-5 px-10 text-white font-black uppercase tracking-widest text-sm md:text-base rounded-lg shadow-lg hover:shadow-xl transition-transform transform hover:-translate-y-1 font-header"
+                            style="background-color: ${THEME.colors.dark};"
+                        >
+                            <i data-lucide="download" class="w-6 h-6 mr-3"></i>
+                            Télécharger PDF
+                        </button>
+                        <button 
+                            onclick="resetQuiz()" 
+                            class="flex items-center justify-center py-5 px-10 font-black uppercase tracking-widest text-sm md:text-base rounded-lg border-2 hover:bg-slate-50 transition-colors bg-white font-header"
+                            style="border-color: ${THEME.colors.dark}; color: ${THEME.colors.dark};"
+                        >
+                            <i data-lucide="refresh-cw" class="w-6 h-6 mr-3"></i>
+                            Recommencer
+                        </button>
+                    </div>
+                </div>
+            `;
         }
-    };
 
-    const resetQuiz = () => {
-        setGameState('welcome');
-        setUserAnswers([]);
-        setCurrentSkillIndex(0);
-    };
+        // --- EVENT HANDLERS ---
+        function startQuiz() {
+            gameState = 'playing';
+            currentSkillIndex = 0;
+            userAnswers = [];
+            render();
+        }
 
-    return (
-        <div className="min-h-screen relative overflow-hidden" style={{ fontFamily: THEME.fonts.body, backgroundColor: THEME.colors.slate }}>
-            <DotGrid />
+        function handleAnswer(skillId, rating) {
+            const newAnswer = { id: skillId, rating: rating };
+            userAnswers.push(newAnswer);
+
+            if (currentSkillIndex < skillsData.length - 1) {
+                setTimeout(() => {
+                    currentSkillIndex++;
+                    render();
+                }, 200);
+            } else {
+                gameState = 'results';
+                render();
+            }
+        }
+
+        function resetQuiz() {
+            gameState = 'welcome';
+            userAnswers = [];
+            currentSkillIndex = 0;
+            render();
+        }
+
+        function downloadPDF() {
+            if (!window.jspdf) {
+                alert("Erreur: La librairie PDF n'est pas encore chargée. Veuillez réessayer dans quelques secondes.");
+                return;
+            }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
             
-            <header className="relative z-10 p-6 flex justify-between items-center no-print">
-                 <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{backgroundColor: THEME.colors.red}}></div>
-                    <span className="text-xs font-black uppercase tracking-widest text-slate-400">LS4YOU • Tools</span>
-                 </div>
-                 {/* Logo removed from here to be placed in Welcome Screen as requested */}
-            </header>
+            const acquired = userAnswers.filter(a => a.rating === 2);
+            const partial = userAnswers.filter(a => a.rating === 1);
+            
+            // Header
+            doc.setFillColor(230, 57, 70);
+            doc.rect(0, 0, 210, 20, 'F');
+            
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(22);
+            doc.text("LS4YOU - MON PROFIL", 105, 13, { align: "center" });
+            
+            doc.setTextColor(29, 53, 87);
+            doc.setFontSize(10);
+            doc.text(`Généré le ${new Date().toLocaleDateString()}`, 20, 30);
 
-            <main className="relative z-10 pb-12">
-                {gameState === 'welcome' && <WelcomeScreen onStart={startQuiz} />}
-                {gameState === 'playing' && (
-                    <SkillCard 
-                        skill={skillsData[currentSkillIndex]} 
-                        onAnswer={handleAnswer}
-                        currentNumber={currentSkillIndex + 1}
-                        totalNumber={skillsData.length}
-                    />
-                )}
-                {gameState === 'results' && <ResultScreen answers={userAnswers} onReset={resetQuiz} />}
-            </main>
+            let yPos = 45;
 
-            <footer className="relative z-10 text-center py-6 text-[10px] font-bold uppercase tracking-widest text-slate-300">
-                <p>Cofinancé par l'Union européenne</p>
-            </footer>
-        </div>
-    );
-}
+            // Points Forts
+            if (acquired.length > 0) {
+                doc.setFillColor(46, 196, 182);
+                doc.rect(20, yPos - 6, 170, 10, 'F');
+                doc.setTextColor(255);
+                doc.setFontSize(12);
+                doc.text("MES POINTS FORTS (Acquis)", 25, yPos);
+                yPos += 15;
+                
+                doc.setTextColor(0);
+                doc.setFontSize(11);
+                
+                acquired.forEach(item => {
+                    const skill = skillsData.find(s => s.id === item.id);
+                    if (yPos > 270) { doc.addPage(); yPos = 20; }
+                    doc.setFont("helvetica", "bold");
+                    doc.text(`• ${skill.title}`, 25, yPos);
+                    doc.setFont("helvetica", "normal");
+                    doc.setFontSize(10);
+                    doc.setTextColor(100);
+                    doc.text(`  ${skill.keywords.join(" - ")}`, 25, yPos + 5);
+                    doc.setTextColor(0);
+                    doc.setFontSize(11);
+                    yPos += 12;
+                });
+                yPos += 10;
+            }
+
+            // En cours
+            if (partial.length > 0) {
+                if (yPos > 270) { doc.addPage(); yPos = 20; }
+                doc.setFillColor(255, 183, 3);
+                doc.rect(20, yPos - 6, 170, 10, 'F');
+                doc.setTextColor(29, 53, 87);
+                doc.setFontSize(12);
+                doc.setFont("helvetica", "bold");
+                doc.text("EN DÉVELOPPEMENT", 25, yPos);
+                yPos += 15;
+                
+                doc.setTextColor(0);
+                doc.setFontSize(11);
+
+                partial.forEach(item => {
+                    const skill = skillsData.find(s => s.id === item.id);
+                    if (yPos > 270) { doc.addPage(); yPos = 20; }
+                    doc.text(`• ${skill.title}`, 25, yPos);
+                    yPos += 8;
+                });
+            }
+            
+            doc.save("mon-profil-LS4YOU.pdf");
+        }
+
+        function attachEventListeners() {
+            // Event listeners are attached via onclick attributes in HTML
+        }
+
+        // --- INIT ---
+        document.addEventListener('DOMContentLoaded', function() {
+            render();
+        });
+    </script>
+</body>
+</html>
