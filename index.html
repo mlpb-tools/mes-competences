@@ -1,1029 +1,633 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LS4YOU - Mes Compétences Cachées</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --ls-red: #E63946;
-            --ls-yellow: #FFB703;
-            --ls-turquoise: #2EC4B6;
-            --ls-pink: #FF99AC;
-            --ls-dark: #1D3557;
-            --ls-white: #FFFFFF;
-        }
+import React, { useState, useEffect } from 'react';
+import { Download, RefreshCw, Star, Rocket, ChevronRight, Puzzle, CheckCircle2, Circle } from 'lucide-react';
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--ls-white);
-            color: var(--ls-dark);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+// --- STYLE & THEME CONSTANTS ---
+const THEME = {
+    colors: {
+        red: '#E63946',
+        yellow: '#FFB703',
+        turquoise: '#2EC4B6',
+        pink: '#FF99AC',
+        dark: '#1D3557',
+        white: '#FFFFFF',
+        slate: '#F1FAEE', // Un blanc cassé très léger pour le fond
+    },
+    fonts: {
+        header: '"Montserrat", sans-serif',
+        body: '"Poppins", sans-serif',
+    }
+};
 
-        h1, h2, h3, h4 { 
-            font-family: 'Montserrat', sans-serif; 
-            font-weight: 900; 
-        }
+// --- DATA: Les compétences et les situations ---
+const skillsData = [
+    {
+        id: 1,
+        title: "Esprit d'analyse",
+        definition: "Comprendre le 'pourquoi' et le 'comment' d'une situation.",
+        situation: "Tu dois choisir un nouveau téléphone ou une destination de vacances. Tu compares les prix, les avis, la batterie et les options avant de te décider.",
+        keywords: ["Comparaison", "Diagnostic", "Étude"]
+    },
+    {
+        id: 2,
+        title: "Capacité de résolution",
+        definition: "Trouver des solutions face à un problème bloquant.",
+        situation: "Ton PC plante, ta console ne se connecte pas ou une fermeture éclair est coincée. Tu testes plusieurs trucs jusqu'à ce que ça remarche.",
+        keywords: ["Dépannage", "Solution", "Débrouillardise"]
+    },
+    {
+        id: 3,
+        title: "Discernement / Vigilance",
+        definition: "Ne pas se faire avoir, savoir évaluer la fiabilité.",
+        situation: "Tu reçois un mail bizarre t'annonçant que tu as gagné un iPhone, ou tu vois une info choc sur TikTok. Tu vérifies la source avant de cliquer ou de partager.",
+        keywords: ["Esprit critique", "Vérification", "Prudence"]
+    },
+    {
+        id: 4,
+        title: "Aisance relationnelle",
+        definition: "Facilité à entrer en contact avec les autres.",
+        situation: "En soirée ou dans un nouveau groupe, tu arrives facilement à discuter avec des gens que tu ne connais pas encore.",
+        keywords: ["Communication", "Contact", "Sociabilité"]
+    },
+    {
+        id: 5,
+        title: "Sens de la coopération",
+        definition: "Travailler avec les autres vers un but commun.",
+        situation: "Dans un jeu vidéo en équipe ou pour organiser l'anniversaire d'un ami, tu te coordonnes avec les autres pour que le plan fonctionne.",
+        keywords: ["Travail d'équipe", "Entraide", "Collectif"]
+    },
+    {
+        id: 6,
+        title: "Prise d'initiative",
+        definition: "Agir sans attendre qu'on te le demande.",
+        situation: "Personne ne sait quoi faire ce soir. Tu proposes un lieu, une heure et tu lances le mouvement.",
+        keywords: ["Proactivité", "Moteur", "Proposition"]
+    },
+    {
+        id: 7,
+        title: "Maîtrise de soi",
+        definition: "Garder son calme sous la pression.",
+        situation: "Tu perds une partie importante en ligne ou tu rates ton bus de justesse. Tu es frustré, mais tu ne casses rien et tu restes poli.",
+        keywords: ["Sang-froid", "Patience", "Gestion des émotions"]
+    },
+    {
+        id: 8,
+        title: "Persévérance",
+        definition: "Ne pas abandonner face à la difficulté.",
+        situation: "Tu essaies d'apprendre un trick de skate, un morceau de guitare ou de passer un niveau difficile. Tu rates 10 fois, mais tu recommences.",
+        keywords: ["Tenacité", "Effort", "Motivation"]
+    },
+    {
+        id: 9,
+        title: "Affirmation professionnelle",
+        definition: "Savoir dire ce qu'on pense ou veut, avec respect.",
+        situation: "Tes amis veulent aller voir un film qui ne te tente pas du tout. Tu oses dire 'Non, ça ne me dit rien, je préfère faire autre chose' sans être agressif.",
+        keywords: ["Confiance", "Assertivité", "Positionnement"]
+    },
+    {
+        id: 10,
+        title: "Capacité d'apprentissage",
+        definition: "Acquérir de nouvelles connaissances par soi-même.",
+        situation: "Tu ne sais pas faire quelque chose (monter un meuble, utiliser un logiciel). Tu regardes un tuto YouTube et tu apprends à le faire.",
+        keywords: ["Curiosité", "Auto-formation", "Adaptation"]
+    },
+    {
+        id: 11,
+        title: "Créativité appliquée",
+        definition: "Inventer ou adapter avec ce qu'on a.",
+        situation: "Tu dois cuisiner mais il manque la moitié des ingrédients. Tu improvises avec ce qu'il y a dans le frigo et c'est bon.",
+        keywords: ["Innovation", "Système D", "Imagination"]
+    },
+    {
+        id: 12,
+        title: "Ouverture d'esprit",
+        definition: "Accepter la nouveauté et la différence.",
+        situation: "On te propose de goûter un plat étranger bizarre ou d'écouter un style de musique que tu ne connais pas. Tu testes avant de juger.",
+        keywords: ["Tolérance", "Curiosité", "Inclusion"]
+    },
+    {
+        id: 13,
+        title: "Organisation personnelle",
+        definition: "Structurer ses tâches pour être efficace.",
+        situation: "Tu pars en voyage. Tu prépares ta valise la veille avec une liste pour être sûr de ne rien oublier (chargeur, brosse à dents...).",
+        keywords: ["Planification", "Ordre", "Méthode"]
+    },
+    {
+        id: 14,
+        title: "Autonomie décisionnelle",
+        definition: "Faire des choix seul et les assumer.",
+        situation: "Tu dois choisir tes vêtements, ta coiffure ou tes options au lycée. Tu écoutes les avis, mais au final, c'est toi qui tranches.",
+        keywords: ["Choix", "Indépendance", "Responsabilité"]
+    },
+    {
+        id: 15,
+        title: "Agilité professionnelle",
+        definition: "S'adapter rapidement au changement.",
+        situation: "Une sortie était prévue mais il pleut des cordes. Tu ne restes pas bloqué, tu trouves tout de suite un plan B sympa.",
+        keywords: ["Adaptabilité", "Flexibilité", "Réactivité"]
+    },
+    {
+        id: 16,
+        title: "Responsabilité numérique",
+        definition: "Gérer sa présence et ses traces en ligne.",
+        situation: "Tu fais attention aux photos que tu postes et tu règles tes paramètres de confidentialité pour que tout le monde ne voie pas ta vie privée.",
+        keywords: ["Cyber-sécurité", "E-réputation", "Vie privée"]
+    },
+    {
+        id: 17,
+        title: "Usage raisonné de l'IA",
+        definition: "Utiliser l'intelligence artificielle comme un outil, pas une béquille.",
+        situation: "Tu utilises ChatGPT pour t'expliquer un texte compliqué ou te donner des idées, mais tu rédiges toi-même la réponse finale.",
+        keywords: ["Prompting", "Esprit critique", "Outil"]
+    },
+    {
+        id: 18,
+        title: "Conscience environnementale",
+        definition: "Agir pour limiter son impact écologique.",
+        situation: "Tu tries tes déchets, tu revends tes vieux jeux/vêtements sur Vinted au lieu de jeter, ou tu prends le vélo quand c'est possible.",
+        keywords: ["Écologie", "Sobriété", "Durabilité"]
+    },
+    {
+        id: 19,
+        title: "Ponctualité et assiduité",
+        definition: "Respecter le temps et l'engagement.",
+        situation: "Quand tu as rendez-vous avec des potes pour un ciné à 20h, tu t'arranges pour être là à 19h55, pas 20h30.",
+        keywords: ["Rigueur", "Fiabilité", "Respect des horaires"]
+    },
+    {
+        id: 20,
+        title: "Respect des codes",
+        definition: "Adapter son comportement au contexte.",
+        situation: "Tu ne parles pas à ton prof, à un commerçant ou à ta grand-mère de la même façon qu'à ton meilleur ami.",
+        keywords: ["Savoir-être", "Politesse", "Adaptation"]
+    },
+    {
+        id: 21,
+        title: "Sens de la confidentialité",
+        definition: "Savoir garder une information pour soi.",
+        situation: "Un ami te confie un secret important. Même si d'autres insistent pour savoir, tu gardes le silence.",
+        keywords: ["Discrétion", "Confiance", "Secret professionnel"]
+    },
+    {
+        id: 22,
+        title: "Prévention des risques",
+        definition: "Anticiper le danger pour soi et les autres.",
+        situation: "En voiture, tu mets ta ceinture. En soirée, tu t'assures que celui qui conduit n'a pas bu.",
+        keywords: ["Sécurité", "Prudence", "Anticipation"]
+    },
+    {
+        id: 23,
+        title: "Gestion du capital santé",
+        definition: "Prendre soin de sa capacité à travailler.",
+        situation: "Tu as un gros examen ou un match le lendemain. Tu te couches plus tôt pour être en forme.",
+        keywords: ["Hygiène de vie", "Énergie", "Équilibre"]
+    },
+    {
+        id: 24,
+        title: "Intelligence interculturelle",
+        definition: "Comprendre et respecter les différences culturelles.",
+        situation: "Tu as un ami qui a des coutumes ou une religion différente. Tu poses des questions pour comprendre et tu respectes ses interdits alimentaires.",
+        keywords: ["Diversité", "Inclusion", "Ouverture"]
+    },
+    {
+        id: 25,
+        title: "Médiation / CNV",
+        definition: "Résoudre les conflits par le dialogue.",
+        situation: "Deux de tes amis s'embrouillent. Au lieu de mettre de l'huile sur le feu, tu essaies de calmer le jeu et de les faire discuter.",
+        keywords: ["Négociation", "Pacification", "Écoute"]
+    },
+    {
+        id: 26,
+        title: "Compréhension du cadre",
+        definition: "Accepter les règles du jeu.",
+        situation: "Avant de rejoindre un serveur Discord ou un club de sport, tu lis le règlement pour savoir ce qui est banni ou autorisé.",
+        keywords: ["Règlement", "Conformité", "Limites"]
+    },
+    {
+        id: 27,
+        title: "Autonomie administrative",
+        definition: "Gérer ses papiers et formalités.",
+        situation: "Tu dois t'inscrire quelque part ou refaire ta carte d'identité. Tu remplis le dossier et rassembles les pièces sans que tes parents fassent tout.",
+        keywords: ["Gestion", "Rigueur", "Formalités"]
+    },
+    {
+        id: 28,
+        title: "Connaissance du territoire",
+        definition: "Savoir utiliser les ressources autour de soi.",
+        situation: "Tu sais où se trouve la mairie, où prendre le bus pour aller en ville, ou où trouver une asso de sport dans ton quartier.",
+        keywords: ["Mobilité", "Réseau", "Ressources"]
+    }
+];
 
-        .dot-grid {
-            background-image: radial-gradient(var(--ls-dark) 1px, transparent 1px);
-            background-size: 12px 12px;
-            opacity: 0.1;
-        }
+// --- COMPONENTS STYLE LS4YOU ---
 
-        .btn-primary {
-            background-color: var(--ls-red);
-            color: white;
-            border-radius: 50px;
-            padding: 1rem 2.5rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3);
-        }
-        .btn-primary:hover:not(:disabled) { 
-            background-color: #c92f3b; 
-            transform: translateY(-2px); 
-            box-shadow: 0 6px 20px rgba(230, 57, 70, 0.4);
-        }
-        .btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
+// Background Decoration (Points)
+const DotGrid = () => (
+    <div 
+        className="absolute inset-0 pointer-events-none opacity-10"
+        style={{
+            backgroundImage: `radial-gradient(${THEME.colors.dark} 1px, transparent 1px)`,
+            backgroundSize: '12px 12px'
+        }}
+    />
+);
 
-        .btn-choice {
-            border: 2px solid #E2E8F0;
-            background: white;
-            border-radius: 20px;
-            padding: 1.2rem 1.5rem;
-            transition: all 0.3s;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .btn-choice:hover {
-            border-color: var(--ls-turquoise);
-            transform: translateX(4px);
-            box-shadow: -4px 0 0 var(--ls-turquoise);
-        }
-        .btn-choice.selected {
-            border-color: var(--ls-red);
-            background: rgba(230, 57, 70, 0.05);
-            box-shadow: -6px 0 0 var(--ls-red);
-        }
+const LogoHeader = () => (
+    <div className="flex items-center gap-4 mb-8">
+         <img src="https://www.lifeskills4youth.eu/wp-content/uploads/2024/07/LS4YOU_Logo_whiteback.jpg" alt="Logo LS4YOU" className="h-10 md:h-12" />
+         <div className="hidden sm:block h-8 w-[1px] bg-slate-300"></div>
+         <div className="hidden sm:block text-[10px] uppercase tracking-widest font-bold text-slate-400">
+            Programme Mission Locale<br/>Life Skills For Youth
+         </div>
+    </div>
+);
 
-        .progress-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #E2E8F0;
-            transition: all 0.3s;
-        }
-        .progress-dot.active { background: var(--ls-red); transform: scale(1.3); }
-        .progress-dot.done { background: var(--ls-turquoise); }
+const ProgressBar = ({ current, total }) => {
+    const percentage = Math.round(((current) / total) * 100);
+    return (
+        <div className="w-full bg-slate-200 rounded-full h-3 mb-6 overflow-hidden border border-slate-300">
+            <div 
+                className="h-full rounded-full transition-all duration-500" 
+                style={{ 
+                    width: `${percentage}%`,
+                    backgroundColor: THEME.colors.turquoise
+                }}
+            ></div>
+        </div>
+    );
+};
 
-        .skill-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.8rem 1.5rem;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .skill-badge.full { background: var(--ls-red); color: white; }
-        .skill-badge.partial { background: var(--ls-yellow); color: var(--ls-dark); }
-
-        .puzzle-piece {
-            position: absolute;
-            opacity: 0.15;
-            pointer-events: none;
-        }
-
-        .shape-circle {
-            border-radius: 50%;
-            position: absolute;
-            opacity: 0.9;
-        }
-
-        .animate-slide-up {
-            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .radar-container {
-            position: relative;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white !important; }
-        }
-
-        /* Scrollbar custom */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #F1F5F9; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--ls-turquoise); border-radius: 10px; }
-    </style>
-</head>
-<body class="antialiased">
-
-    <!-- Header -->
-    <header class="bg-white px-8 py-4 flex justify-between items-center border-b border-slate-50 no-print">
-        <div class="flex items-center gap-6">
-            <img src="https://www.lifeskills4youth.eu/wp-content/uploads/2024/07/LS4YOU_Logo_whiteback.jpg" alt="Logo LS4YOU" class="h-8">
-            <div class="h-6 w-[1px] bg-slate-200 hidden sm:block"></div>
-            <div class="text-[9px] uppercase tracking-widest font-bold text-slate-400 hidden sm:block">
-                Programme Mission Locale • Life Skills For Youth
+const WelcomeScreen = ({ onStart }) => (
+    <div className="relative flex flex-col items-center justify-center min-h-[70vh] text-center px-4 animate-[fadeIn_0.6s_ease-out]">
+        <div className="relative bg-white p-10 rounded-3xl shadow-2xl max-w-3xl w-full border border-slate-100 overflow-hidden">
+            {/* Déco forme jaune */}
+            <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-50" style={{backgroundColor: THEME.colors.yellow}}></div>
+            
+            {/* Logo Partenaire sur le rond jaune (Miroir) */}
+            <div className="absolute top-8 right-8 z-10">
+                 <img src="https://static.wixstatic.com/media/dd5dab_47743b1c86024865ba19e623a3db327f~mv2.avif/v1/fill/w_224,h_60,al_c,q_80,enc_avif,quality_auto/dd5dab_47743b1c86024865ba19e623a3db327f~mv2.avif" alt="Logo Partenaire" className="h-8 md:h-10 object-contain" />
             </div>
-        </div>
-        <div class="flex items-center gap-3">
-            <span class="text-[9px] font-bold text-right text-slate-500">Cofinancé par<br>l'Union européenne</span>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Flag_of_Europe.svg" alt="UE" class="h-5">
-        </div>
-    </header>
 
-    <!-- Vue Accueil -->
-    <div id="welcome-view" class="min-h-screen relative overflow-hidden flex items-center justify-center p-8">
-        <!-- Décorations -->
-        <div class="dot-grid absolute inset-0"></div>
-        <div class="shape-circle w-96 h-96 bg-ls-yellow top-10 right-10"></div>
-        <div class="shape-circle w-64 h-64 bg-ls-turquoise bottom-20 left-20"></div>
-        
-        <!-- Puzzle décoratif -->
-        <svg class="puzzle-piece w-96 h-96 top-1/4 left-1/3" viewBox="0 0 24 24" fill="var(--ls-red)">
-            <path d="M18.88 12.17c.56 0 1.12-.13 1.62-.4.43-.22.8-.52 1.1-.9.3-.37.52-.8.65-1.27.13-.47.15-.96.06-1.44-.1-.48-.3-.93-.6-1.33-.3-.4-.68-.72-1.13-.95-.45-.23-.94-.35-1.44-.35-.5 0-.99.12-1.44.35-.45.23-.83.55-1.13.95s-.5.85-.6 1.33c-.09.48-.07.97.06 1.44s.35.9.65 1.27c.3.38.67.68 1.1.9s1.06.4 1.62.4zM5 14h2v2h2v2h2v2h2v-2h2v-2h2v-2h2v-2h-2v-2h-2V8h-2V6h-2V4h-2v2H9v2H7v2H5v2H3v2h2z"/>
-        </svg>
-
-        <div class="relative z-10 max-w-4xl text-center animate-slide-up">
-            <h1 class="text-7xl lg:text-9xl leading-[0.85] mb-8">
-                DE MON<br>
-                <span class="text-ls-red">QUOTIDIEN</span><br>
-                À MON POTENTIEL
+            <LogoHeader />
+            
+            <h1 className="text-4xl md:text-6xl font-black text-gray-800 mb-6 uppercase tracking-tight" style={{ fontFamily: THEME.fonts.header, color: THEME.colors.dark }}>
+                Révélateur de<br/>
+                <span style={{ color: THEME.colors.red }}>Compétences</span>
             </h1>
             
-            <div class="flex gap-2 justify-center mb-8">
-                <div class="w-32 h-3 bg-ls-turquoise rounded-full"></div>
-                <div class="w-16 h-3 bg-ls-yellow rounded-full"></div>
-                <div class="w-8 h-3 bg-ls-pink rounded-full"></div>
+            <div className="flex justify-center gap-2 mb-8">
+                <div className="w-20 h-2 rounded-full" style={{backgroundColor: THEME.colors.turquoise}}></div>
+                <div className="w-8 h-2 rounded-full" style={{backgroundColor: THEME.colors.yellow}}></div>
+                <div className="w-4 h-2 rounded-full" style={{backgroundColor: THEME.colors.pink}}></div>
             </div>
 
-            <p class="text-xl lg:text-2xl font-semibold text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed">
-                Découvre les <span class="text-ls-red">27 compétences professionnelles</span> que tu utilises déjà tous les jours... sans le savoir !
+            <p className="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed font-medium" style={{ fontFamily: THEME.fonts.body }}>
+                Tu penses ne pas avoir d'expérience professionnelle ? Détrompe-toi.<br/>
+                Tes habitudes de vie cachent des <span className="font-bold text-gray-800">soft skills</span> recherchées.
             </p>
-
-            <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 border border-slate-100 shadow-xl mb-12 max-w-2xl mx-auto">
-                <div class="flex items-start gap-4 mb-6">
-                    <i data-lucide="lightbulb" class="w-10 h-10 text-ls-yellow flex-shrink-0"></i>
-                    <div class="text-left">
-                        <h3 class="font-bold text-lg mb-2">Comment ça marche ?</h3>
-                        <ul class="text-sm text-slate-600 space-y-2">
-                            <li class="flex items-start gap-2">
-                                <span class="text-ls-red font-bold">1.</span>
-                                <span>Je lis une situation de la vie quotidienne</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <span class="text-ls-red font-bold">2.</span>
-                                <span>Je dis si ça me ressemble complètement, partiellement ou pas du tout</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <span class="text-ls-red font-bold">3.</span>
-                                <span>Je découvre mes compétences pro et je télécharge mon profil</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 text-xs text-slate-500">
-                    <i data-lucide="clock" class="w-4 h-4"></i>
-                    <span>Durée : environ 15-20 minutes</span>
-                </div>
-            </div>
-
-            <button onclick="startAssessment()" class="btn-primary text-lg">
-                C'est parti ! 🚀
+            
+            <button 
+                onClick={onStart}
+                className="group relative inline-flex items-center justify-center py-4 px-10 text-white font-black uppercase tracking-widest text-sm rounded-lg shadow-lg transition-all transform hover:-translate-y-1 hover:shadow-xl"
+                style={{ backgroundColor: THEME.colors.red, fontFamily: THEME.fonts.header }}
+            >
+                C'est parti ! 
+                <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
         </div>
     </div>
+);
 
-    <!-- Vue Évaluation -->
-    <div id="assessment-view" class="hidden min-h-screen relative p-6 lg:p-12">
-        <div class="dot-grid absolute inset-0"></div>
+const ResultScreen = ({ answers, onReset }) => {
+    // Séparer les compétences
+    const acquired = answers.filter(a => a.rating === 2); 
+    const partial = answers.filter(a => a.rating === 1); 
+    const todo = answers.filter(a => a.rating === 0);
+
+    const downloadPDF = () => {
+        if (!window.jspdf) {
+            alert("Erreur: La librairie PDF n'est pas encore chargée. Veuillez réessayer dans quelques secondes.");
+            return;
+        }
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
         
-        <!-- Barre de progression -->
-        <div class="max-w-5xl mx-auto mb-12 relative z-10">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <div class="text-xs uppercase tracking-widest font-bold text-slate-400 mb-2">Progression</div>
-                    <div class="text-3xl font-black">
-                        <span id="current-skill-num" class="text-ls-red">1</span>
-                        <span class="text-slate-300"> / 27</span>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <div class="text-xs uppercase tracking-widest font-bold text-slate-400 mb-2">Compétences identifiées</div>
-                    <div class="text-3xl font-black text-ls-turquoise" id="identified-count">0</div>
-                </div>
-            </div>
+        // Header
+        doc.setFillColor(230, 57, 70); // Red
+        doc.rect(0, 0, 210, 20, 'F');
+        
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.text("LS4YOU - MON PROFIL", 105, 13, { align: "center" });
+        
+        doc.setTextColor(29, 53, 87); // Dark Blue
+        doc.setFontSize(10);
+        doc.text(`Généré le ${new Date().toLocaleDateString()}`, 20, 30);
+
+        let yPos = 45;
+
+        // Points Forts
+        if (acquired.length > 0) {
+            doc.setFillColor(46, 196, 182); // Turquoise
+            doc.rect(20, yPos - 6, 170, 10, 'F');
+            doc.setTextColor(255);
+            doc.setFontSize(12);
+            doc.text("MES POINTS FORTS (Acquis)", 25, yPos);
+            yPos += 15;
             
-            <div class="flex gap-2 overflow-x-auto pb-2 custom-scrollbar" id="progress-dots">
-                <!-- Généré par JS -->
-            </div>
-        </div>
+            doc.setTextColor(0);
+            doc.setFontSize(11);
+            
+            acquired.forEach(item => {
+                const skill = skillsData.find(s => s.id === item.id);
+                if (yPos > 270) { doc.addPage(); yPos = 20; }
+                doc.setFont("helvetica", "bold");
+                doc.text(`• ${skill.title}`, 25, yPos);
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(10);
+                doc.setTextColor(100);
+                doc.text(`  ${skill.keywords.join(" - ")}`, 25, yPos + 5);
+                doc.setTextColor(0);
+                doc.setFontSize(11);
+                yPos += 12;
+            });
+            yPos += 10;
+        }
 
-        <!-- Carte de compétence -->
-        <div class="max-w-4xl mx-auto relative z-10">
-            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
-                <!-- Header de la carte -->
-                <div class="bg-gradient-to-r from-ls-red to-ls-pink p-8 text-white">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                            <i id="skill-icon" data-lucide="sparkles" class="w-8 h-8"></i>
-                        </div>
-                        <div>
-                            <div class="text-xs uppercase tracking-widest opacity-80 mb-1">Compétence professionnelle</div>
-                            <h2 id="skill-name" class="text-3xl lg:text-4xl font-black uppercase">Esprit d'analyse</h2>
-                        </div>
-                    </div>
-                    <p id="skill-definition" class="text-lg opacity-90 leading-relaxed">
-                        C'est ta capacité à regarder une situation sous tous les angles...
-                    </p>
-                </div>
+        // En cours
+        if (partial.length > 0) {
+            if (yPos > 270) { doc.addPage(); yPos = 20; }
+            doc.setFillColor(255, 183, 3); // Yellow
+            doc.rect(20, yPos - 6, 170, 10, 'F');
+            doc.setTextColor(29, 53, 87); // Dark text on yellow
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "bold");
+            doc.text("EN DÉVELOPPEMENT", 25, yPos);
+            yPos += 15;
+            
+            doc.setTextColor(0);
+            doc.setFontSize(11);
 
-                <!-- Corps de la carte -->
-                <div class="p-8 lg:p-12">
-                    <div class="mb-8">
-                        <h3 class="text-xs uppercase tracking-widest font-bold text-ls-turquoise mb-4 flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-ls-turquoise"></span>
-                            Une situation de tous les jours
-                        </h3>
-                        <div class="bg-slate-50 rounded-2xl p-6 border-l-4 border-ls-yellow">
-                            <h4 id="situation-title" class="font-bold text-lg mb-3 text-ls-dark">Le choix du bon plan mobile</h4>
-                            <p id="situation-text" class="text-slate-700 leading-relaxed">
-                                <!-- Texte de situation -->
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="mb-8">
-                        <h3 class="text-xs uppercase tracking-widest font-bold text-ls-red mb-6 flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-ls-red"></span>
-                            Est-ce que cette situation te ressemble ?
-                        </h3>
-                        
-                        <div class="space-y-4">
-                            <button onclick="selectChoice(2)" class="btn-choice w-full text-left flex items-center gap-4" data-choice="2">
-                                <div class="w-12 h-12 rounded-full bg-ls-red flex items-center justify-center text-white font-black flex-shrink-0">
-                                    ✓✓
-                                </div>
-                                <div class="flex-grow">
-                                    <div class="font-bold mb-1">Complètement - C'est tout à fait moi</div>
-                                    <div class="text-sm text-slate-500" id="choice-full-text">Je fais exactement ça dans ce genre de situation</div>
-                                </div>
-                            </button>
-
-                            <button onclick="selectChoice(1)" class="btn-choice w-full text-left flex items-center gap-4" data-choice="1">
-                                <div class="w-12 h-12 rounded-full bg-ls-yellow flex items-center justify-center text-ls-dark font-black flex-shrink-0">
-                                    ✓
-                                </div>
-                                <div class="flex-grow">
-                                    <div class="font-bold mb-1">Partiellement - Ça dépend</div>
-                                    <div class="text-sm text-slate-500">Je le fais parfois, mais pas systématiquement</div>
-                                </div>
-                            </button>
-
-                            <button onclick="selectChoice(0)" class="btn-choice w-full text-left flex items-center gap-4" data-choice="0">
-                                <div class="w-12 h-12 rounded-full bg-slate-300 flex items-center justify-center text-slate-600 font-black flex-shrink-0">
-                                    ✗
-                                </div>
-                                <div class="flex-grow">
-                                    <div class="font-bold mb-1">Pas vraiment - Ce n'est pas mon style</div>
-                                    <div class="text-sm text-slate-500">Ce n'est pas comme ça que je fonctionne</div>
-                                </div>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Message de feedback (caché au départ) -->
-                    <div id="feedback-box" class="hidden mb-6 p-6 rounded-2xl border-2 animate-slide-up">
-                        <div class="flex items-start gap-4">
-                            <i id="feedback-icon" data-lucide="check-circle" class="w-8 h-8 flex-shrink-0"></i>
-                            <div>
-                                <h4 class="font-bold text-lg mb-2" id="feedback-title">Super !</h4>
-                                <p id="feedback-text" class="text-sm leading-relaxed"></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end gap-4">
-                        <button id="btn-next" onclick="nextSkill()" class="btn-primary" disabled>
-                            Compétence suivante
-                            <i data-lucide="arrow-right" class="inline w-5 h-5 ml-2"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Vue Résultats -->
-    <div id="results-view" class="hidden min-h-screen relative overflow-hidden p-8 lg:p-20">
-        <!-- Formes décoratives -->
-        <div class="shape-circle w-[500px] h-[400px] bg-ls-yellow top-[-100px] right-[-150px]"></div>
-        <div class="dot-grid absolute top-20 left-10 w-40 h-40 opacity-20"></div>
+            partial.forEach(item => {
+                const skill = skillsData.find(s => s.id === item.id);
+                if (yPos > 270) { doc.addPage(); yPos = 20; }
+                doc.text(`• ${skill.title}`, 25, yPos);
+                yPos += 8;
+            });
+        }
         
-        <div class="max-w-7xl mx-auto relative z-10">
-            <!-- En-tête résultats -->
-            <div class="text-center mb-16 animate-slide-up">
-                <h2 class="text-6xl lg:text-8xl leading-[0.85] mb-6">
-                    TON PROFIL<br>
-                    <span class="text-ls-red">DE COMPÉTENCES</span>
+        doc.save("mon-profil-LS4YOU.pdf");
+    };
+
+    return (
+        <div className="max-w-5xl mx-auto py-8 px-4 animate-[fadeIn_0.8s_ease-out]">
+            <div className="text-center mb-10 relative">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-yellow-400 rounded-full blur-3xl opacity-20 -z-10"></div>
+                <h2 className="text-4xl md:text-5xl font-black uppercase mb-2" style={{ fontFamily: THEME.fonts.header, color: THEME.colors.dark }}>
+                    Mon Panorama
                 </h2>
-                <div class="flex gap-2 justify-center mb-8">
-                    <div class="w-32 h-3 bg-ls-turquoise rounded-full"></div>
-                    <div class="w-16 h-3 bg-ls-yellow rounded-full"></div>
-                </div>
-                <p class="text-xl text-slate-600 max-w-3xl mx-auto">
-                    Voici les <span class="font-bold text-ls-red" id="total-identified">0</span> compétences professionnelles que tu maîtrises déjà !
-                </p>
+                <div className="w-24 h-2 mx-auto rounded-full mb-4" style={{ backgroundColor: THEME.colors.red }}></div>
+                <p className="text-lg text-slate-600" style={{ fontFamily: THEME.fonts.body }}>Voici la traduction professionnelle de ton vécu.</p>
             </div>
 
-            <!-- Grille de résultats -->
-            <div class="grid lg:grid-cols-2 gap-12 mb-16">
-                <!-- Radar Chart -->
-                <div class="bg-white rounded-3xl p-8 shadow-xl border border-slate-100 animate-slide-up">
-                    <h3 class="text-xs uppercase tracking-widest font-bold text-slate-400 mb-6 flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-ls-turquoise"></span>
-                        Cartographie visuelle
+            <div className="grid md:grid-cols-2 gap-8 mb-12">
+                {/* Carte Points Forts */}
+                <div className="bg-white p-8 rounded-2xl shadow-xl relative overflow-hidden border-t-8" style={{ borderColor: THEME.colors.turquoise }}>
+                     <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <Star size={100} color={THEME.colors.turquoise} fill={THEME.colors.turquoise} />
+                    </div>
+                    <h3 className="text-2xl font-black mb-6 flex items-center" style={{ fontFamily: THEME.fonts.header, color: THEME.colors.dark }}>
+                        <span className="w-8 h-8 rounded-full flex items-center justify-center mr-3 text-white" style={{ backgroundColor: THEME.colors.turquoise }}>✓</span>
+                        Points Forts
                     </h3>
-                    <div class="radar-container">
-                        <canvas id="radarChart"></canvas>
-                    </div>
+                    {acquired.length === 0 ? <p className="text-gray-400 italic">Aucune compétence validée à 100%.</p> : (
+                        <ul className="space-y-4 relative z-10">
+                            {acquired.map(a => {
+                                const skill = skillsData.find(s => s.id === a.id);
+                                return (
+                                    <li key={skill.id} className="pb-3 border-b border-slate-100 last:border-0">
+                                        <div className="font-bold text-lg text-slate-800">{skill.title}</div>
+                                        <div className="flex flex-wrap gap-2 mt-1">
+                                            {skill.keywords.map(k => (
+                                                <span key={k} className="text-[10px] uppercase font-bold px-2 py-1 rounded bg-slate-100 text-slate-500">
+                                                    {k}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </li>
+                                )
+                            })}
+                        </ul>
+                    )}
                 </div>
 
-                <!-- Top compétences -->
-                <div class="animate-slide-up" style="animation-delay: 0.1s">
-                    <div class="bg-white rounded-3xl p-8 shadow-xl border border-slate-100 mb-8">
-                        <h3 class="text-xs uppercase tracking-widest font-bold text-ls-red mb-6 flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-ls-red"></span>
-                            Tes 5 compétences phares
-                        </h3>
-                        <div id="top-skills" class="space-y-4">
-                            <!-- Généré par JS -->
-                        </div>
+                {/* Carte En Développement */}
+                <div className="bg-white p-8 rounded-2xl shadow-xl relative overflow-hidden border-t-8" style={{ borderColor: THEME.colors.yellow }}>
+                     <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <Rocket size={100} color={THEME.colors.yellow} fill={THEME.colors.yellow} />
                     </div>
-
-                    <div class="bg-gradient-to-br from-ls-turquoise to-ls-yellow rounded-3xl p-8 text-white shadow-xl">
-                        <h3 class="text-xs uppercase tracking-widest font-bold mb-4 opacity-90">Ton profil type</h3>
-                        <p id="profile-type" class="text-2xl font-black mb-4">PROFIL POLYVALENT</p>
-                        <p id="profile-desc" class="leading-relaxed opacity-95">
-                            Tu combines différentes forces qui font de toi un profil adaptable et complet.
-                        </p>
-                    </div>
+                    <h3 className="text-2xl font-black mb-6 flex items-center" style={{ fontFamily: THEME.fonts.header, color: THEME.colors.dark }}>
+                         <span className="w-8 h-8 rounded-full flex items-center justify-center mr-3 text-white" style={{ backgroundColor: THEME.colors.yellow }}>~</span>
+                        En développement
+                    </h3>
+                    {partial.length === 0 && todo.length === 0 ? <p className="text-gray-500 italic">Tout est acquis ? Bravo !</p> : (
+                        <ul className="space-y-3 relative z-10">
+                            {partial.map(a => {
+                                const skill = skillsData.find(s => s.id === a.id);
+                                return (
+                                    <li key={skill.id} className="flex items-center text-slate-700 font-medium">
+                                        <div className="w-2 h-2 rounded-full mr-3" style={{ backgroundColor: THEME.colors.yellow }}></div>
+                                        {skill.title}
+                                    </li>
+                                )
+                            })}
+                            {todo.length > 0 && <li className="text-sm text-gray-400 mt-6 pt-4 border-t italic">+ {todo.length} compétences à explorer.</li>}
+                        </ul>
+                    )}
                 </div>
             </div>
 
-            <!-- Mots-clés pour CV -->
-            <div class="bg-slate-50 rounded-3xl p-8 lg:p-12 border border-slate-200 mb-12 animate-slide-up" style="animation-delay: 0.2s">
-                <h3 class="text-xs uppercase tracking-widest font-bold text-slate-400 mb-6 flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-ls-yellow"></span>
-                    Mots-clés pour ton CV et tes candidatures
-                </h3>
-                <div id="keywords-list" class="flex flex-wrap gap-3">
-                    <!-- Généré par JS -->
-                </div>
-            </div>
-
-            <!-- Liste complète -->
-            <div class="bg-white rounded-3xl p-8 lg:p-12 shadow-xl border border-slate-100 mb-12 animate-slide-up" style="animation-delay: 0.3s">
-                <h3 class="text-xs uppercase tracking-widest font-bold text-slate-400 mb-8 flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-slate-400"></span>
-                    Toutes tes compétences en détail
-                </h3>
-                <div id="all-skills" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Généré par JS -->
-                </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="flex flex-wrap gap-4 justify-center no-print animate-slide-up" style="animation-delay: 0.4s">
-                <button onclick="downloadPDF()" class="btn-primary bg-ls-turquoise text-lg">
-                    <i data-lucide="download" class="inline w-5 h-5 mr-2"></i>
-                    Télécharger mon profil
+            <div className="flex flex-col sm:flex-row justify-center gap-6">
+                <button 
+                    onClick={downloadPDF} 
+                    className="flex items-center justify-center py-4 px-8 text-white font-black uppercase tracking-widest text-sm rounded shadow-lg hover:shadow-xl transition-transform transform hover:-translate-y-1"
+                    style={{ backgroundColor: THEME.colors.dark, fontFamily: THEME.fonts.header }}
+                >
+                    <Download className="w-5 h-5 mr-3" />
+                    Télécharger PDF
                 </button>
-                <button onclick="window.print()" class="px-8 py-4 border-2 border-ls-dark rounded-full text-sm font-900 uppercase tracking-widest hover:bg-ls-dark hover:text-white transition-all">
-                    Imprimer
-                </button>
-                <button onclick="location.reload()" class="px-8 py-4 text-sm font-900 uppercase tracking-widest text-slate-400 hover:text-ls-red transition-all">
+                <button 
+                    onClick={onReset} 
+                    className="flex items-center justify-center py-4 px-8 font-black uppercase tracking-widest text-sm rounded border-2 hover:bg-slate-50 transition-colors"
+                    style={{ borderColor: THEME.colors.dark, color: THEME.colors.dark, fontFamily: THEME.fonts.header }}
+                >
+                    <RefreshCw className="w-5 h-5 mr-3" />
                     Recommencer
                 </button>
             </div>
         </div>
-    </div>
+    );
+};
 
-    <script>
-        // ============== DONNÉES ==============
-        const SKILLS = [
-            {
-                id: 1,
-                name: "Esprit d'analyse",
-                icon: "search",
-                definition: "C'est ta capacité à regarder une situation sous tous les angles, à décomposer un problème en plusieurs parties pour mieux le comprendre, et à faire des liens entre différentes informations.",
-                situationTitle: "Le choix du bon plan pour ton abonnement mobile",
-                situationText: "Tu reçois trois offres de différents opérateurs : Orange (15€/mois, 80 Go, engagement 12 mois), Free (10€/mois, 100 Go, sans engagement), SFR (12€/mois, 60 Go, avec smartphone). Tu regardes tes habitudes : tu consommes environ 50 Go/mois, tu appelles peu mais tu utilises WhatsApp, tu changes de téléphone tous les 3 ans, et tu préfères ne pas t'engager longtemps.",
-                choiceFull: "Je compare systématiquement les offres, je liste mes vrais besoins, je calcule le coût total, je lis les petites lignes",
-                transferability: "Analyser des données clients, comparer des fournisseurs, évaluer la rentabilité d'un projet, études de marché",
-                keywords: ["Analyse", "Esprit critique", "Comparaison", "Synthèse"]
-            },
-            {
-                id: 2,
-                name: "Capacité de résolution",
-                icon: "wrench",
-                definition: "C'est ta capacité à trouver des solutions concrètes quand tu fais face à un obstacle, sans te bloquer ni abandonner au premier problème.",
-                situationTitle: "La soirée d'anniversaire qui part en vrille",
-                situationText: "Tu organises ton anniversaire chez toi samedi pour 15 personnes. Jeudi : 3 copains annulent. Vendredi : ta sœur invite 2 amis. Vendredi après-midi : le traiteur ne peut livrer que la moitié. Samedi 14h : ton voisin rappelle l'assemblée générale et demande de baisser le volume après 23h.",
-                choiceFull: "J'ajuste les quantités, je demande aux invités d'apporter un plat, je prévois une playlist calme après 23h, je réorganise l'espace",
-                transferability: "Gérer les imprévus en service client, adapter un planning, trouver des solutions alternatives, résoudre des conflits",
-                keywords: ["Problem-solving", "Débrouillardise", "Adaptabilité", "Solutions pratiques"]
-            },
-            {
-                id: 3,
-                name: "Discernement / Vigilance",
-                icon: "shield-alert",
-                definition: "C'est ta capacité à repérer ce qui ne va pas, à sentir quand quelque chose cloche, à ne pas tout accepter sans te poser de questions, et à protéger tes intérêts.",
-                situationTitle: "L'offre d'emploi trop belle sur Instagram",
-                situationText: "Sur Instagram : 'Gagne 2000€/mois en travaillant 2h par jour depuis chez toi ! Formation offerte, aucun diplôme requis'. Le lien demande de payer 49€ pour la formation, partager à 10 amis, et donner tes coordonnées bancaires.",
-                choiceFull: "Je reconnais immédiatement les signaux d'arnaque, je vérifie l'entreprise, je cherche des avis, je me méfie automatiquement",
-                transferability: "Détecter les anomalies, identifier les risques de sécurité, repérer les clients frauduleux, contrôle qualité",
-                keywords: ["Vigilance", "Esprit critique", "Détection des risques", "Prudence"]
-            },
-            {
-                id: 4,
-                name: "Aisance relationnelle",
-                icon: "users",
-                definition: "C'est ta facilité à entrer en contact avec des gens que tu ne connais pas, à créer une bonne ambiance, à mettre les autres à l'aise et à communiquer naturellement.",
-                situationTitle: "Le repas de famille où tu ne connais personne",
-                situationText: "Mariage de ta cousine. Tu es à une table avec 8 inconnus : grand-oncle de 75 ans passionné de jardinage, tante revenue de 10 ans au Canada, couple trentenaire avec bébé, deux ados de 14 ans scotchés au téléphone. Le repas dure 3 heures.",
-                choiceFull: "Je lance des conversations, je trouve des sujets communs avec chacun, je fais participer tout le monde, je crée des liens, je passe un bon moment",
-                transferability: "Accueil client, animation de réunions, travail en équipe diverse, négociation commerciale, réseautage",
-                keywords: ["Communication", "Relationnel", "Convivialité", "Networking"]
-            },
-            {
-                id: 5,
-                name: "Sens de la coopération",
-                icon: "handshake",
-                definition: "C'est ta capacité à travailler avec d'autres personnes vers un but commun, à partager les tâches, à aider et accepter l'aide, sans vouloir tout faire seul(e).",
-                situationTitle: "Le déménagement de ton pote",
-                situationText: "Ton meilleur ami déménage samedi. Vous êtes 5 pour l'aider : 20 cartons à descendre (3ème étage sans ascenseur), un canapé lourd, une machine à laver, 30 km à faire, rendre le camion avant 18h, pizza à commander après.",
-                choiceFull: "Je propose d'organiser les rôles, je m'adapte aux capacités de chacun, j'encourage, je relaye quand quelqu'un fatigue, je vérifie qu'on n'oublie rien",
-                transferability: "Travail en équipe projet, co-construction, coordination entre services, solidarité d'équipe, intelligence collective",
-                keywords: ["Travail d'équipe", "Collaboration", "Entraide", "Coordination"]
-            },
-            {
-                id: 6,
-                name: "Prise d'initiative",
-                icon: "rocket",
-                definition: "C'est ta capacité à agir sans attendre qu'on te le demande, à proposer des idées, à lancer des choses nouvelles sans avoir peur de te tromper.",
-                situationTitle: "L'appart en coloc qui part en désordre",
-                situationText: "Tu vis en coloc à 4. Depuis deux semaines : vaisselle qui s'accumule, poubelles pleines, frigo dégueulasse, courses jamais faites. Tout le monde se plaint mais personne ne fait rien. L'ambiance devient tendue.",
-                choiceFull: "Je propose une réunion de coloc, je crée un planning partagé, je lance un groupe WhatsApp pour les courses, j'initie de nouvelles règles",
-                transferability: "Proposer des améliorations de process, lancer de nouveaux projets, identifier des opportunités, innovation",
-                keywords: ["Proactivité", "Leadership", "Initiative", "Force de proposition"]
-            },
-            {
-                id: 7,
-                name: "Maîtrise de soi",
-                icon: "circle-check-big",
-                definition: "C'est ta capacité à garder ton calme dans les situations stressantes ou énervantes, à ne pas réagir sous le coup de l'émotion, et à rester professionnel(le) même quand c'est difficile.",
-                situationTitle: "Le contrôle technique raté + l'amende + la dispute",
-                situationText: "Lundi 8h : contrôle technique raté, 5 défauts, 450€ de réparations. En sortant énervé(e), PV de 35€. Tu appelles ton/ta conjoint(e) qui te dit 'Je t'avais dit de faire réviser'. Tu dois être au boulot à 9h30 pour une réunion importante.",
-                choiceFull: "Je respire, je priorise (aller au travail d'abord), je règle les choses une par une, je reste calme avec mon/ma conjoint(e), je demande un devis",
-                transferability: "Gestion de la pression en période de rush, relations avec clients difficiles, réaction aux critiques, gestion de crise",
-                keywords: ["Sang-froid", "Gestion du stress", "Maîtrise émotionnelle", "Professionnalisme"]
-            },
-            {
-                id: 8,
-                name: "Persévérance",
-                icon: "trending-up",
-                definition: "C'est ta capacité à continuer malgré les difficultés, à ne pas abandonner au premier échec, à garder ton objectif en tête même quand c'est long et décourageant.",
-                situationTitle: "Le permis de conduire qui se fait désirer",
-                situationText: "1er passage : recalé(e) pour refus de priorité. 2ème passage (3 mois après) : recalé(e) pour stationnement raté. Tes potes l'ont eu du premier coup. Ton forfait d'heures est épuisé. Tu en as besoin pour ton job dans 4 mois. 3ème passage prévu dans 2 mois.",
-                choiceFull: "Je me remotive, j'analyse mes erreurs, je reprends des heures ciblées sur mes faiblesses, je garde mon objectif en tête",
-                transferability: "Atteinte d'objectifs commerciaux difficiles, apprentissage de compétences complexes, gestion de projets longs, reconversion",
-                keywords: ["Persévérance", "Ténacité", "Résilience", "Détermination"]
-            },
-            {
-                id: 9,
-                name: "Affirmation professionnelle",
-                icon: "megaphone",
-                definition: "C'est ta capacité à défendre ton point de vue, à dire non quand c'est nécessaire, à demander ce qui t'est dû, et à te faire respecter sans agressivité mais avec fermeté.",
-                situationTitle: "Le job étudiant où on t'exploite",
-                situationText: "Fast-food, 15h/semaine. Depuis 3 semaines : on te demande de rester 1h de plus non payé, tu as travaillé dimanche alors que tu avais posé, on te donne les tâches les plus pénibles, tes collègues ont été augmentés mais pas toi.",
-                choiceFull: "Je demande un rendez-vous, j'expose les problèmes factuellement, je demande un rééquilibrage, je fixe des limites claires, je cherche ailleurs si rien ne change",
-                transferability: "Négociation salariale, gestion de conflits, leadership, défense de ses droits, communication assertive",
-                keywords: ["Assertivité", "Confiance en soi", "Négociation", "Défense de ses droits"]
-            },
-            {
-                id: 10,
-                name: "Capacité d'apprentissage",
-                icon: "brain",
-                definition: "C'est ta facilité à apprendre de nouvelles choses, à comprendre rapidement, à poser les bonnes questions, et à progresser même dans des domaines que tu ne connais pas.",
-                situationTitle: "Le nouveau jeu vidéo ultra-complexe",
-                situationText: "Tes amis t'invitent à jouer en ligne à un jeu de stratégie que tu ne connais pas (type League of Legends). Il y a 50 personnages avec capacités spécifiques, une carte immense, des objets à acheter, un vocabulaire spécifique, des combinaisons de touches compliquées. Tes potes jouent depuis 2 ans.",
-                choiceFull: "Je regarde des tutos, je pose plein de questions, j'essaie différentes stratégies, j'accepte mes erreurs, j'observe les joueurs expérimentés, je progresse vite",
-                transferability: "Formation sur de nouveaux logiciels, adaptation à de nouvelles méthodes, montée en compétences, veille technologique, polyvalence",
-                keywords: ["Apprentissage rapide", "Curiosité", "Adaptabilité", "Formation continue"]
-            },
-            {
-                id: 11,
-                name: "Créativité appliquée",
-                icon: "palette",
-                definition: "C'est ta capacité à trouver des solutions originales, à voir les choses différemment, à improviser avec les moyens du bord, et à transformer des contraintes en opportunités.",
-                situationTitle: "Le repas d'improvisation avec un frigo vide",
-                situationText: "20h, 4 amis débarquent dans 30 minutes. Dans ton frigo : 3 œufs, reste de pâtes cuites, boîte de thon, carottes fatiguées, farine, fromage râpé, épices, chips entamées. Budget : 0€, magasins fermés.",
-                choiceFull: "J'invente un plat (galettes de pâtes au thon, omelette créative, gratin improvisé), je présente ça comme un 'repas surprise', je transforme la contrainte en moment convivial",
-                transferability: "Innovation produit, résolution de problèmes avec ressources limitées, design thinking, amélioration continue, brainstorming",
-                keywords: ["Créativité", "Innovation", "Improvisation", "Resourcefulness"]
-            },
-            {
-                id: 12,
-                name: "Ouverture d'esprit",
-                icon: "globe",
-                definition: "C'est ta capacité à accepter les différences, à écouter des opinions contraires aux tiennes sans juger, à remettre en question tes certitudes, et à t'enrichir de la diversité.",
-                situationTitle: "Le nouveau voisin qui bouleverse tes habitudes",
-                situationText: "Nouveau voisin de 70 ans : végétalien (tu adores la viande), pratiquant d'une religion que tu ne connais pas, passionné d'opéra (tu écoutes du rap), très engagé écologiquement. Il t'invite régulièrement à discuter et partager des repas.",
-                choiceFull: "Je suis curieux(se), je pose des questions sur son mode de vie, je teste sa cuisine, j'écoute son opéra, j'apprends de lui sans me sentir menacé(e)",
-                transferability: "Travail en équipe multiculturelle, gestion du changement, innovation par la diversité, relations internationales, management intergénérationnel",
-                keywords: ["Ouverture d'esprit", "Tolérance", "Diversité", "Curiosité culturelle"]
-            },
-            {
-                id: 13,
-                name: "Organisation personnelle",
-                icon: "calendar",
-                definition: "C'est ta capacité à planifier tes tâches, à tenir tes engagements, à anticiper, à prioriser, et à gérer ton temps efficacement sans oublier l'essentiel.",
-                situationTitle: "La semaine de tous les deadlines",
-                situationText: "Lundi : dossier administratif CAF. Mardi : rendez-vous médecin 14h. Mercredi : anniversaire de ton père (cadeau + repas). Jeudi : examen code de la route. Vendredi : entretien d'embauche 10h à 40 km. Week-end : aider ton frère à peindre. En parallèle : job 15h/semaine + cours.",
-                choiceFull: "J'ai un planning détaillé, j'ai tout anticipé (dossier prêt dimanche, révisions étalées sur 2 semaines, cadeau acheté samedi dernier, trajet vérifié)",
-                transferability: "Gestion de projets multiples, respect des deadlines, planification stratégique, productivité, gestion des priorités",
-                keywords: ["Organisation", "Planification", "Gestion du temps", "Rigueur"]
-            },
-            {
-                id: 14,
-                name: "Autonomie décisionnelle",
-                icon: "compass",
-                definition: "C'est ta capacité à prendre des décisions seul(e), à assumer tes choix, à ne pas avoir besoin de l'avis de tout le monde avant d'agir, tout en sachant quand demander conseil.",
-                situationTitle: "L'orientation post-bac qui t'appartient",
-                situationText: "Tu hésites entre 3 options : prépa scientifique (difficile, prestige, parents pour), BTS en alternance (concret, salaire, autonomie), année de césure (voyager et mûrir). Parents poussent pour la prépa. Profs conseillent le BTS. Amis trouvent la césure cool. Tout le monde a un avis.",
-                choiceFull: "J'écoute tous les avis, je liste mes propres critères (ce que MOI je veux), je me projette dans chaque option, je choisis selon MES valeurs",
-                transferability: "Prise de décision managériale, choix stratégiques, arbitrage en situation complexe, leadership, responsabilité opérationnelle",
-                keywords: ["Autonomie", "Prise de décision", "Responsabilité", "Indépendance"]
-            },
-            {
-                id: 15,
-                name: "Agilité professionnelle",
-                icon: "shuffle",
-                definition: "C'est ta capacité à t'adapter rapidement aux changements, à changer de tâche facilement, à être flexible, et à rester efficace même quand tout change autour de toi.",
-                situationTitle: "Le week-end qui change 5 fois de plan",
-                situationText: "Samedi 9h : randonnée prévue à 6. 10h : il pleut, bowling. 11h : bowling fermé. 11h30 : ciné, mais film complet. 12h : brunch chez un ami. 13h : vous croisez une braderie. 14h : après-midi à chiner. 17h : certains veulent rentrer, d'autres proposent un escape game.",
-                choiceFull: "Je trouve ça fun, je m'adapte à chaque changement sans râler, je propose des alternatives, je profite de chaque moment sans me focaliser sur le plan raté",
-                transferability: "Travail en mode projet agile, gestion des imprévus, polyvalence, reconversion, adaptation aux réorganisations, réactivité",
-                keywords: ["Flexibilité", "Adaptabilité", "Agilité", "Réactivité"]
-            },
-            {
-                id: 16,
-                name: "Responsabilité numérique",
-                icon: "smartphone",
-                definition: "C'est ta conscience de l'impact de tes usages numériques (sur l'environnement, sur les autres, sur toi), et ta capacité à utiliser la technologie de manière réfléchie et éthique.",
-                situationTitle: "La story Instagram qui peut faire mal",
-                situationText: "À une soirée, ton pote fait une chute ridicule après avoir trop bu. Tu as filmé, c'est hilarant. Tu t'apprêtes à poster en story avec son tag. 800 abonnés vont voir. Mais : il cherche du travail, a eu des problèmes avec l'alcool, sa famille est sur Instagram, il dormait et ne t'a pas donné son accord.",
-                choiceFull: "Je ne poste pas sans son accord, je lui montre la vidéo d'abord, je réfléchis à l'impact potentiel sur lui, je privilégie son bien-être aux likes",
-                transferability: "Protection des données clients, éthique numérique en entreprise, communication responsable, gestion de l'e-réputation, conformité RGPD",
-                keywords: ["Éthique numérique", "Protection des données", "Responsabilité digitale", "E-réputation"]
-            },
-            {
-                id: 17,
-                name: "Usage raisonné de l'IA",
-                icon: "bot",
-                definition: "C'est ta capacité à utiliser les outils d'intelligence artificielle (ChatGPT, Copilot...) de manière intelligente, critique et créative, sans tricher mais en optimisant ton travail.",
-                situationTitle: "Le dossier de candidature avec l'aide de l'IA",
-                situationText: "Tu postules à une formation très sélective. Tu dois rédiger une lettre de motivation personnelle de 1500 mots expliquant ton parcours et ton projet. Tu as accès à ChatGPT.",
-                choiceFull: "Je rédige d'abord mes idées et mon plan, j'utilise l'IA pour améliorer certaines formulations, corriger l'orthographe, mais le fond vient de moi, je personnalise tout",
-                transferability: "Augmentation de productivité par l'IA, automatisation intelligente, validation critique des outputs IA, compétences hybrides humain-IA",
-                keywords: ["IA générative", "Esprit critique", "Productivité augmentée", "Compétences hybrides"]
-            },
-            {
-                id: 18,
-                name: "Conscience environnementale",
-                icon: "leaf",
-                definition: "C'est ta prise en compte de l'impact écologique de tes actions quotidiennes, et ta capacité à faire des choix qui limitent ton empreinte environnementale, même si c'est moins pratique.",
-                situationTitle: "Le trajet quotidien domicile-travail",
-                situationText: "Nouveau job à 12 km de chez toi. Choix : Voiture (15 min, confort, 80€/mois essence), Transports en commun (40 min avec 1 correspondance, 50€/mois, parfois bondé), Vélo+train (30 min, 30€/mois, sportif, météo-dépendant), Covoiturage (20 min, 40€/mois, horaires fixes).",
-                choiceFull: "Je choisis vélo+train ou transports malgré le temps perdu, l'impact environnemental est un critère décisif, j'accepte les contraintes pour réduire mon empreinte",
-                transferability: "Démarche RSE en entreprise, éco-conception de produits, achats responsables, gestion des déchets, stratégie développement durable",
-                keywords: ["Responsabilité environnementale", "RSE", "Éco-responsabilité", "Développement durable"]
-            },
-            {
-                id: 19,
-                name: "Ponctualité et assiduité",
-                icon: "clock",
-                definition: "C'est ta capacité à arriver à l'heure, à être présent(e) régulièrement, à tenir tes engagements de temps, et à être fiable sur la durée.",
-                situationTitle: "Le sport en club avec tes potes",
-                situationText: "Inscription avec 4 amis à un cours de sport (CrossFit, danse, foot...) mardis et jeudis 19h pendant 3 mois. 120€ payés. Après un mois : tu arrives à 19h pile 3 fois, à 19h15 deux fois (bouchons, série Netflix), absent 3 fois (apéro collègues, flemme+pluie, resto).",
-                choiceFull: "Ça ne me correspond pas - je suis plus rigoureux(se). Je rate maximum 1 séance sur 8, j'arrive systématiquement à l'heure, j'ai intégré le créneau dans ma routine",
-                transferability: "Fiabilité professionnelle, respect des horaires, régularité au travail, gestion de l'absentéisme, crédibilité",
-                keywords: ["Ponctualité", "Assiduité", "Fiabilité", "Régularité"]
-            },
-            {
-                id: 20,
-                name: "Respect des codes professionnels",
-                icon: "briefcase",
-                definition: "C'est ta capacité à comprendre et appliquer les règles non-écrites du monde professionnel : comment s'habiller, parler, se comporter selon les contextes, même si ce n'est pas ton style naturel.",
-                situationTitle: "L'entretien d'embauche dans une banque",
-                situationText: "Entretien pour conseiller clientèle dans une grande banque. Normalement ton style : baskets, jean, sweat, langage décontracté avec 'gros', 'stylé', tutoiement facile, tatouages visibles, piercing au nez. Pour l'entretien, tu sais que les codes sont différents.",
-                choiceFull: "Je m'adapte totalement : costume/tailleur, tatouages couverts, piercing retiré, vouvoiement, langage soutenu, je comprends que le contexte professionnel demande un ajustement",
-                transferability: "Adaptation aux cultures d'entreprise, professionnalisme, relations clients, codes de communication, évolution hiérarchique",
-                keywords: ["Professionnalisme", "Adaptation", "Savoir-être", "Codes sociaux"]
-            },
-            {
-                id: 21,
-                name: "Sens de la confidentialité",
-                icon: "lock",
-                definition: "C'est ta capacité à garder pour toi des informations sensibles, à ne pas divulguer ce qui ne doit pas l'être, et à comprendre ce qui relève du secret professionnel ou de la vie privée.",
-                situationTitle: "Les ragots de vestiaire",
-                situationText: "Tu travailles dans une salle de sport. Dans les vestiaires, tu aperçois une personnalité connue de ta région (élu local, joueur de foot pro...) avec une personne qui n'est clairement pas son/sa conjoint(e) officiel(le). Ils s'embrassent. Le soir, tes 3 meilleurs amis te demandent si tu as vu des gens connus. Un ami connaît un journaliste.",
-                choiceFull: "Je ne dis rien, c'est la vie privée de cette personne, ce n'est pas mon rôle de divulguer ça, je protège la confidentialité même si l'info est croustillante",
-                transferability: "Secret professionnel, protection des données clients, discrétion en entreprise, RGPD, éthique professionnelle, confiance",
-                keywords: ["Confidentialité", "Discrétion", "Secret professionnel", "Éthique"]
-            },
-            {
-                id: 22,
-                name: "Prévention des risques professionnels",
-                icon: "shield",
-                definition: "C'est ta capacité à identifier les dangers, à anticiper les accidents, à respecter les consignes de sécurité, et à ne pas prendre de risques inutiles pour toi ou les autres.",
-                situationTitle: "Le meuble IKEA à monter au 5ème sans ascenseur",
-                situationText: "Grande bibliothèque IKEA (30 kg, 2m de haut) à monter au 5ème étage, escalier étroit, sans ascenseur. Tu es seul(e). Ton dos a déjà été fragile. 20h, voisins dorment (familles avec bébés). Tu voulais la monter ce soir car demain tu travailles toute la journée.",
-                choiceFull: "J'attends samedi, je demande de l'aide, je protège mon dos, je ne prends pas de risque même si c'est contraignant d'attendre, ou je loue le matériel adapté",
-                transferability: "Respect des consignes de sécurité, prévention des TMS, analyse des risques, port des EPI, culture sécurité",
-                keywords: ["Sécurité au travail", "Prévention", "Santé et sécurité", "Anticipation des risques"]
-            },
-            {
-                id: 23,
-                name: "Gestion du capital santé",
-                icon: "heart-pulse",
-                definition: "C'est ta capacité à prendre soin de ta santé physique et mentale sur le long terme, à détecter les signaux d'alerte, et à mettre en place des routines qui te préservent.",
-                situationTitle: "La semaine d'enfer qui s'accumule",
-                situationText: "Depuis 10 jours : 4-5h de sommeil par nuit (boulot + Netflix + scroll Instagram), petit-déjeuner sauté, kebab ou sandwich 2 fois/jour, aucune activité physique, mal au dos à force d'être avachi, irritable avec tes proches, maux de tête fréquents, enchaînement de cafés. Tu sens que ce n'est pas tenable mais grosse deadline vendredi.",
-                choiceFull: "J'identifie les signaux d'alerte, je réorganise ma semaine pour dormir 7h minimum, je prévois des vraies pauses repas équilibrés, je cale 20 min de marche/sport",
-                transferability: "Prévention du burn-out, équilibre vie pro/perso, gestion du stress, arrêts maladie, performance durable",
-                keywords: ["Santé au travail", "Équilibre vie pro/perso", "Bien-être", "Prévention burn-out"]
-            },
-            {
-                id: 24,
-                name: "Intelligence interculturelle",
-                icon: "globe-2",
-                definition: "C'est ta capacité à comprendre, respecter et travailler avec des personnes de cultures différentes, à détecter les codes culturels, et à adapter ta communication sans jugement.",
-                situationTitle: "Le coloc international qui a des codes différents",
-                situationText: "Nouveau coloc vient d'Asie (Japon, Chine, Corée...). Il enlève toujours ses chaussures en entrant, ne te regarde jamais dans les yeux quand vous parlez, dit toujours 'oui' même quand visiblement pas d'accord, ne partage jamais ses problèmes, est mal à l'aise quand tu le touches l'épaule, fait des courbettes pour dire bonjour.",
-                choiceFull: "Je me renseigne sur sa culture, je comprends que ses comportements sont culturels et non bizarres, j'adapte ma communication (moins tactile, plus indirect), j'apprends de lui",
-                transferability: "Travail en équipes internationales, expatriation, gestion multiculturelle, export, tourisme, diplomatie commerciale",
-                keywords: ["Interculturalité", "Diversité culturelle", "Adaptation culturelle", "Intelligence culturelle"]
-            },
-            {
-                id: 25,
-                name: "Médiation / Communication non-violente",
-                icon: "message-square-heart",
-                definition: "C'est ta capacité à désamorcer les conflits, à trouver des compromis, à reformuler les tensions en besoins, et à communiquer sans agresser ni te soumettre.",
-                situationTitle: "La dispute entre tes deux meilleurs amis",
-                situationText: "Tes deux meilleurs amis (A et B) ne se parlent plus depuis une semaine. A te dit : 'B est un profiteur, il me doit 80€ depuis 2 mois, il m'évite'. B te dit : 'A me harcèle pour 80€, je suis étudiant je galère, il pourrait être plus compréhensif, je les rembourserai mais il me met une pression de fou'. Tu es au milieu.",
-                choiceFull: "Je reformule les besoins de chacun (A : respect des engagements / B : compréhension et temps), je propose de les réunir, je facilite un dialogue, je cherche un compromis",
-                transferability: "Gestion de conflits en équipe, négociation sociale, management, médiation client-fournisseur, relations syndicales",
-                keywords: ["Médiation", "Gestion de conflits", "Communication non-violente", "Négociation"]
-            },
-            {
-                id: 26,
-                name: "Compréhension du cadre contractuel",
-                icon: "file-text",
-                definition: "C'est ta capacité à comprendre tes droits et devoirs dans une relation contractuelle (travail, location, achat...), à lire et comprendre un contrat, et à identifier les clauses importantes.",
-                situationTitle: "Le premier contrat de travail",
-                situationText: "On te propose ton premier vrai CDD 6 mois. Contrat de 8 pages. Dedans : Salaire 1600€ brut (tu ne sais pas combien en net), Période d'essai 2 mois renouvelable, Clause de mobilité géographique dans toute la région, 35h + heures sup 'selon besoins du service', Clause de non-concurrence 2 ans après fin du contrat.",
-                choiceFull: "Je lis tout le contrat, je cherche ce que signifie 'brut', je calcule mon net, je me renseigne sur la légalité de la période d'essai renouvelable et de la clause de non-concurrence",
-                transferability: "Négociation contractuelle, droit du travail appliqué, autonomie juridique, protection de ses intérêts, commercial",
-                keywords: ["Compréhension contractuelle", "Droit du travail", "Négociation", "Autonomie juridique"]
-            },
-            {
-                id: 27,
-                name: "Autonomie administrative",
-                icon: "folder-check",
-                definition: "C'est ta capacité à gérer seul(e) tes démarches administratives, à comprendre les documents officiels, à monter des dossiers, et à interagir avec les administrations sans paniquer.",
-                situationTitle: "Le dossier d'aides au logement CAF",
-                situationText: "Tu emménages dans ton premier appart. Pour toucher l'APL, dossier CAF avec : justificatif d'identité, RIB, bail, quittance, avis d'imposition, justificatifs de ressources 3 derniers mois, déclaration de situation. Le site CAF est compliqué, termes incompris ('foyer fiscal', 'ressources prises en compte'), il faut scanner les documents, certaines cases sont ambiguës.",
-                choiceFull: "Je crée mon compte, je rassemble tous les documents, je cherche sur internet les termes que je ne comprends pas, j'appelle la CAF si nécessaire, je remplis jusqu'au bout",
-                transferability: "Gestion administrative en entreprise, traitement de dossiers, relation avec organismes publics, rigueur documentaire",
-                keywords: ["Autonomie administrative", "Gestion de dossiers", "Démarches administratives", "Rigueur"]
-            }
-        ];
+const SkillCard = ({ skill, onAnswer, currentNumber, totalNumber }) => {
+    return (
+        <div className="max-w-2xl mx-auto w-full px-4 animate-[fadeIn_0.5s_ease-out]">
+            <div className="flex justify-between items-end mb-2 px-2">
+                 <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">Question</span>
+                 <span className="text-sm font-bold" style={{ color: THEME.colors.dark }}>{currentNumber} <span className="text-slate-300">/</span> {totalNumber}</span>
+            </div>
+            <ProgressBar current={currentNumber} total={totalNumber} />
+            
+            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden relative border border-slate-100">
+                {/* Header Situation */}
+                <div className="p-8 text-white relative overflow-hidden" style={{ backgroundColor: THEME.colors.dark }}>
+                     <div className="absolute -right-4 -top-4 opacity-10 transform rotate-12">
+                        <Puzzle size={120} />
+                     </div>
+                    <h2 className="text-[10px] uppercase tracking-[0.2em] font-black opacity-70 mb-3" style={{ fontFamily: THEME.fonts.header }}>Mise en situation</h2>
+                    <p className="text-xl md:text-2xl font-medium italic leading-relaxed" style={{ fontFamily: THEME.fonts.body }}>
+                        "{skill.situation}"
+                    </p>
+                </div>
 
-        // ============== ÉTAT ==============
-        let currentSkillIndex = 0;
-        let results = [];
-        let radarChart = null;
+                {/* Body Analysis */}
+                <div className="p-8">
+                    <div className="mb-10 p-6 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50">
+                        <h3 className="text-xl font-black mb-2 flex items-center uppercase" style={{ fontFamily: THEME.fonts.header, color: THEME.colors.red }}>
+                            <span className="w-2 h-8 mr-3 rounded-full" style={{ backgroundColor: THEME.colors.red }}></span>
+                            {skill.title}
+                        </h3>
+                        <p className="text-slate-600 pl-5 font-medium">
+                            {skill.definition}
+                        </p>
+                    </div>
 
-        // ============== NAVIGATION ==============
-        function startAssessment() {
-            document.getElementById('welcome-view').classList.add('hidden');
-            document.getElementById('assessment-view').classList.remove('hidden');
-            renderProgressDots();
-            loadSkill(0);
-            lucide.createIcons();
-        }
+                    <div className="text-center">
+                        <p className="text-slate-400 text-xs font-black uppercase tracking-widest mb-6">Est-ce que cela te correspond ?</p>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <button 
+                                onClick={() => onAnswer(skill.id, 2)}
+                                className="group relative py-4 px-2 rounded-xl border-2 bg-white transition-all duration-300 hover:shadow-lg"
+                                style={{ borderColor: THEME.colors.turquoise }}
+                            >
+                                <div className="absolute inset-0 bg-teal-50 opacity-0 group-hover:opacity-100 rounded-xl transition-opacity"></div>
+                                <div className="relative z-10 flex flex-col items-center">
+                                    <CheckCircle2 className="w-8 h-8 mb-2" color={THEME.colors.turquoise} fill={THEME.colors.turquoise + '20'} />
+                                    <span className="font-bold text-slate-800">C'est tout moi</span>
+                                </div>
+                            </button>
+                            
+                            <button 
+                                onClick={() => onAnswer(skill.id, 1)}
+                                className="group relative py-4 px-2 rounded-xl border-2 bg-white transition-all duration-300 hover:shadow-lg"
+                                style={{ borderColor: THEME.colors.yellow }}
+                            >
+                                <div className="absolute inset-0 bg-yellow-50 opacity-0 group-hover:opacity-100 rounded-xl transition-opacity"></div>
+                                <div className="relative z-10 flex flex-col items-center">
+                                     <div className="w-8 h-8 mb-2 rounded-full border-4 flex items-center justify-center" style={{ borderColor: THEME.colors.yellow }}>
+                                        <span className="block w-2 h-2 rounded-full" style={{ backgroundColor: THEME.colors.yellow }}></span>
+                                     </div>
+                                    <span className="font-bold text-slate-800">Ça m'arrive</span>
+                                </div>
+                            </button>
 
-        function loadSkill(index) {
-            currentSkillIndex = index;
-            const skill = SKILLS[index];
-            
-            document.getElementById('current-skill-num').textContent = index + 1;
-            document.getElementById('skill-icon').setAttribute('data-lucide', skill.icon);
-            document.getElementById('skill-name').textContent = skill.name;
-            document.getElementById('skill-definition').textContent = skill.definition;
-            document.getElementById('situation-title').textContent = skill.situationTitle;
-            document.getElementById('situation-text').textContent = skill.situationText;
-            document.getElementById('choice-full-text').textContent = skill.choiceFull;
-            
-            // Reset choices
-            document.querySelectorAll('.btn-choice').forEach(btn => btn.classList.remove('selected'));
-            document.getElementById('feedback-box').classList.add('hidden');
-            document.getElementById('btn-next').disabled = true;
-            
-            // Update progress dots
-            updateProgressDots();
-            
-            lucide.createIcons();
-            
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function renderProgressDots() {
-            const container = document.getElementById('progress-dots');
-            container.innerHTML = SKILLS.map((_, i) => 
-                `<div class="progress-dot" data-index="${i}"></div>`
-            ).join('');
-        }
-
-        function updateProgressDots() {
-            document.querySelectorAll('.progress-dot').forEach((dot, i) => {
-                dot.classList.remove('active', 'done');
-                if (i < currentSkillIndex) {
-                    dot.classList.add('done');
-                } else if (i === currentSkillIndex) {
-                    dot.classList.add('active');
-                }
-            });
-        }
-
-        function selectChoice(score) {
-            // Visual feedback
-            document.querySelectorAll('.btn-choice').forEach(btn => btn.classList.remove('selected'));
-            event.currentTarget.classList.add('selected');
-            
-            // Save result
-            results[currentSkillIndex] = score;
-            
-            // Show feedback
-            showFeedback(score);
-            
-            // Enable next button
-            document.getElementById('btn-next').disabled = false;
-            
-            // Update identified count
-            const identifiedCount = results.filter(r => r > 0).length;
-            document.getElementById('identified-count').textContent = identifiedCount;
-        }
-
-        function showFeedback(score) {
-            const box = document.getElementById('feedback-box');
-            const icon = document.getElementById('feedback-icon');
-            const title = document.getElementById('feedback-title');
-            const text = document.getElementById('feedback-text');
-            const skill = SKILLS[currentSkillIndex];
-            
-            box.classList.remove('hidden', 'border-ls-red', 'border-ls-yellow', 'border-slate-300', 'bg-red-50', 'bg-yellow-50', 'bg-slate-50');
-            
-            if (score === 2) {
-                box.classList.add('border-ls-red', 'bg-red-50');
-                icon.setAttribute('data-lucide', 'award');
-                icon.classList.add('text-ls-red');
-                title.textContent = "Compétence maîtrisée ! 🎯";
-                text.innerHTML = `Tu as un vrai talent pour <strong>${skill.name}</strong>. Cette compétence est directement utilisable dans des contextes professionnels comme : ${skill.transferability}.`;
-            } else if (score === 1) {
-                box.classList.add('border-ls-yellow', 'bg-yellow-50');
-                icon.setAttribute('data-lucide', 'star');
-                icon.classList.add('text-ls-yellow');
-                title.textContent = "Compétence en développement 💪";
-                text.innerHTML = `Tu as déjà des bases en <strong>${skill.name}</strong>. Avec un peu de pratique et de confiance, cette compétence peut devenir un vrai atout professionnel.`;
-            } else {
-                box.classList.add('border-slate-300', 'bg-slate-50');
-                icon.setAttribute('data-lucide', 'info');
-                icon.classList.add('text-slate-400');
-                title.textContent = "Compétence notée 📝";
-                text.innerHTML = `Pas de souci, on a tous des styles différents ! <strong>${skill.name}</strong> n'est peut-être pas ton point fort naturel, et c'est OK. On se concentre sur tes vraies forces.`;
-            }
-            
-            lucide.createIcons();
-        }
-
-        function nextSkill() {
-            if (currentSkillIndex < SKILLS.length - 1) {
-                loadSkill(currentSkillIndex + 1);
-            } else {
-                showResults();
-            }
-        }
-
-        // ============== RÉSULTATS ==============
-        function showResults() {
-            document.getElementById('assessment-view').classList.add('hidden');
-            document.getElementById('results-view').classList.remove('hidden');
-            
-            // Calculs
-            const identifiedSkills = SKILLS.map((skill, i) => ({
-                ...skill,
-                score: results[i] || 0
-            })).filter(s => s.score > 0).sort((a, b) => b.score - a.score);
-            
-            const fullSkills = identifiedSkills.filter(s => s.score === 2);
-            const partialSkills = identifiedSkills.filter(s => s.score === 1);
-            
-            document.getElementById('total-identified').textContent = identifiedSkills.length;
-            
-            // Top 5 compétences
-            const topSkills = identifiedSkills.slice(0, 5);
-            document.getElementById('top-skills').innerHTML = topSkills.map((skill, i) => `
-                <div class="flex items-center gap-4 pb-4 border-b border-slate-100">
-                    <div class="text-4xl font-black text-slate-100">${String(i + 1).padStart(2, '0')}</div>
-                    <div class="flex-grow">
-                        <h4 class="font-bold text-lg mb-1">${skill.name}</h4>
-                        <div class="flex gap-2">
-                            ${skill.keywords.map(kw => `<span class="text-[10px] px-2 py-1 rounded-full bg-slate-100 text-slate-600 font-semibold">${kw}</span>`).join('')}
+                            <button 
+                                onClick={() => onAnswer(skill.id, 0)}
+                                className="group relative py-4 px-2 rounded-xl border-2 border-slate-200 bg-white transition-all duration-300 hover:shadow-lg hover:border-slate-300"
+                            >
+                                <div className="absolute inset-0 bg-slate-50 opacity-0 group-hover:opacity-100 rounded-xl transition-opacity"></div>
+                                <div className="relative z-10 flex flex-col items-center">
+                                    <Circle className="w-8 h-8 mb-2 text-slate-300" />
+                                    <span className="font-bold text-slate-400 group-hover:text-slate-600">Pas vraiment</span>
+                                </div>
+                            </button>
                         </div>
                     </div>
-                    <div class="skill-badge ${skill.score === 2 ? 'full' : 'partial'}">
-                        ${skill.score === 2 ? 'Maîtrisée' : 'En développement'}
-                    </div>
                 </div>
-            `).join('');
-            
-            // Profil type
-            determineProfile(fullSkills, partialSkills);
-            
-            // Mots-clés
-            const allKeywords = [...new Set(identifiedSkills.flatMap(s => s.keywords))];
-            document.getElementById('keywords-list').innerHTML = allKeywords.map(kw => 
-                `<span class="px-4 py-2 bg-white border-2 border-ls-turquoise rounded-full font-bold text-sm">${kw}</span>`
-            ).join('');
-            
-            // Liste complète
-            document.getElementById('all-skills').innerHTML = identifiedSkills.map(skill => `
-                <div class="p-4 rounded-xl border ${skill.score === 2 ? 'border-ls-red bg-red-50' : 'border-ls-yellow bg-yellow-50'}">
-                    <div class="flex items-start gap-3 mb-2">
-                        <i data-lucide="${skill.icon}" class="w-5 h-5 flex-shrink-0 ${skill.score === 2 ? 'text-ls-red' : 'text-ls-yellow'}"></i>
-                        <h4 class="font-bold text-sm">${skill.name}</h4>
-                    </div>
-                    <p class="text-xs text-slate-600 mb-3">${skill.transferability}</p>
-                    <div class="skill-badge ${skill.score === 2 ? 'full' : 'partial'} text-[10px]">
-                        ${skill.score === 2 ? '✓✓ Maîtrisée' : '✓ En développement'}
-                    </div>
-                </div>
-            `).join('');
-            
-            // Radar Chart
-            renderRadarChart(identifiedSkills);
-            
-            lucide.createIcons();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+            </div>
+        </div>
+    );
+};
 
-        function determineProfile(fullSkills, partialSkills) {
-            let profileType = "";
-            let profileDesc = "";
-            
-            const totalFull = fullSkills.length;
-            const totalPartial = partialSkills.length;
-            
-            // Analyse des dominantes
-            const hasRelational = fullSkills.some(s => ['Aisance relationnelle', 'Sens de la coopération', 'Médiation / Communication non-violente'].includes(s.name));
-            const hasOrganization = fullSkills.some(s => ['Organisation personnelle', 'Autonomie décisionnelle', 'Rigueur'].includes(s.name));
-            const hasCreativity = fullSkills.some(s => ['Créativité appliquée', 'Prise d\'initiative', 'Agilité professionnelle'].includes(s.name));
-            const hasAnalysis = fullSkills.some(s => ['Esprit d\'analyse', 'Capacité de résolution', 'Discernement / Vigilance'].includes(s.name));
-            
-            if (totalFull >= 15) {
-                profileType = "PROFIL EXPERT POLYVALENT";
-                profileDesc = "Tu maîtrises un large éventail de compétences professionnelles. Tu es capable de t'adapter à de nombreux contextes et de briller dans des rôles variés.";
-            } else if (hasRelational && hasOrganization) {
-                profileType = "PROFIL COORDINATEUR";
-                profileDesc = "Tu combines l'aisance relationnelle et les capacités organisationnelles. Tu es fait(e) pour des rôles de coordination d'équipe, de gestion de projet ou de management.";
-            } else if (hasCreativity && hasAnalysis) {
-                profileType = "PROFIL INNOVATEUR STRATÉGIQUE";
-                profileDesc = "Tu allies créativité et capacité d'analyse. Tu excelles dans les rôles qui demandent à la fois de l'innovation et de la réflexion stratégique.";
-            } else if (hasRelational) {
-                profileType = "PROFIL RELATIONNEL";
-                profileDesc = "Ton point fort c'est l'humain. Tu es à l'aise dans les métiers de contact, de service, de commerce ou de médiation.";
-            } else if (hasOrganization) {
-                profileType = "PROFIL ORGANISATEUR";
-                profileDesc = "Tu es structuré(e) et fiable. Les métiers de gestion, de logistique, d'administration ou de planification te correspondent bien.";
-            } else if (hasCreativity) {
-                profileType = "PROFIL CRÉATIF";
-                profileDesc = "Tu as l'esprit inventif et tu t'adaptes facilement. Les secteurs créatifs, innovants ou en évolution rapide sont faits pour toi.";
-            } else if (hasAnalysis) {
-                profileType = "PROFIL ANALYTIQUE";
-                profileDesc = "Tu as un esprit logique et critique. Les métiers techniques, scientifiques ou qui demandent de la rigueur te conviennent.";
-            } else {
-                profileType = "PROFIL EN CONSTRUCTION";
-                profileDesc = `Tu as identifié ${totalFull + totalPartial} compétences. Continue à les développer et à explorer de nouveaux domaines pour affiner ton profil.`;
-            }
-            
-            document.getElementById('profile-type').textContent = profileType;
-            document.getElementById('profile-desc').textContent = profileDesc;
-        }
+export default function App() {
+    const [gameState, setGameState] = useState('welcome'); // welcome, playing, results
+    const [currentSkillIndex, setCurrentSkillIndex] = useState(0);
+    const [userAnswers, setUserAnswers] = useState([]);
 
-        function renderRadarChart(identifiedSkills) {
-            const ctx = document.getElementById('radarChart');
-            
-            // Prendre les 10 premières compétences pour le radar
-            const top10 = identifiedSkills.slice(0, 10);
-            
-            if (radarChart) radarChart.destroy();
-            
-            radarChart = new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: top10.map(s => s.name),
-                    datasets: [{
-                        label: 'Niveau de maîtrise',
-                        data: top10.map(s => s.score),
-                        backgroundColor: 'rgba(230, 57, 70, 0.2)',
-                        borderColor: '#E63946',
-                        borderWidth: 3,
-                        pointBackgroundColor: '#E63946',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: '#E63946',
-                        pointRadius: 5,
-                        pointHoverRadius: 7
-                    }]
-                },
-                options: {
-                    scales: {
-                        r: {
-                            beginAtZero: true,
-                            max: 2,
-                            ticks: {
-                                stepSize: 1,
-                                display: false
-                            },
-                            pointLabels: {
-                                font: {
-                                    size: 11,
-                                    family: 'Poppins',
-                                    weight: '600'
-                                },
-                                color: '#1D3557'
-                            },
-                            grid: {
-                                color: '#E2E8F0'
-                            },
-                            angleLines: {
-                                color: '#E2E8F0'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    maintainAspectRatio: true
-                }
-            });
-        }
+    // Injection des polices Google Fonts et du script PDF
+    useEffect(() => {
+        // Font Link
+        const link = document.createElement('link');
+        link.href = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Poppins:wght@400;500;600;700&display=swap';
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
 
-        function downloadPDF() {
-            window.print();
-        }
+        // PDF Script
+        const script = document.createElement('script');
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+        script.async = true;
+        document.body.appendChild(script);
 
-        // ============== INIT ==============
-        window.onload = () => {
-            lucide.createIcons();
-        };
-    </script>
-</body>
-</html>
+        return () => {
+            document.head.removeChild(link);
+            document.body.removeChild(script);
+        }
+    }, []);
+
+    const startQuiz = () => {
+        setGameState('playing');
+        setCurrentSkillIndex(0);
+        setUserAnswers([]);
+    };
+
+    const handleAnswer = (skillId, rating) => {
+        const newAnswer = { id: skillId, rating: rating };
+        const newAnswers = [...userAnswers, newAnswer];
+        setUserAnswers(newAnswers);
+
+        if (currentSkillIndex < skillsData.length - 1) {
+            setTimeout(() => {
+                setCurrentSkillIndex(currentSkillIndex + 1);
+            }, 200);
+        } else {
+            setGameState('results');
+        }
+    };
+
+    const resetQuiz = () => {
+        setGameState('welcome');
+        setUserAnswers([]);
+        setCurrentSkillIndex(0);
+    };
+
+    return (
+        <div className="min-h-screen relative overflow-hidden" style={{ fontFamily: THEME.fonts.body, backgroundColor: THEME.colors.slate }}>
+            <DotGrid />
+            
+            <header className="relative z-10 p-6 flex justify-between items-center no-print">
+                 <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{backgroundColor: THEME.colors.red}}></div>
+                    <span className="text-xs font-black uppercase tracking-widest text-slate-400">LS4YOU • Tools</span>
+                 </div>
+                 {/* Logo removed from here to be placed in Welcome Screen as requested */}
+            </header>
+
+            <main className="relative z-10 pb-12">
+                {gameState === 'welcome' && <WelcomeScreen onStart={startQuiz} />}
+                {gameState === 'playing' && (
+                    <SkillCard 
+                        skill={skillsData[currentSkillIndex]} 
+                        onAnswer={handleAnswer}
+                        currentNumber={currentSkillIndex + 1}
+                        totalNumber={skillsData.length}
+                    />
+                )}
+                {gameState === 'results' && <ResultScreen answers={userAnswers} onReset={resetQuiz} />}
+            </main>
+
+            <footer className="relative z-10 text-center py-6 text-[10px] font-bold uppercase tracking-widest text-slate-300">
+                <p>Cofinancé par l'Union européenne</p>
+            </footer>
+        </div>
+    );
+}
