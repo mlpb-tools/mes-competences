@@ -3,884 +3,1027 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mes Compétences - Traducteur de Vie - LS4YOU</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>LS4YOU - Mes Compétences Cachées</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         :root {
-            --color-primary-red: #E63946;
-            --color-primary-yellow: #FFD166;
-            --color-primary-turquoise: #06D6A0;
-            --color-accent-coral: #FF6B9D;
-            --color-white: #FFFFFF;
-            --color-bg-light: #F8F9FA;
-            --color-text-dark: #1D3557;
-            --color-text-medium: #457B9D;
-            --color-text-light: #6C757D;
-            
-            --radius-small: 12px;
-            --radius-medium: 20px;
-            --radius-large: 30px;
-            --radius-xl: 50px;
-            
-            --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
-            --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --ls-red: #E63946;
+            --ls-yellow: #FFB703;
+            --ls-turquoise: #2EC4B6;
+            --ls-pink: #FF99AC;
+            --ls-dark: #1D3557;
+            --ls-white: #FFFFFF;
         }
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: var(--color-white);
-            color: var(--color-text-dark);
-            position: relative;
+            background-color: var(--ls-white);
+            color: var(--ls-dark);
+            min-height: 100vh;
             overflow-x: hidden;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: -10%;
-            right: -5%;
-            width: 600px;
-            height: 600px;
-            background: var(--color-primary-yellow);
-            opacity: 0.15;
-            border-radius: 50%;
-            z-index: -1;
-            filter: blur(80px);
+        h1, h2, h3, h4 { 
+            font-family: 'Montserrat', sans-serif; 
+            font-weight: 900; 
         }
 
-        body::after {
-            content: '';
-            position: fixed;
-            bottom: -15%;
-            left: -10%;
-            width: 700px;
-            height: 700px;
-            background: var(--color-primary-turquoise);
-            opacity: 0.12;
-            border-radius: 50%;
-            z-index: -1;
-            filter: blur(90px);
-        }
-
-        .app-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .top-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            margin-bottom: 30px;
-        }
-
-        .logo-small {
-            height: 35px;
-        }
-
-        .score-badge {
-            background: linear-gradient(135deg, var(--color-primary-turquoise), #04B88A);
-            color: white;
-            padding: 12px 25px;
-            border-radius: var(--radius-xl);
-            font-weight: 700;
-            font-size: 1em;
-        }
-
-        .hero {
-            background: white;
-            border-radius: var(--radius-large);
-            padding: 50px 40px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-soft);
-            margin-bottom: 30px;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 400px;
-            height: 400px;
-            background: var(--color-primary-yellow);
-            opacity: 0.3;
-            border-radius: 50%;
-            z-index: 0;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-emoji {
-            font-size: 5em;
-            margin-bottom: 20px;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-
-        .hero-title {
-            font-size: 2.5em;
-            font-weight: 800;
-            color: var(--color-text-dark);
-            margin-bottom: 15px;
-        }
-
-        .hero-subtitle {
-            font-size: 1.15em;
-            color: var(--color-text-medium);
-            font-weight: 500;
-            line-height: 1.6;
-        }
-
-        .progress-section {
-            background: white;
-            border-radius: var(--radius-medium);
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-soft);
-        }
-
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .progress-stat {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 3em;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--color-primary-turquoise), var(--color-primary-red));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            line-height: 1;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            color: var(--color-text-medium);
-            font-weight: 600;
-        }
-
-        .category-section {
-            background: white;
-            border-radius: var(--radius-medium);
-            padding: 30px;
-            margin-bottom: 25px;
-            box-shadow: var(--shadow-soft);
-        }
-
-        .category-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .category-emoji {
-            font-size: 3em;
-        }
-
-        .category-info {
-            flex: 1;
-        }
-
-        .category-title {
-            font-size: 1.6em;
-            font-weight: 800;
-            color: var(--color-text-dark);
-            margin-bottom: 5px;
-        }
-
-        .category-description {
-            font-size: 0.95em;
-            color: var(--color-text-medium);
-        }
-
-        .category-toggle {
-            font-size: 1.5em;
-            color: var(--color-primary-turquoise);
-            transition: transform 0.3s ease;
-        }
-
-        .category-section.collapsed .category-toggle {
-            transform: rotate(-90deg);
-        }
-
-        .category-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .category-section.collapsed .category-content {
-            display: none;
-        }
-
-        .activity-item {
-            background: white;
-            border: 3px solid #E8E8E8;
-            border-radius: var(--radius-medium);
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .activity-item:hover {
-            border-color: var(--color-primary-turquoise);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-medium);
-        }
-
-        .activity-item.selected {
-            background: linear-gradient(135deg, #E8F9F5, #D0F5EB);
-            border-color: var(--color-primary-turquoise);
-        }
-
-        .activity-checkbox {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 26px;
-            height: 26px;
-            border: 3px solid #D0D0D0;
-            border-radius: 6px;
-            background: white;
-            transition: all 0.3s ease;
-        }
-
-        .activity-item.selected .activity-checkbox {
-            background: var(--color-primary-turquoise);
-            border-color: var(--color-primary-turquoise);
-        }
-
-        .activity-item.selected .activity-checkbox::after {
-            content: '✓';
-            color: white;
-            font-weight: 800;
-            font-size: 1.3em;
-            position: absolute;
-            top: -3px;
-            left: 4px;
-        }
-
-        .activity-title {
-            font-weight: 700;
-            font-size: 1.05em;
-            margin-bottom: 8px;
-            color: var(--color-text-dark);
-            padding-right: 40px;
-        }
-
-        .activity-hint {
-            font-size: 0.85em;
-            color: var(--color-text-light);
-            font-style: italic;
-            line-height: 1.4;
-        }
-
-        .skills-revealed {
-            background: linear-gradient(135deg, #FFF8E6, #FFE69C);
-            border-left: 5px solid var(--color-primary-yellow);
-            padding: 30px;
-            border-radius: var(--radius-medium);
-            margin: 30px 0;
-        }
-
-        .skills-title {
-            font-size: 1.5em;
-            font-weight: 800;
-            color: var(--color-text-dark);
-            margin-bottom: 20px;
-        }
-
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .skill-category {
-            background: white;
-            border-radius: var(--radius-medium);
-            padding: 20px;
-        }
-
-        .skill-category-title {
-            font-weight: 700;
-            font-size: 1.1em;
-            color: var(--color-primary-turquoise);
-            margin-bottom: 12px;
-        }
-
-        .skill-tag {
-            display: inline-block;
-            background: var(--color-bg-light);
-            padding: 8px 15px;
-            border-radius: var(--radius-xl);
-            margin: 4px;
-            font-size: 0.85em;
-            font-weight: 600;
-            color: var(--color-text-dark);
-        }
-
-        .btn {
-            border: none;
-            border-radius: var(--radius-xl);
-            font-size: 1.1em;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Poppins', sans-serif;
+        .dot-grid {
+            background-image: radial-gradient(var(--ls-dark) 1px, transparent 1px);
+            background-size: 12px 12px;
+            opacity: 0.1;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--color-primary-red), #D62839);
+            background-color: var(--ls-red);
             color: white;
-            padding: 18px 45px;
-            width: 100%;
+            border-radius: 50px;
+            padding: 1rem 2.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
             box-shadow: 0 4px 15px rgba(230, 57, 70, 0.3);
         }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(230, 57, 70, 0.4);
+        .btn-primary:hover:not(:disabled) { 
+            background-color: #c92f3b; 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 20px rgba(230, 57, 70, 0.4);
         }
+        .btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .footer {
+        .btn-choice {
+            border: 2px solid #E2E8F0;
             background: white;
-            border-radius: var(--radius-medium);
-            padding: 25px;
-            margin-top: 40px;
-            text-align: center;
-            box-shadow: var(--shadow-soft);
+            border-radius: 20px;
+            padding: 1.2rem 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-choice:hover {
+            border-color: var(--ls-turquoise);
+            transform: translateX(4px);
+            box-shadow: -4px 0 0 var(--ls-turquoise);
+        }
+        .btn-choice.selected {
+            border-color: var(--ls-red);
+            background: rgba(230, 57, 70, 0.05);
+            box-shadow: -6px 0 0 var(--ls-red);
         }
 
-        .footer-content {
-            display: flex;
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #E2E8F0;
+            transition: all 0.3s;
+        }
+        .progress-dot.active { background: var(--ls-red); transform: scale(1.3); }
+        .progress-dot.done { background: var(--ls-turquoise); }
+
+        .skill-badge {
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            color: var(--color-text-medium);
-            font-size: 0.9em;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
+        .skill-badge.full { background: var(--ls-red); color: white; }
+        .skill-badge.partial { background: var(--ls-yellow); color: var(--ls-dark); }
 
-        .eu-flag {
-            width: 50px;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        @media (max-width: 768px) {
-            .app-container {
-                padding: 15px;
-            }
-
-            .hero {
-                padding: 40px 25px;
-            }
-
-            .hero-title {
-                font-size: 2em;
-            }
-
-            .category-content {
-                grid-template-columns: 1fr;
-            }
-
-            .skills-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .progress-header {
-                flex-direction: column;
-            }
-        }
-
-        .puzzle-decoration {
+        .puzzle-piece {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            width: 60px;
-            height: 60px;
             opacity: 0.15;
+            pointer-events: none;
         }
+
+        .shape-circle {
+            border-radius: 50%;
+            position: absolute;
+            opacity: 0.9;
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .radar-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; }
+        }
+
+        /* Scrollbar custom */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #F1F5F9; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--ls-turquoise); border-radius: 10px; }
     </style>
 </head>
-<body>
-    <div class="app-container">
-        <nav class="top-nav">
-            <img src="https://www.lifeskills4you.eu/wp-content/uploads/2024/07/LS4YOU_Logo.png" alt="LS4YOU" class="logo-small">
-            <div class="score-badge" id="scoreBadge">
-                <span id="scoreCount">0</span> / <span id="totalActivities">120</span> activités
-            </div>
-        </nav>
+<body class="antialiased">
 
-        <div class="hero" id="introScreen">
-            <div class="hero-content">
-                <div class="hero-emoji">💎</div>
-                <h1 class="hero-title">MES COMPÉTENCES</h1>
-                <p class="hero-subtitle">
-                    Le Traducteur de Vie Quotidienne<br>
-                    <strong>Révèle tes super-pouvoirs cachés dans chaque geste du quotidien</strong>
-                </p>
-                <button class="btn btn-primary" onclick="startActivity()" style="font-size: 1.3em; padding: 25px 60px; margin-top: 30px;">
-                    Découvrir mes compétences →
-                </button>
+    <!-- Header -->
+    <header class="bg-white px-8 py-4 flex justify-between items-center border-b border-slate-50 no-print">
+        <div class="flex items-center gap-6">
+            <img src="https://www.lifeskills4youth.eu/wp-content/uploads/2024/07/LS4YOU_Logo_whiteback.jpg" alt="Logo LS4YOU" class="h-8">
+            <div class="h-6 w-[1px] bg-slate-200 hidden sm:block"></div>
+            <div class="text-[9px] uppercase tracking-widest font-bold text-slate-400 hidden sm:block">
+                Programme Mission Locale • Life Skills For Youth
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="text-[9px] font-bold text-right text-slate-500">Cofinancé par<br>l'Union européenne</span>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Flag_of_Europe.svg" alt="UE" class="h-5">
+        </div>
+    </header>
+
+    <!-- Vue Accueil -->
+    <div id="welcome-view" class="min-h-screen relative overflow-hidden flex items-center justify-center p-8">
+        <!-- Décorations -->
+        <div class="dot-grid absolute inset-0"></div>
+        <div class="shape-circle w-96 h-96 bg-ls-yellow top-10 right-10"></div>
+        <div class="shape-circle w-64 h-64 bg-ls-turquoise bottom-20 left-20"></div>
+        
+        <!-- Puzzle décoratif -->
+        <svg class="puzzle-piece w-96 h-96 top-1/4 left-1/3" viewBox="0 0 24 24" fill="var(--ls-red)">
+            <path d="M18.88 12.17c.56 0 1.12-.13 1.62-.4.43-.22.8-.52 1.1-.9.3-.37.52-.8.65-1.27.13-.47.15-.96.06-1.44-.1-.48-.3-.93-.6-1.33-.3-.4-.68-.72-1.13-.95-.45-.23-.94-.35-1.44-.35-.5 0-.99.12-1.44.35-.45.23-.83.55-1.13.95s-.5.85-.6 1.33c-.09.48-.07.97.06 1.44s.35.9.65 1.27c.3.38.67.68 1.1.9s1.06.4 1.62.4zM5 14h2v2h2v2h2v2h2v-2h2v-2h2v-2h2v-2h-2v-2h-2V8h-2V6h-2V4h-2v2H9v2H7v2H5v2H3v2h2z"/>
+        </svg>
+
+        <div class="relative z-10 max-w-4xl text-center animate-slide-up">
+            <h1 class="text-7xl lg:text-9xl leading-[0.85] mb-8">
+                DE MON<br>
+                <span class="text-ls-red">QUOTIDIEN</span><br>
+                À MON POTENTIEL
+            </h1>
+            
+            <div class="flex gap-2 justify-center mb-8">
+                <div class="w-32 h-3 bg-ls-turquoise rounded-full"></div>
+                <div class="w-16 h-3 bg-ls-yellow rounded-full"></div>
+                <div class="w-8 h-3 bg-ls-pink rounded-full"></div>
+            </div>
+
+            <p class="text-xl lg:text-2xl font-semibold text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed">
+                Découvre les <span class="text-ls-red">27 compétences professionnelles</span> que tu utilises déjà tous les jours... sans le savoir !
+            </p>
+
+            <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 border border-slate-100 shadow-xl mb-12 max-w-2xl mx-auto">
+                <div class="flex items-start gap-4 mb-6">
+                    <i data-lucide="lightbulb" class="w-10 h-10 text-ls-yellow flex-shrink-0"></i>
+                    <div class="text-left">
+                        <h3 class="font-bold text-lg mb-2">Comment ça marche ?</h3>
+                        <ul class="text-sm text-slate-600 space-y-2">
+                            <li class="flex items-start gap-2">
+                                <span class="text-ls-red font-bold">1.</span>
+                                <span>Je lis une situation de la vie quotidienne</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-ls-red font-bold">2.</span>
+                                <span>Je dis si ça me ressemble complètement, partiellement ou pas du tout</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-ls-red font-bold">3.</span>
+                                <span>Je découvre mes compétences pro et je télécharge mon profil</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-slate-500">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                    <span>Durée : environ 15-20 minutes</span>
+                </div>
+            </div>
+
+            <button onclick="startAssessment()" class="btn-primary text-lg">
+                C'est parti ! 🚀
+            </button>
+        </div>
+    </div>
+
+    <!-- Vue Évaluation -->
+    <div id="assessment-view" class="hidden min-h-screen relative p-6 lg:p-12">
+        <div class="dot-grid absolute inset-0"></div>
+        
+        <!-- Barre de progression -->
+        <div class="max-w-5xl mx-auto mb-12 relative z-10">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <div class="text-xs uppercase tracking-widest font-bold text-slate-400 mb-2">Progression</div>
+                    <div class="text-3xl font-black">
+                        <span id="current-skill-num" class="text-ls-red">1</span>
+                        <span class="text-slate-300"> / 27</span>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs uppercase tracking-widest font-bold text-slate-400 mb-2">Compétences identifiées</div>
+                    <div class="text-3xl font-black text-ls-turquoise" id="identified-count">0</div>
+                </div>
+            </div>
+            
+            <div class="flex gap-2 overflow-x-auto pb-2 custom-scrollbar" id="progress-dots">
+                <!-- Généré par JS -->
             </div>
         </div>
 
-        <div id="mainContent" class="hidden">
-            <div class="progress-section">
-                <div class="progress-header">
-                    <div class="progress-stat">
-                        <div class="stat-value" id="activitiesCount">0</div>
-                        <div class="stat-label">Activités identifiées</div>
+        <!-- Carte de compétence -->
+        <div class="max-w-4xl mx-auto relative z-10">
+            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100">
+                <!-- Header de la carte -->
+                <div class="bg-gradient-to-r from-ls-red to-ls-pink p-8 text-white">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                            <i id="skill-icon" data-lucide="sparkles" class="w-8 h-8"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs uppercase tracking-widest opacity-80 mb-1">Compétence professionnelle</div>
+                            <h2 id="skill-name" class="text-3xl lg:text-4xl font-black uppercase">Esprit d'analyse</h2>
+                        </div>
                     </div>
-                    <div class="progress-stat">
-                        <div class="stat-value" id="skillsCount">0</div>
-                        <div class="stat-label">Compétences révélées</div>
+                    <p id="skill-definition" class="text-lg opacity-90 leading-relaxed">
+                        C'est ta capacité à regarder une situation sous tous les angles...
+                    </p>
+                </div>
+
+                <!-- Corps de la carte -->
+                <div class="p-8 lg:p-12">
+                    <div class="mb-8">
+                        <h3 class="text-xs uppercase tracking-widest font-bold text-ls-turquoise mb-4 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-ls-turquoise"></span>
+                            Une situation de tous les jours
+                        </h3>
+                        <div class="bg-slate-50 rounded-2xl p-6 border-l-4 border-ls-yellow">
+                            <h4 id="situation-title" class="font-bold text-lg mb-3 text-ls-dark">Le choix du bon plan mobile</h4>
+                            <p id="situation-text" class="text-slate-700 leading-relaxed">
+                                <!-- Texte de situation -->
+                            </p>
+                        </div>
                     </div>
-                    <div class="progress-stat">
-                        <div class="stat-value" id="categoriesCount">0</div>
-                        <div class="stat-label">Catégories maîtrisées</div>
+
+                    <div class="mb-8">
+                        <h3 class="text-xs uppercase tracking-widest font-bold text-ls-red mb-6 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-ls-red"></span>
+                            Est-ce que cette situation te ressemble ?
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <button onclick="selectChoice(2)" class="btn-choice w-full text-left flex items-center gap-4" data-choice="2">
+                                <div class="w-12 h-12 rounded-full bg-ls-red flex items-center justify-center text-white font-black flex-shrink-0">
+                                    ✓✓
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="font-bold mb-1">Complètement - C'est tout à fait moi</div>
+                                    <div class="text-sm text-slate-500" id="choice-full-text">Je fais exactement ça dans ce genre de situation</div>
+                                </div>
+                            </button>
+
+                            <button onclick="selectChoice(1)" class="btn-choice w-full text-left flex items-center gap-4" data-choice="1">
+                                <div class="w-12 h-12 rounded-full bg-ls-yellow flex items-center justify-center text-ls-dark font-black flex-shrink-0">
+                                    ✓
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="font-bold mb-1">Partiellement - Ça dépend</div>
+                                    <div class="text-sm text-slate-500">Je le fais parfois, mais pas systématiquement</div>
+                                </div>
+                            </button>
+
+                            <button onclick="selectChoice(0)" class="btn-choice w-full text-left flex items-center gap-4" data-choice="0">
+                                <div class="w-12 h-12 rounded-full bg-slate-300 flex items-center justify-center text-slate-600 font-black flex-shrink-0">
+                                    ✗
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="font-bold mb-1">Pas vraiment - Ce n'est pas mon style</div>
+                                    <div class="text-sm text-slate-500">Ce n'est pas comme ça que je fonctionne</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Message de feedback (caché au départ) -->
+                    <div id="feedback-box" class="hidden mb-6 p-6 rounded-2xl border-2 animate-slide-up">
+                        <div class="flex items-start gap-4">
+                            <i id="feedback-icon" data-lucide="check-circle" class="w-8 h-8 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="font-bold text-lg mb-2" id="feedback-title">Super !</h4>
+                                <p id="feedback-text" class="text-sm leading-relaxed"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-4">
+                        <button id="btn-next" onclick="nextSkill()" class="btn-primary" disabled>
+                            Compétence suivante
+                            <i data-lucide="arrow-right" class="inline w-5 h-5 ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue Résultats -->
+    <div id="results-view" class="hidden min-h-screen relative overflow-hidden p-8 lg:p-20">
+        <!-- Formes décoratives -->
+        <div class="shape-circle w-[500px] h-[400px] bg-ls-yellow top-[-100px] right-[-150px]"></div>
+        <div class="dot-grid absolute top-20 left-10 w-40 h-40 opacity-20"></div>
+        
+        <div class="max-w-7xl mx-auto relative z-10">
+            <!-- En-tête résultats -->
+            <div class="text-center mb-16 animate-slide-up">
+                <h2 class="text-6xl lg:text-8xl leading-[0.85] mb-6">
+                    TON PROFIL<br>
+                    <span class="text-ls-red">DE COMPÉTENCES</span>
+                </h2>
+                <div class="flex gap-2 justify-center mb-8">
+                    <div class="w-32 h-3 bg-ls-turquoise rounded-full"></div>
+                    <div class="w-16 h-3 bg-ls-yellow rounded-full"></div>
+                </div>
+                <p class="text-xl text-slate-600 max-w-3xl mx-auto">
+                    Voici les <span class="font-bold text-ls-red" id="total-identified">0</span> compétences professionnelles que tu maîtrises déjà !
+                </p>
+            </div>
+
+            <!-- Grille de résultats -->
+            <div class="grid lg:grid-cols-2 gap-12 mb-16">
+                <!-- Radar Chart -->
+                <div class="bg-white rounded-3xl p-8 shadow-xl border border-slate-100 animate-slide-up">
+                    <h3 class="text-xs uppercase tracking-widest font-bold text-slate-400 mb-6 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-ls-turquoise"></span>
+                        Cartographie visuelle
+                    </h3>
+                    <div class="radar-container">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Top compétences -->
+                <div class="animate-slide-up" style="animation-delay: 0.1s">
+                    <div class="bg-white rounded-3xl p-8 shadow-xl border border-slate-100 mb-8">
+                        <h3 class="text-xs uppercase tracking-widest font-bold text-ls-red mb-6 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-ls-red"></span>
+                            Tes 5 compétences phares
+                        </h3>
+                        <div id="top-skills" class="space-y-4">
+                            <!-- Généré par JS -->
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-ls-turquoise to-ls-yellow rounded-3xl p-8 text-white shadow-xl">
+                        <h3 class="text-xs uppercase tracking-widest font-bold mb-4 opacity-90">Ton profil type</h3>
+                        <p id="profile-type" class="text-2xl font-black mb-4">PROFIL POLYVALENT</p>
+                        <p id="profile-desc" class="leading-relaxed opacity-95">
+                            Tu combines différentes forces qui font de toi un profil adaptable et complet.
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <div id="categoriesContainer"></div>
+            <!-- Mots-clés pour CV -->
+            <div class="bg-slate-50 rounded-3xl p-8 lg:p-12 border border-slate-200 mb-12 animate-slide-up" style="animation-delay: 0.2s">
+                <h3 class="text-xs uppercase tracking-widest font-bold text-slate-400 mb-6 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-ls-yellow"></span>
+                    Mots-clés pour ton CV et tes candidatures
+                </h3>
+                <div id="keywords-list" class="flex flex-wrap gap-3">
+                    <!-- Généré par JS -->
+                </div>
+            </div>
 
-            <div id="skillsSummary" class="hidden"></div>
+            <!-- Liste complète -->
+            <div class="bg-white rounded-3xl p-8 lg:p-12 shadow-xl border border-slate-100 mb-12 animate-slide-up" style="animation-delay: 0.3s">
+                <h3 class="text-xs uppercase tracking-widest font-bold text-slate-400 mb-8 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                    Toutes tes compétences en détail
+                </h3>
+                <div id="all-skills" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Généré par JS -->
+                </div>
+            </div>
 
-            <button class="btn btn-primary" id="exportBtn" onclick="exportProfile()" disabled style="margin-top: 30px;">
-                📄 Exporter mon profil complet
-            </button>
-        </div>
-
-        <div class="footer">
-            <div class="footer-content">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Flag_of_Europe.svg" alt="UE" class="eu-flag">
-                <span>Co-financé par l'Union Européenne</span>
-                <span>© 2026 Projet LS4YOU • Détecteur de Talents</span>
+            <!-- Actions -->
+            <div class="flex flex-wrap gap-4 justify-center no-print animate-slide-up" style="animation-delay: 0.4s">
+                <button onclick="downloadPDF()" class="btn-primary bg-ls-turquoise text-lg">
+                    <i data-lucide="download" class="inline w-5 h-5 mr-2"></i>
+                    Télécharger mon profil
+                </button>
+                <button onclick="window.print()" class="px-8 py-4 border-2 border-ls-dark rounded-full text-sm font-900 uppercase tracking-widest hover:bg-ls-dark hover:text-white transition-all">
+                    Imprimer
+                </button>
+                <button onclick="location.reload()" class="px-8 py-4 text-sm font-900 uppercase tracking-widest text-slate-400 hover:text-ls-red transition-all">
+                    Recommencer
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        // COMPREHENSIVE DATABASE - 120+ activities across all life domains
-        const competencesData = [
+        // ============== DONNÉES ==============
+        const SKILLS = [
             {
-                emoji: "🎮",
-                title: "Loisirs Numériques & Gaming",
-                description: "Les jeux et activités numériques développent des compétences stratégiques et techniques",
-                activities: [
-                    { title: "Jouer à des jeux vidéo en équipe (Fortnite, Valorant, League of Legends)", hint: "Ex: Coordonner avec tes coéquipiers, adapter ta stratégie", skills: ["Travail en équipe", "Communication", "Réactivité", "Gestion du stress", "Adaptabilité"] },
-                    { title: "Streamer ou créer du contenu gaming (Twitch, YouTube)", hint: "Ex: Animer un live, interagir avec le chat", skills: ["Communication", "Créativité", "Persévérance", "Animation", "Gestion de communauté"] },
-                    { title: "Être membre d'une team esport ou clan", hint: "Ex: S'entraîner régulièrement, respecter les horaires", skills: ["Engagement", "Discipline", "Esprit d'équipe", "Fiabilité", "Organisation"] },
-                    { title: "Créer des montages vidéo (TikTok, Reels, YouTube)", hint: "Ex: Éditer, ajouter des effets, choisir la musique", skills: ["Créativité", "Sens esthétique", "Maîtrise technique", "Patience", "Attention aux détails"] },
-                    { title: "Gérer un compte de réseau social avec des abonnés", hint: "Ex: Publier régulièrement, répondre aux commentaires", skills: ["Communication", "Régularité", "Marketing", "Gestion de contenu", "Relation client"] },
-                    { title: "Modérer un serveur Discord ou une communauté en ligne", hint: "Ex: Faire respecter les règles, gérer les conflits", skills: ["Médiation", "Autorité", "Communication", "Gestion de conflit", "Diplomatie"] },
-                    { title: "Faire du leveling ou farming dans des MMO", hint: "Ex: Atteindre des objectifs à long terme", skills: ["Persévérance", "Gestion du temps", "Ténacité", "Organisation", "Planification"] },
-                    { title: "Participer à des raids ou donjons complexes", hint: "Ex: Comprendre les mécaniques, coordonner les rôles", skills: ["Stratégie", "Travail en équipe", "Leadership", "Analyse", "Coordination"] }
-                ]
+                id: 1,
+                name: "Esprit d'analyse",
+                icon: "search",
+                definition: "C'est ta capacité à regarder une situation sous tous les angles, à décomposer un problème en plusieurs parties pour mieux le comprendre, et à faire des liens entre différentes informations.",
+                situationTitle: "Le choix du bon plan pour ton abonnement mobile",
+                situationText: "Tu reçois trois offres de différents opérateurs : Orange (15€/mois, 80 Go, engagement 12 mois), Free (10€/mois, 100 Go, sans engagement), SFR (12€/mois, 60 Go, avec smartphone). Tu regardes tes habitudes : tu consommes environ 50 Go/mois, tu appelles peu mais tu utilises WhatsApp, tu changes de téléphone tous les 3 ans, et tu préfères ne pas t'engager longtemps.",
+                choiceFull: "Je compare systématiquement les offres, je liste mes vrais besoins, je calcule le coût total, je lis les petites lignes",
+                transferability: "Analyser des données clients, comparer des fournisseurs, évaluer la rentabilité d'un projet, études de marché",
+                keywords: ["Analyse", "Esprit critique", "Comparaison", "Synthèse"]
             },
             {
-                emoji: "📱",
-                title: "Création de Contenu Digital",
-                description: "Produire du contenu en ligne forge des compétences marketing et créatives",
-                activities: [
-                    { title: "Créer et éditer des photos (retouche, filtres, composition)", hint: "Ex: Instagram, VSCO, Lightroom", skills: ["Créativité", "Sens esthétique", "Maîtrise technique", "Patience", "Œil critique"] },
-                    { title: "Écrire un blog ou des articles en ligne", hint: "Ex: Partager ton expertise, structurer tes idées", skills: ["Expression écrite", "Organisation", "Créativité", "Persévérance", "Communication"] },
-                    { title: "Créer des designs graphiques (logos, affiches, flyers)", hint: "Ex: Canva, Photoshop, Figma", skills: ["Créativité", "Sens esthétique", "Maîtrise logiciels", "Précision", "Innovation"] },
-                    { title: "Faire du podcasting ou de la création audio", hint: "Ex: Enregistrer, monter, publier des épisodes", skills: ["Expression orale", "Technique", "Régularité", "Communication", "Storytelling"] },
-                    { title: "Animer une chaîne YouTube éducative ou de divertissement", hint: "Ex: Scénariser, filmer, éditer, optimiser SEO", skills: ["Communication", "Organisation", "Créativité", "Marketing", "Persévérance"] },
-                    { title: "Gérer une boutique en ligne (Etsy, Vinted, Shopify)", hint: "Ex: Photos produits, descriptions, service client", skills: ["Sens commercial", "Communication", "Organisation", "Marketing", "Relation client"] },
-                    { title: "Créer des tutoriels ou du contenu éducatif", hint: "Ex: Expliquer clairement, rendre accessible", skills: ["Pédagogie", "Communication", "Patience", "Clarté", "Empathie"] }
-                ]
+                id: 2,
+                name: "Capacité de résolution",
+                icon: "wrench",
+                definition: "C'est ta capacité à trouver des solutions concrètes quand tu fais face à un obstacle, sans te bloquer ni abandonner au premier problème.",
+                situationTitle: "La soirée d'anniversaire qui part en vrille",
+                situationText: "Tu organises ton anniversaire chez toi samedi pour 15 personnes. Jeudi : 3 copains annulent. Vendredi : ta sœur invite 2 amis. Vendredi après-midi : le traiteur ne peut livrer que la moitié. Samedi 14h : ton voisin rappelle l'assemblée générale et demande de baisser le volume après 23h.",
+                choiceFull: "J'ajuste les quantités, je demande aux invités d'apporter un plat, je prévois une playlist calme après 23h, je réorganise l'espace",
+                transferability: "Gérer les imprévus en service client, adapter un planning, trouver des solutions alternatives, résoudre des conflits",
+                keywords: ["Problem-solving", "Débrouillardise", "Adaptabilité", "Solutions pratiques"]
             },
             {
-                emoji: "🏋️",
-                title: "Sport & Activité Physique",
-                description: "Le sport développe discipline, persévérance et esprit d'équipe",
-                activities: [
-                    { title: "Pratiquer un sport d'équipe régulièrement (foot, basket, volley)", hint: "Ex: Entraînements, matchs, cohésion", skills: ["Esprit d'équipe", "Communication", "Discipline", "Persévérance", "Solidarité"] },
-                    { title: "S'entraîner en salle de sport ou à la maison", hint: "Ex: Programme régulier, progression", skills: ["Discipline", "Persévérance", "Organisation", "Gestion du temps", "Ténacité"] },
-                    { title: "Pratiquer un sport individuel (course, natation, cyclisme)", hint: "Ex: Objectifs personnels, dépassement", skills: ["Autodiscipline", "Persévérance", "Gestion du stress", "Dépassement de soi", "Rigueur"] },
-                    { title: "Entraîner ou coacher des jeunes dans un sport", hint: "Ex: Transmettre, encourager, organiser", skills: ["Pédagogie", "Leadership", "Patience", "Communication", "Motivation"] },
-                    { title: "Participer à des compétitions sportives", hint: "Ex: Gestion du stress, performance sous pression", skills: ["Gestion du stress", "Esprit de compétition", "Résilience", "Préparation", "Mental"] },
-                    { title: "Organiser des événements sportifs (tournois, courses)", hint: "Ex: Logistique, inscriptions, règlement", skills: ["Organisation", "Gestion de projet", "Leadership", "Coordination", "Planification"] },
-                    { title: "Pratiquer un art martial ou sport de combat", hint: "Ex: Respect, discipline, maîtrise de soi", skills: ["Discipline", "Respect", "Maîtrise de soi", "Concentration", "Persévérance"] },
-                    { title: "Faire partie d'un club ou association sportive", hint: "Ex: Engagement, régularité, responsabilités", skills: ["Engagement", "Fiabilité", "Esprit d'équipe", "Ponctualité", "Loyauté"] }
-                ]
+                id: 3,
+                name: "Discernement / Vigilance",
+                icon: "shield-alert",
+                definition: "C'est ta capacité à repérer ce qui ne va pas, à sentir quand quelque chose cloche, à ne pas tout accepter sans te poser de questions, et à protéger tes intérêts.",
+                situationTitle: "L'offre d'emploi trop belle sur Instagram",
+                situationText: "Sur Instagram : 'Gagne 2000€/mois en travaillant 2h par jour depuis chez toi ! Formation offerte, aucun diplôme requis'. Le lien demande de payer 49€ pour la formation, partager à 10 amis, et donner tes coordonnées bancaires.",
+                choiceFull: "Je reconnais immédiatement les signaux d'arnaque, je vérifie l'entreprise, je cherche des avis, je me méfie automatiquement",
+                transferability: "Détecter les anomalies, identifier les risques de sécurité, repérer les clients frauduleux, contrôle qualité",
+                keywords: ["Vigilance", "Esprit critique", "Détection des risques", "Prudence"]
             },
             {
-                emoji: "🎨",
-                title: "Arts & Créativité",
-                description: "L'expression artistique forge créativité et persévérance",
-                activities: [
-                    { title: "Dessiner, peindre ou créer des illustrations", hint: "Ex: Art digital, traditionnel, graffiti", skills: ["Créativité", "Patience", "Persévérance", "Sens esthétique", "Précision"] },
-                    { title: "Faire de la photographie artistique ou professionnelle", hint: "Ex: Composition, lumière, retouche", skills: ["Créativité", "Œil artistique", "Technique", "Patience", "Sens de l'observation"] },
-                    { title: "Customiser ou modifier des vêtements (DIY mode)", hint: "Ex: Couture, peinture textile, upcycling", skills: ["Créativité", "Précision", "Débrouillardise", "Sens esthétique", "Innovation"] },
-                    { title: "Créer des objets déco ou du mobilier (DIY)", hint: "Ex: Bricolage créatif, récup, relooking", skills: ["Créativité", "Débrouillardise", "Précision", "Planification", "Patience"] },
-                    { title: "Faire de la poterie, sculpture ou modelage", hint: "Ex: Patience, répétition, maîtrise du geste", skills: ["Patience", "Précision", "Créativité", "Persévérance", "Concentration"] },
-                    { title: "Pratiquer le street art ou le graffiti", hint: "Ex: Style, technique, gestion de l'espace", skills: ["Créativité", "Audace", "Technique", "Sens de l'espace", "Expression"] },
-                    { title: "Réaliser des maquettes ou miniatures", hint: "Ex: Précision, patience, attention au détail", skills: ["Précision", "Patience", "Attention aux détails", "Minutie", "Concentration"] }
-                ]
+                id: 4,
+                name: "Aisance relationnelle",
+                icon: "users",
+                definition: "C'est ta facilité à entrer en contact avec des gens que tu ne connais pas, à créer une bonne ambiance, à mettre les autres à l'aise et à communiquer naturellement.",
+                situationTitle: "Le repas de famille où tu ne connais personne",
+                situationText: "Mariage de ta cousine. Tu es à une table avec 8 inconnus : grand-oncle de 75 ans passionné de jardinage, tante revenue de 10 ans au Canada, couple trentenaire avec bébé, deux ados de 14 ans scotchés au téléphone. Le repas dure 3 heures.",
+                choiceFull: "Je lance des conversations, je trouve des sujets communs avec chacun, je fais participer tout le monde, je crée des liens, je passe un bon moment",
+                transferability: "Accueil client, animation de réunions, travail en équipe diverse, négociation commerciale, réseautage",
+                keywords: ["Communication", "Relationnel", "Convivialité", "Networking"]
             },
             {
-                emoji: "🎵",
-                title: "Musique & Performance",
-                description: "La musique développe discipline et expression",
-                activities: [
-                    { title: "Jouer d'un instrument de musique", hint: "Ex: Guitare, piano, batterie", skills: ["Discipline", "Persévérance", "Coordination", "Créativité", "Patience"] },
-                    { title: "Chanter ou rapper (enregistrement, performance)", hint: "Ex: Écrire des textes, travailler sa voix", skills: ["Expression", "Créativité", "Confiance en soi", "Persévérance", "Communication"] },
-                    { title: "Composer ou produire de la musique (MAO)", hint: "Ex: Logiciels type FL Studio, Ableton", skills: ["Créativité", "Technique", "Patience", "Innovation", "Sens du rythme"] },
-                    { title: "Faire partie d'un groupe de musique", hint: "Ex: Répétitions, concerts, collaboration", skills: ["Travail en équipe", "Discipline", "Communication", "Engagement", "Fiabilité"] },
-                    { title: "Organiser des concerts ou événements musicaux", hint: "Ex: Logistique, promo, gestion technique", skills: ["Organisation", "Gestion de projet", "Leadership", "Coordination", "Planification"] },
-                    { title: "Faire du DJing ou mixer de la musique", hint: "Ex: Lecture du public, transitions, ambiance", skills: ["Adaptabilité", "Sens du rythme", "Créativité", "Lecture du public", "Technique"] },
-                    { title: "Enseigner la musique ou donner des cours", hint: "Ex: Transmettre, encourager, adapter", skills: ["Pédagogie", "Patience", "Communication", "Empathie", "Adaptabilité"] }
-                ]
+                id: 5,
+                name: "Sens de la coopération",
+                icon: "handshake",
+                definition: "C'est ta capacité à travailler avec d'autres personnes vers un but commun, à partager les tâches, à aider et accepter l'aide, sans vouloir tout faire seul(e).",
+                situationTitle: "Le déménagement de ton pote",
+                situationText: "Ton meilleur ami déménage samedi. Vous êtes 5 pour l'aider : 20 cartons à descendre (3ème étage sans ascenseur), un canapé lourd, une machine à laver, 30 km à faire, rendre le camion avant 18h, pizza à commander après.",
+                choiceFull: "Je propose d'organiser les rôles, je m'adapte aux capacités de chacun, j'encourage, je relaye quand quelqu'un fatigue, je vérifie qu'on n'oublie rien",
+                transferability: "Travail en équipe projet, co-construction, coordination entre services, solidarité d'équipe, intelligence collective",
+                keywords: ["Travail d'équipe", "Collaboration", "Entraide", "Coordination"]
             },
             {
-                emoji: "✍️",
-                title: "Écriture & Expression",
-                description: "L'écriture développe communication et créativité",
-                activities: [
-                    { title: "Écrire des poèmes, nouvelles ou romans", hint: "Ex: Fiction, autobiographie, slam", skills: ["Créativité", "Expression", "Persévérance", "Imagination", "Sensibilité"] },
-                    { title: "Écrire des textes de rap ou de chansons", hint: "Ex: Rimes, flow, message", skills: ["Créativité", "Expression", "Technique", "Originalité", "Communication"] },
-                    { title: "Tenir un journal intime ou carnet créatif", hint: "Ex: Régularité, introspection", skills: ["Régularité", "Introspection", "Expression", "Organisation", "Discipline"] },
-                    { title: "Rédiger des critiques (films, séries, livres, jeux)", hint: "Ex: Analyser, argumenter, structurer", skills: ["Esprit critique", "Argumentation", "Expression écrite", "Analyse", "Clarté"] },
-                    { title: "Créer des scénarios ou scripts (vidéo, théâtre)", hint: "Ex: Structure narrative, dialogues", skills: ["Créativité", "Organisation", "Storytelling", "Imagination", "Structuration"] },
-                    { title: "Participer à des concours d'écriture ou slam", hint: "Ex: Confiance, performance, créativité", skills: ["Confiance en soi", "Expression", "Créativité", "Courage", "Performance"] }
-                ]
+                id: 6,
+                name: "Prise d'initiative",
+                icon: "rocket",
+                definition: "C'est ta capacité à agir sans attendre qu'on te le demande, à proposer des idées, à lancer des choses nouvelles sans avoir peur de te tromper.",
+                situationTitle: "L'appart en coloc qui part en désordre",
+                situationText: "Tu vis en coloc à 4. Depuis deux semaines : vaisselle qui s'accumule, poubelles pleines, frigo dégueulasse, courses jamais faites. Tout le monde se plaint mais personne ne fait rien. L'ambiance devient tendue.",
+                choiceFull: "Je propose une réunion de coloc, je crée un planning partagé, je lance un groupe WhatsApp pour les courses, j'initie de nouvelles règles",
+                transferability: "Proposer des améliorations de process, lancer de nouveaux projets, identifier des opportunités, innovation",
+                keywords: ["Proactivité", "Leadership", "Initiative", "Force de proposition"]
             },
             {
-                emoji: "👥",
-                title: "Engagement Associatif",
-                description: "S'engager dans une association forge leadership et empathie",
-                activities: [
-                    { title: "Être bénévole dans une association", hint: "Ex: Restos du Cœur, Croix-Rouge, asso locale", skills: ["Empathie", "Engagement", "Solidarité", "Fiabilité", "Altruisme"] },
-                    { title: "Organiser des collectes ou événements caritatifs", hint: "Ex: Planification, mobilisation, logistique", skills: ["Organisation", "Leadership", "Communication", "Mobilisation", "Gestion de projet"] },
-                    { title: "Être membre actif d'un conseil de jeunes", hint: "Ex: Proposer, débattre, décider", skills: ["Engagement citoyen", "Argumentation", "Leadership", "Esprit démocratique", "Initiative"] },
-                    { title: "Encadrer des activités pour enfants (centre aéré, scoutisme)", hint: "Ex: Sécurité, animation, responsabilité", skills: ["Responsabilité", "Pédagogie", "Patience", "Autorité bienveillante", "Créativité"] },
-                    { title: "Militer ou s'engager pour une cause", hint: "Ex: Écologie, droits, justice sociale", skills: ["Engagement", "Conviction", "Persévérance", "Communication", "Courage"] },
-                    { title: "Participer à des projets de quartier ou initiatives citoyennes", hint: "Ex: Amélioration locale, cohésion", skills: ["Initiative", "Collaboration", "Engagement", "Communication", "Sens collectif"] },
-                    { title: "Faire du mentorat ou accompagner des jeunes", hint: "Ex: Écoute, conseil, orientation", skills: ["Empathie", "Écoute active", "Pédagogie", "Bienveillance", "Communication"] }
-                ]
+                id: 7,
+                name: "Maîtrise de soi",
+                icon: "circle-check-big",
+                definition: "C'est ta capacité à garder ton calme dans les situations stressantes ou énervantes, à ne pas réagir sous le coup de l'émotion, et à rester professionnel(le) même quand c'est difficile.",
+                situationTitle: "Le contrôle technique raté + l'amende + la dispute",
+                situationText: "Lundi 8h : contrôle technique raté, 5 défauts, 450€ de réparations. En sortant énervé(e), PV de 35€. Tu appelles ton/ta conjoint(e) qui te dit 'Je t'avais dit de faire réviser'. Tu dois être au boulot à 9h30 pour une réunion importante.",
+                choiceFull: "Je respire, je priorise (aller au travail d'abord), je règle les choses une par une, je reste calme avec mon/ma conjoint(e), je demande un devis",
+                transferability: "Gestion de la pression en période de rush, relations avec clients difficiles, réaction aux critiques, gestion de crise",
+                keywords: ["Sang-froid", "Gestion du stress", "Maîtrise émotionnelle", "Professionnalisme"]
             },
             {
-                emoji: "💼",
-                title: "Petits Boulots & Jobs",
-                description: "Chaque expérience de travail compte et développe du professionnalisme",
-                activities: [
-                    { title: "Faire du baby-sitting régulièrement", hint: "Ex: Garde d'enfants, sécurité, activités", skills: ["Responsabilité", "Patience", "Adaptabilité", "Gestion de crise", "Créativité"] },
-                    { title: "Donner des cours particuliers ou du soutien scolaire", hint: "Ex: Expliquer, adapter, encourager", skills: ["Pédagogie", "Patience", "Communication", "Adaptabilité", "Empathie"] },
-                    { title: "Travailler en restauration (serveur, caisse, cuisine)", hint: "Ex: Gestion du rush, service client", skills: ["Gestion du stress", "Rapidité", "Sens du service", "Travail en équipe", "Polyvalence"] },
-                    { title: "Travailler dans la vente (magasin, marché)", hint: "Ex: Conseil client, encaissement, rangement", skills: ["Relation client", "Communication", "Sens commercial", "Organisation", "Amabilité"] },
-                    { title: "Faire de la livraison (Uber Eats, Deliveroo, coursier)", hint: "Ex: Ponctualité, orientation, gestion", skills: ["Ponctualité", "Autonomie", "Gestion du temps", "Sens de l'orientation", "Fiabilité"] },
-                    { title: "Travailler en grande surface (mise en rayon, caisse)", hint: "Ex: Organisation, rigueur, service", skills: ["Organisation", "Rigueur", "Sens du service", "Ponctualité", "Efficacité"] },
-                    { title: "Aider dans l'entreprise ou commerce familial", hint: "Ex: Polyvalence, engagement, sérieux", skills: ["Polyvalence", "Fiabilité", "Sens des responsabilités", "Adaptabilité", "Engagement"] },
-                    { title: "Faire des jobs saisonniers (été, vendanges, animation)", hint: "Ex: Adaptabilité rapide, intensité", skills: ["Adaptabilité", "Résistance physique", "Travail en équipe", "Flexibilité", "Énergie"] }
-                ]
+                id: 8,
+                name: "Persévérance",
+                icon: "trending-up",
+                definition: "C'est ta capacité à continuer malgré les difficultés, à ne pas abandonner au premier échec, à garder ton objectif en tête même quand c'est long et décourageant.",
+                situationTitle: "Le permis de conduire qui se fait désirer",
+                situationText: "1er passage : recalé(e) pour refus de priorité. 2ème passage (3 mois après) : recalé(e) pour stationnement raté. Tes potes l'ont eu du premier coup. Ton forfait d'heures est épuisé. Tu en as besoin pour ton job dans 4 mois. 3ème passage prévu dans 2 mois.",
+                choiceFull: "Je me remotive, j'analyse mes erreurs, je reprends des heures ciblées sur mes faiblesses, je garde mon objectif en tête",
+                transferability: "Atteinte d'objectifs commerciaux difficiles, apprentissage de compétences complexes, gestion de projets longs, reconversion",
+                keywords: ["Persévérance", "Ténacité", "Résilience", "Détermination"]
             },
             {
-                emoji: "🏠",
-                title: "Autonomie & Vie Quotidienne",
-                description: "Gérer son quotidien développe responsabilité et organisation",
-                activities: [
-                    { title: "Vivre seul·e (gérer un logement, factures, courses)", hint: "Ex: Autonomie complète, gestion", skills: ["Autonomie", "Responsabilité", "Organisation", "Gestion budgétaire", "Anticipation"] },
-                    { title: "Gérer un budget personnel (suivi dépenses, économies)", hint: "Ex: Comptes, objectifs financiers", skills: ["Gestion budgétaire", "Rigueur", "Anticipation", "Planification", "Autodiscipline"] },
-                    { title: "Cuisiner régulièrement pour soi ou sa famille", hint: "Ex: Courses, recettes, organisation", skills: ["Organisation", "Créativité", "Gestion du temps", "Autonomie", "Planification"] },
-                    { title: "Entretenir son logement (ménage, rangement, petites réparations)", hint: "Ex: Régularité, soin, débrouillardise", skills: ["Régularité", "Organisation", "Débrouillardise", "Rigueur", "Autonomie"] },
-                    { title: "Faire ses démarches administratives seul·e (CAF, sécu, impôts)", hint: "Ex: Papiers, rendez-vous, suivi", skills: ["Autonomie", "Organisation", "Rigueur", "Persévérance", "Compréhension"] },
-                    { title: "Gérer ses rendez-vous médicaux et sa santé", hint: "Ex: Prévoyance, suivi, responsabilité", skills: ["Responsabilité", "Organisation", "Prévoyance", "Autonomie", "Soin de soi"] },
-                    { title: "Prendre soin d'un animal de compagnie", hint: "Ex: Régularité, engagement, responsabilité", skills: ["Responsabilité", "Régularité", "Empathie", "Engagement", "Anticipation"] },
-                    { title: "S'occuper régulièrement de frères/sœurs ou proches", hint: "Ex: Aide, soutien, responsabilité", skills: ["Responsabilité", "Empathie", "Patience", "Adaptabilité", "Fiabilité"] }
-                ]
+                id: 9,
+                name: "Affirmation professionnelle",
+                icon: "megaphone",
+                definition: "C'est ta capacité à défendre ton point de vue, à dire non quand c'est nécessaire, à demander ce qui t'est dû, et à te faire respecter sans agressivité mais avec fermeté.",
+                situationTitle: "Le job étudiant où on t'exploite",
+                situationText: "Fast-food, 15h/semaine. Depuis 3 semaines : on te demande de rester 1h de plus non payé, tu as travaillé dimanche alors que tu avais posé, on te donne les tâches les plus pénibles, tes collègues ont été augmentés mais pas toi.",
+                choiceFull: "Je demande un rendez-vous, j'expose les problèmes factuellement, je demande un rééquilibrage, je fixe des limites claires, je cherche ailleurs si rien ne change",
+                transferability: "Négociation salariale, gestion de conflits, leadership, défense de ses droits, communication assertive",
+                keywords: ["Assertivité", "Confiance en soi", "Négociation", "Défense de ses droits"]
             },
             {
-                emoji: "🔧",
-                title: "Bricolage & Technique",
-                description: "Réparer et créer développe débrouillardise et logique",
-                activities: [
-                    { title: "Réparer des objets (électronique, mécanique, mobilier)", hint: "Ex: Diagnostic, recherche, réparation", skills: ["Débrouillardise", "Logique", "Persévérance", "Résolution de problèmes", "Minutie"] },
-                    { title: "Entretenir ou réparer un vélo/scooter/moto", hint: "Ex: Mécanique, outils, entretien", skills: ["Technique", "Autonomie", "Débrouillardise", "Logique", "Précision"] },
-                    { title: "Monter des meubles ou faire des travaux simples", hint: "Ex: Instructions, outils, précision", skills: ["Organisation", "Logique", "Précision", "Patience", "Lecture de plans"] },
-                    { title: "Réparer ou upgrader un ordinateur/smartphone", hint: "Ex: Composants, dépannage, optimisation", skills: ["Technique", "Logique", "Recherche d'info", "Précision", "Résolution de problèmes"] },
-                    { title: "Créer des objets en électronique (Arduino, Raspberry Pi)", hint: "Ex: Programmation, montage, tests", skills: ["Technique", "Logique", "Créativité", "Persévérance", "Innovation"] },
-                    { title: "Faire de la récup et upcycling (donner nouvelle vie)", hint: "Ex: Créativité, transformation, écologie", skills: ["Créativité", "Débrouillardise", "Écologie", "Vision", "Patience"] }
-                ]
+                id: 10,
+                name: "Capacité d'apprentissage",
+                icon: "brain",
+                definition: "C'est ta facilité à apprendre de nouvelles choses, à comprendre rapidement, à poser les bonnes questions, et à progresser même dans des domaines que tu ne connais pas.",
+                situationTitle: "Le nouveau jeu vidéo ultra-complexe",
+                situationText: "Tes amis t'invitent à jouer en ligne à un jeu de stratégie que tu ne connais pas (type League of Legends). Il y a 50 personnages avec capacités spécifiques, une carte immense, des objets à acheter, un vocabulaire spécifique, des combinaisons de touches compliquées. Tes potes jouent depuis 2 ans.",
+                choiceFull: "Je regarde des tutos, je pose plein de questions, j'essaie différentes stratégies, j'accepte mes erreurs, j'observe les joueurs expérimentés, je progresse vite",
+                transferability: "Formation sur de nouveaux logiciels, adaptation à de nouvelles méthodes, montée en compétences, veille technologique, polyvalence",
+                keywords: ["Apprentissage rapide", "Curiosité", "Adaptabilité", "Formation continue"]
             },
             {
-                emoji: "🌱",
-                title: "Écologie & Nature",
-                description: "S'engager pour la planète développe conscience et initiative",
-                activities: [
-                    { title: "Jardiner ou cultiver (potager, plantes, permaculture)", hint: "Ex: Patience, observation, soin", skills: ["Patience", "Observation", "Régularité", "Soin", "Planification"] },
-                    { title: "Participer à des actions écologiques (clean-up, plantation)", hint: "Ex: Engagement, action collective", skills: ["Engagement", "Conscience écologique", "Initiative", "Esprit collectif", "Action"] },
-                    { title: "Pratiquer le zéro déchet ou mode de vie écolo", hint: "Ex: Organisation, alternatives, créativité", skills: ["Organisation", "Créativité", "Conviction", "Persévérance", "Recherche"] },
-                    { title: "Faire du compost ou recycler activement", hint: "Ex: Tri, organisation, régularité", skills: ["Organisation", "Régularité", "Conscience écologique", "Rigueur", "Responsabilité"] }
-                ]
+                id: 11,
+                name: "Créativité appliquée",
+                icon: "palette",
+                definition: "C'est ta capacité à trouver des solutions originales, à voir les choses différemment, à improviser avec les moyens du bord, et à transformer des contraintes en opportunités.",
+                situationTitle: "Le repas d'improvisation avec un frigo vide",
+                situationText: "20h, 4 amis débarquent dans 30 minutes. Dans ton frigo : 3 œufs, reste de pâtes cuites, boîte de thon, carottes fatiguées, farine, fromage râpé, épices, chips entamées. Budget : 0€, magasins fermés.",
+                choiceFull: "J'invente un plat (galettes de pâtes au thon, omelette créative, gratin improvisé), je présente ça comme un 'repas surprise', je transforme la contrainte en moment convivial",
+                transferability: "Innovation produit, résolution de problèmes avec ressources limitées, design thinking, amélioration continue, brainstorming",
+                keywords: ["Créativité", "Innovation", "Improvisation", "Resourcefulness"]
             },
             {
-                emoji: "📚",
-                title: "Apprentissage & Formation",
-                description: "Se former en continu montre curiosité et ambition",
-                activities: [
-                    { title: "Apprendre une langue étrangère seul·e (apps, films, livres)", hint: "Ex: Régularité, persévérance", skills: ["Autodiscipline", "Persévérance", "Curiosité", "Organisation", "Ouverture d'esprit"] },
-                    { title: "Suivre des formations en ligne (YouTube, MOOC, tutos)", hint: "Ex: Autonomie, apprentissage actif", skills: ["Autonomie", "Curiosité", "Persévérance", "Autodiscipline", "Adaptabilité"] },
-                    { title: "Lire régulièrement (livres, articles, mangas)", hint: "Ex: Curiosité, ouverture, concentration", skills: ["Curiosité", "Concentration", "Ouverture d'esprit", "Culture générale", "Patience"] },
-                    { title: "Développer une expertise dans un domaine précis", hint: "Ex: Approfondissement, passion, maîtrise", skills: ["Persévérance", "Expertise", "Passion", "Rigueur", "Curiosité"] },
-                    { title: "Passer le permis de conduire", hint: "Ex: Apprentissage, investissement, persévérance", skills: ["Persévérance", "Investissement", "Concentration", "Autonomie", "Responsabilité"] }
-                ]
+                id: 12,
+                name: "Ouverture d'esprit",
+                icon: "globe",
+                definition: "C'est ta capacité à accepter les différences, à écouter des opinions contraires aux tiennes sans juger, à remettre en question tes certitudes, et à t'enrichir de la diversité.",
+                situationTitle: "Le nouveau voisin qui bouleverse tes habitudes",
+                situationText: "Nouveau voisin de 70 ans : végétalien (tu adores la viande), pratiquant d'une religion que tu ne connais pas, passionné d'opéra (tu écoutes du rap), très engagé écologiquement. Il t'invite régulièrement à discuter et partager des repas.",
+                choiceFull: "Je suis curieux(se), je pose des questions sur son mode de vie, je teste sa cuisine, j'écoute son opéra, j'apprends de lui sans me sentir menacé(e)",
+                transferability: "Travail en équipe multiculturelle, gestion du changement, innovation par la diversité, relations internationales, management intergénérationnel",
+                keywords: ["Ouverture d'esprit", "Tolérance", "Diversité", "Curiosité culturelle"]
+            },
+            {
+                id: 13,
+                name: "Organisation personnelle",
+                icon: "calendar",
+                definition: "C'est ta capacité à planifier tes tâches, à tenir tes engagements, à anticiper, à prioriser, et à gérer ton temps efficacement sans oublier l'essentiel.",
+                situationTitle: "La semaine de tous les deadlines",
+                situationText: "Lundi : dossier administratif CAF. Mardi : rendez-vous médecin 14h. Mercredi : anniversaire de ton père (cadeau + repas). Jeudi : examen code de la route. Vendredi : entretien d'embauche 10h à 40 km. Week-end : aider ton frère à peindre. En parallèle : job 15h/semaine + cours.",
+                choiceFull: "J'ai un planning détaillé, j'ai tout anticipé (dossier prêt dimanche, révisions étalées sur 2 semaines, cadeau acheté samedi dernier, trajet vérifié)",
+                transferability: "Gestion de projets multiples, respect des deadlines, planification stratégique, productivité, gestion des priorités",
+                keywords: ["Organisation", "Planification", "Gestion du temps", "Rigueur"]
+            },
+            {
+                id: 14,
+                name: "Autonomie décisionnelle",
+                icon: "compass",
+                definition: "C'est ta capacité à prendre des décisions seul(e), à assumer tes choix, à ne pas avoir besoin de l'avis de tout le monde avant d'agir, tout en sachant quand demander conseil.",
+                situationTitle: "L'orientation post-bac qui t'appartient",
+                situationText: "Tu hésites entre 3 options : prépa scientifique (difficile, prestige, parents pour), BTS en alternance (concret, salaire, autonomie), année de césure (voyager et mûrir). Parents poussent pour la prépa. Profs conseillent le BTS. Amis trouvent la césure cool. Tout le monde a un avis.",
+                choiceFull: "J'écoute tous les avis, je liste mes propres critères (ce que MOI je veux), je me projette dans chaque option, je choisis selon MES valeurs",
+                transferability: "Prise de décision managériale, choix stratégiques, arbitrage en situation complexe, leadership, responsabilité opérationnelle",
+                keywords: ["Autonomie", "Prise de décision", "Responsabilité", "Indépendance"]
+            },
+            {
+                id: 15,
+                name: "Agilité professionnelle",
+                icon: "shuffle",
+                definition: "C'est ta capacité à t'adapter rapidement aux changements, à changer de tâche facilement, à être flexible, et à rester efficace même quand tout change autour de toi.",
+                situationTitle: "Le week-end qui change 5 fois de plan",
+                situationText: "Samedi 9h : randonnée prévue à 6. 10h : il pleut, bowling. 11h : bowling fermé. 11h30 : ciné, mais film complet. 12h : brunch chez un ami. 13h : vous croisez une braderie. 14h : après-midi à chiner. 17h : certains veulent rentrer, d'autres proposent un escape game.",
+                choiceFull: "Je trouve ça fun, je m'adapte à chaque changement sans râler, je propose des alternatives, je profite de chaque moment sans me focaliser sur le plan raté",
+                transferability: "Travail en mode projet agile, gestion des imprévus, polyvalence, reconversion, adaptation aux réorganisations, réactivité",
+                keywords: ["Flexibilité", "Adaptabilité", "Agilité", "Réactivité"]
+            },
+            {
+                id: 16,
+                name: "Responsabilité numérique",
+                icon: "smartphone",
+                definition: "C'est ta conscience de l'impact de tes usages numériques (sur l'environnement, sur les autres, sur toi), et ta capacité à utiliser la technologie de manière réfléchie et éthique.",
+                situationTitle: "La story Instagram qui peut faire mal",
+                situationText: "À une soirée, ton pote fait une chute ridicule après avoir trop bu. Tu as filmé, c'est hilarant. Tu t'apprêtes à poster en story avec son tag. 800 abonnés vont voir. Mais : il cherche du travail, a eu des problèmes avec l'alcool, sa famille est sur Instagram, il dormait et ne t'a pas donné son accord.",
+                choiceFull: "Je ne poste pas sans son accord, je lui montre la vidéo d'abord, je réfléchis à l'impact potentiel sur lui, je privilégie son bien-être aux likes",
+                transferability: "Protection des données clients, éthique numérique en entreprise, communication responsable, gestion de l'e-réputation, conformité RGPD",
+                keywords: ["Éthique numérique", "Protection des données", "Responsabilité digitale", "E-réputation"]
+            },
+            {
+                id: 17,
+                name: "Usage raisonné de l'IA",
+                icon: "bot",
+                definition: "C'est ta capacité à utiliser les outils d'intelligence artificielle (ChatGPT, Copilot...) de manière intelligente, critique et créative, sans tricher mais en optimisant ton travail.",
+                situationTitle: "Le dossier de candidature avec l'aide de l'IA",
+                situationText: "Tu postules à une formation très sélective. Tu dois rédiger une lettre de motivation personnelle de 1500 mots expliquant ton parcours et ton projet. Tu as accès à ChatGPT.",
+                choiceFull: "Je rédige d'abord mes idées et mon plan, j'utilise l'IA pour améliorer certaines formulations, corriger l'orthographe, mais le fond vient de moi, je personnalise tout",
+                transferability: "Augmentation de productivité par l'IA, automatisation intelligente, validation critique des outputs IA, compétences hybrides humain-IA",
+                keywords: ["IA générative", "Esprit critique", "Productivité augmentée", "Compétences hybrides"]
+            },
+            {
+                id: 18,
+                name: "Conscience environnementale",
+                icon: "leaf",
+                definition: "C'est ta prise en compte de l'impact écologique de tes actions quotidiennes, et ta capacité à faire des choix qui limitent ton empreinte environnementale, même si c'est moins pratique.",
+                situationTitle: "Le trajet quotidien domicile-travail",
+                situationText: "Nouveau job à 12 km de chez toi. Choix : Voiture (15 min, confort, 80€/mois essence), Transports en commun (40 min avec 1 correspondance, 50€/mois, parfois bondé), Vélo+train (30 min, 30€/mois, sportif, météo-dépendant), Covoiturage (20 min, 40€/mois, horaires fixes).",
+                choiceFull: "Je choisis vélo+train ou transports malgré le temps perdu, l'impact environnemental est un critère décisif, j'accepte les contraintes pour réduire mon empreinte",
+                transferability: "Démarche RSE en entreprise, éco-conception de produits, achats responsables, gestion des déchets, stratégie développement durable",
+                keywords: ["Responsabilité environnementale", "RSE", "Éco-responsabilité", "Développement durable"]
+            },
+            {
+                id: 19,
+                name: "Ponctualité et assiduité",
+                icon: "clock",
+                definition: "C'est ta capacité à arriver à l'heure, à être présent(e) régulièrement, à tenir tes engagements de temps, et à être fiable sur la durée.",
+                situationTitle: "Le sport en club avec tes potes",
+                situationText: "Inscription avec 4 amis à un cours de sport (CrossFit, danse, foot...) mardis et jeudis 19h pendant 3 mois. 120€ payés. Après un mois : tu arrives à 19h pile 3 fois, à 19h15 deux fois (bouchons, série Netflix), absent 3 fois (apéro collègues, flemme+pluie, resto).",
+                choiceFull: "Ça ne me correspond pas - je suis plus rigoureux(se). Je rate maximum 1 séance sur 8, j'arrive systématiquement à l'heure, j'ai intégré le créneau dans ma routine",
+                transferability: "Fiabilité professionnelle, respect des horaires, régularité au travail, gestion de l'absentéisme, crédibilité",
+                keywords: ["Ponctualité", "Assiduité", "Fiabilité", "Régularité"]
+            },
+            {
+                id: 20,
+                name: "Respect des codes professionnels",
+                icon: "briefcase",
+                definition: "C'est ta capacité à comprendre et appliquer les règles non-écrites du monde professionnel : comment s'habiller, parler, se comporter selon les contextes, même si ce n'est pas ton style naturel.",
+                situationTitle: "L'entretien d'embauche dans une banque",
+                situationText: "Entretien pour conseiller clientèle dans une grande banque. Normalement ton style : baskets, jean, sweat, langage décontracté avec 'gros', 'stylé', tutoiement facile, tatouages visibles, piercing au nez. Pour l'entretien, tu sais que les codes sont différents.",
+                choiceFull: "Je m'adapte totalement : costume/tailleur, tatouages couverts, piercing retiré, vouvoiement, langage soutenu, je comprends que le contexte professionnel demande un ajustement",
+                transferability: "Adaptation aux cultures d'entreprise, professionnalisme, relations clients, codes de communication, évolution hiérarchique",
+                keywords: ["Professionnalisme", "Adaptation", "Savoir-être", "Codes sociaux"]
+            },
+            {
+                id: 21,
+                name: "Sens de la confidentialité",
+                icon: "lock",
+                definition: "C'est ta capacité à garder pour toi des informations sensibles, à ne pas divulguer ce qui ne doit pas l'être, et à comprendre ce qui relève du secret professionnel ou de la vie privée.",
+                situationTitle: "Les ragots de vestiaire",
+                situationText: "Tu travailles dans une salle de sport. Dans les vestiaires, tu aperçois une personnalité connue de ta région (élu local, joueur de foot pro...) avec une personne qui n'est clairement pas son/sa conjoint(e) officiel(le). Ils s'embrassent. Le soir, tes 3 meilleurs amis te demandent si tu as vu des gens connus. Un ami connaît un journaliste.",
+                choiceFull: "Je ne dis rien, c'est la vie privée de cette personne, ce n'est pas mon rôle de divulguer ça, je protège la confidentialité même si l'info est croustillante",
+                transferability: "Secret professionnel, protection des données clients, discrétion en entreprise, RGPD, éthique professionnelle, confiance",
+                keywords: ["Confidentialité", "Discrétion", "Secret professionnel", "Éthique"]
+            },
+            {
+                id: 22,
+                name: "Prévention des risques professionnels",
+                icon: "shield",
+                definition: "C'est ta capacité à identifier les dangers, à anticiper les accidents, à respecter les consignes de sécurité, et à ne pas prendre de risques inutiles pour toi ou les autres.",
+                situationTitle: "Le meuble IKEA à monter au 5ème sans ascenseur",
+                situationText: "Grande bibliothèque IKEA (30 kg, 2m de haut) à monter au 5ème étage, escalier étroit, sans ascenseur. Tu es seul(e). Ton dos a déjà été fragile. 20h, voisins dorment (familles avec bébés). Tu voulais la monter ce soir car demain tu travailles toute la journée.",
+                choiceFull: "J'attends samedi, je demande de l'aide, je protège mon dos, je ne prends pas de risque même si c'est contraignant d'attendre, ou je loue le matériel adapté",
+                transferability: "Respect des consignes de sécurité, prévention des TMS, analyse des risques, port des EPI, culture sécurité",
+                keywords: ["Sécurité au travail", "Prévention", "Santé et sécurité", "Anticipation des risques"]
+            },
+            {
+                id: 23,
+                name: "Gestion du capital santé",
+                icon: "heart-pulse",
+                definition: "C'est ta capacité à prendre soin de ta santé physique et mentale sur le long terme, à détecter les signaux d'alerte, et à mettre en place des routines qui te préservent.",
+                situationTitle: "La semaine d'enfer qui s'accumule",
+                situationText: "Depuis 10 jours : 4-5h de sommeil par nuit (boulot + Netflix + scroll Instagram), petit-déjeuner sauté, kebab ou sandwich 2 fois/jour, aucune activité physique, mal au dos à force d'être avachi, irritable avec tes proches, maux de tête fréquents, enchaînement de cafés. Tu sens que ce n'est pas tenable mais grosse deadline vendredi.",
+                choiceFull: "J'identifie les signaux d'alerte, je réorganise ma semaine pour dormir 7h minimum, je prévois des vraies pauses repas équilibrés, je cale 20 min de marche/sport",
+                transferability: "Prévention du burn-out, équilibre vie pro/perso, gestion du stress, arrêts maladie, performance durable",
+                keywords: ["Santé au travail", "Équilibre vie pro/perso", "Bien-être", "Prévention burn-out"]
+            },
+            {
+                id: 24,
+                name: "Intelligence interculturelle",
+                icon: "globe-2",
+                definition: "C'est ta capacité à comprendre, respecter et travailler avec des personnes de cultures différentes, à détecter les codes culturels, et à adapter ta communication sans jugement.",
+                situationTitle: "Le coloc international qui a des codes différents",
+                situationText: "Nouveau coloc vient d'Asie (Japon, Chine, Corée...). Il enlève toujours ses chaussures en entrant, ne te regarde jamais dans les yeux quand vous parlez, dit toujours 'oui' même quand visiblement pas d'accord, ne partage jamais ses problèmes, est mal à l'aise quand tu le touches l'épaule, fait des courbettes pour dire bonjour.",
+                choiceFull: "Je me renseigne sur sa culture, je comprends que ses comportements sont culturels et non bizarres, j'adapte ma communication (moins tactile, plus indirect), j'apprends de lui",
+                transferability: "Travail en équipes internationales, expatriation, gestion multiculturelle, export, tourisme, diplomatie commerciale",
+                keywords: ["Interculturalité", "Diversité culturelle", "Adaptation culturelle", "Intelligence culturelle"]
+            },
+            {
+                id: 25,
+                name: "Médiation / Communication non-violente",
+                icon: "message-square-heart",
+                definition: "C'est ta capacité à désamorcer les conflits, à trouver des compromis, à reformuler les tensions en besoins, et à communiquer sans agresser ni te soumettre.",
+                situationTitle: "La dispute entre tes deux meilleurs amis",
+                situationText: "Tes deux meilleurs amis (A et B) ne se parlent plus depuis une semaine. A te dit : 'B est un profiteur, il me doit 80€ depuis 2 mois, il m'évite'. B te dit : 'A me harcèle pour 80€, je suis étudiant je galère, il pourrait être plus compréhensif, je les rembourserai mais il me met une pression de fou'. Tu es au milieu.",
+                choiceFull: "Je reformule les besoins de chacun (A : respect des engagements / B : compréhension et temps), je propose de les réunir, je facilite un dialogue, je cherche un compromis",
+                transferability: "Gestion de conflits en équipe, négociation sociale, management, médiation client-fournisseur, relations syndicales",
+                keywords: ["Médiation", "Gestion de conflits", "Communication non-violente", "Négociation"]
+            },
+            {
+                id: 26,
+                name: "Compréhension du cadre contractuel",
+                icon: "file-text",
+                definition: "C'est ta capacité à comprendre tes droits et devoirs dans une relation contractuelle (travail, location, achat...), à lire et comprendre un contrat, et à identifier les clauses importantes.",
+                situationTitle: "Le premier contrat de travail",
+                situationText: "On te propose ton premier vrai CDD 6 mois. Contrat de 8 pages. Dedans : Salaire 1600€ brut (tu ne sais pas combien en net), Période d'essai 2 mois renouvelable, Clause de mobilité géographique dans toute la région, 35h + heures sup 'selon besoins du service', Clause de non-concurrence 2 ans après fin du contrat.",
+                choiceFull: "Je lis tout le contrat, je cherche ce que signifie 'brut', je calcule mon net, je me renseigne sur la légalité de la période d'essai renouvelable et de la clause de non-concurrence",
+                transferability: "Négociation contractuelle, droit du travail appliqué, autonomie juridique, protection de ses intérêts, commercial",
+                keywords: ["Compréhension contractuelle", "Droit du travail", "Négociation", "Autonomie juridique"]
+            },
+            {
+                id: 27,
+                name: "Autonomie administrative",
+                icon: "folder-check",
+                definition: "C'est ta capacité à gérer seul(e) tes démarches administratives, à comprendre les documents officiels, à monter des dossiers, et à interagir avec les administrations sans paniquer.",
+                situationTitle: "Le dossier d'aides au logement CAF",
+                situationText: "Tu emménages dans ton premier appart. Pour toucher l'APL, dossier CAF avec : justificatif d'identité, RIB, bail, quittance, avis d'imposition, justificatifs de ressources 3 derniers mois, déclaration de situation. Le site CAF est compliqué, termes incompris ('foyer fiscal', 'ressources prises en compte'), il faut scanner les documents, certaines cases sont ambiguës.",
+                choiceFull: "Je crée mon compte, je rassemble tous les documents, je cherche sur internet les termes que je ne comprends pas, j'appelle la CAF si nécessaire, je remplis jusqu'au bout",
+                transferability: "Gestion administrative en entreprise, traitement de dossiers, relation avec organismes publics, rigueur documentaire",
+                keywords: ["Autonomie administrative", "Gestion de dossiers", "Démarches administratives", "Rigueur"]
             }
         ];
 
-        // STATE
-        let selectedActivities = new Set();
-        let revealedSkills = new Map(); // skill -> count
-        let categoriesWithActivities = new Set();
+        // ============== ÉTAT ==============
+        let currentSkillIndex = 0;
+        let results = [];
+        let radarChart = null;
 
-        // Initialize
-        function startActivity() {
-            document.getElementById('introScreen').classList.add('hidden');
-            document.getElementById('mainContent').classList.remove('hidden');
-            loadCategories();
+        // ============== NAVIGATION ==============
+        function startAssessment() {
+            document.getElementById('welcome-view').classList.add('hidden');
+            document.getElementById('assessment-view').classList.remove('hidden');
+            renderProgressDots();
+            loadSkill(0);
+            lucide.createIcons();
         }
 
-        function loadCategories() {
-            const container = document.getElementById('categoriesContainer');
-            let html = '';
-
-            competencesData.forEach((category, catIdx) => {
-                html += `
-                    <div class="category-section" id="category-${catIdx}">
-                        <div class="category-header" onclick="toggleCategory(${catIdx})">
-                            <div class="category-emoji">${category.emoji}</div>
-                            <div class="category-info">
-                                <div class="category-title">${category.title}</div>
-                                <div class="category-description">${category.description}</div>
-                            </div>
-                            <div class="category-toggle">▼</div>
-                        </div>
-                        <div class="category-content">
-                            ${category.activities.map((activity, actIdx) => `
-                                <div class="activity-item" onclick="toggleActivity(${catIdx}, ${actIdx})">
-                                    <div class="activity-checkbox"></div>
-                                    <div class="activity-title">${activity.title}</div>
-                                    <div class="activity-hint">${activity.hint}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <svg class="puzzle-decoration" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M50 0 L100 50 L50 100 L0 50 Z" fill="#06D6A0"/>
-                        </svg>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
-            updateTotalActivities();
-        }
-
-        function toggleCategory(catIdx) {
-            const category = document.getElementById(`category-${catIdx}`);
-            category.classList.toggle('collapsed');
-        }
-
-        function toggleActivity(catIdx, actIdx) {
-            const activity = competencesData[catIdx].activities[actIdx];
-            const activityId = `${catIdx}-${actIdx}`;
+        function loadSkill(index) {
+            currentSkillIndex = index;
+            const skill = SKILLS[index];
             
-            const categories = document.querySelectorAll('.category-section');
-            const categoryElement = categories[catIdx];
-            const items = categoryElement.querySelectorAll('.activity-item');
-            const item = items[actIdx];
+            document.getElementById('current-skill-num').textContent = index + 1;
+            document.getElementById('skill-icon').setAttribute('data-lucide', skill.icon);
+            document.getElementById('skill-name').textContent = skill.name;
+            document.getElementById('skill-definition').textContent = skill.definition;
+            document.getElementById('situation-title').textContent = skill.situationTitle;
+            document.getElementById('situation-text').textContent = skill.situationText;
+            document.getElementById('choice-full-text').textContent = skill.choiceFull;
             
-            if (selectedActivities.has(activityId)) {
-                // Deselect
-                selectedActivities.delete(activityId);
-                item.classList.remove('selected');
-                
-                // Remove skills
-                activity.skills.forEach(skill => {
-                    const count = revealedSkills.get(skill) || 0;
-                    if (count <= 1) {
-                        revealedSkills.delete(skill);
-                    } else {
-                        revealedSkills.set(skill, count - 1);
-                    }
-                });
-                
-                // Check if category still has activities
-                const catActivities = Array.from(selectedActivities).filter(id => id.startsWith(`${catIdx}-`));
-                if (catActivities.length === 0) {
-                    categoriesWithActivities.delete(catIdx);
+            // Reset choices
+            document.querySelectorAll('.btn-choice').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById('feedback-box').classList.add('hidden');
+            document.getElementById('btn-next').disabled = true;
+            
+            // Update progress dots
+            updateProgressDots();
+            
+            lucide.createIcons();
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderProgressDots() {
+            const container = document.getElementById('progress-dots');
+            container.innerHTML = SKILLS.map((_, i) => 
+                `<div class="progress-dot" data-index="${i}"></div>`
+            ).join('');
+        }
+
+        function updateProgressDots() {
+            document.querySelectorAll('.progress-dot').forEach((dot, i) => {
+                dot.classList.remove('active', 'done');
+                if (i < currentSkillIndex) {
+                    dot.classList.add('done');
+                } else if (i === currentSkillIndex) {
+                    dot.classList.add('active');
                 }
+            });
+        }
+
+        function selectChoice(score) {
+            // Visual feedback
+            document.querySelectorAll('.btn-choice').forEach(btn => btn.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            
+            // Save result
+            results[currentSkillIndex] = score;
+            
+            // Show feedback
+            showFeedback(score);
+            
+            // Enable next button
+            document.getElementById('btn-next').disabled = false;
+            
+            // Update identified count
+            const identifiedCount = results.filter(r => r > 0).length;
+            document.getElementById('identified-count').textContent = identifiedCount;
+        }
+
+        function showFeedback(score) {
+            const box = document.getElementById('feedback-box');
+            const icon = document.getElementById('feedback-icon');
+            const title = document.getElementById('feedback-title');
+            const text = document.getElementById('feedback-text');
+            const skill = SKILLS[currentSkillIndex];
+            
+            box.classList.remove('hidden', 'border-ls-red', 'border-ls-yellow', 'border-slate-300', 'bg-red-50', 'bg-yellow-50', 'bg-slate-50');
+            
+            if (score === 2) {
+                box.classList.add('border-ls-red', 'bg-red-50');
+                icon.setAttribute('data-lucide', 'award');
+                icon.classList.add('text-ls-red');
+                title.textContent = "Compétence maîtrisée ! 🎯";
+                text.innerHTML = `Tu as un vrai talent pour <strong>${skill.name}</strong>. Cette compétence est directement utilisable dans des contextes professionnels comme : ${skill.transferability}.`;
+            } else if (score === 1) {
+                box.classList.add('border-ls-yellow', 'bg-yellow-50');
+                icon.setAttribute('data-lucide', 'star');
+                icon.classList.add('text-ls-yellow');
+                title.textContent = "Compétence en développement 💪";
+                text.innerHTML = `Tu as déjà des bases en <strong>${skill.name}</strong>. Avec un peu de pratique et de confiance, cette compétence peut devenir un vrai atout professionnel.`;
             } else {
-                // Select
-                selectedActivities.add(activityId);
-                item.classList.add('selected');
-                categoriesWithActivities.add(catIdx);
-                
-                // Add skills
-                activity.skills.forEach(skill => {
-                    revealedSkills.set(skill, (revealedSkills.get(skill) || 0) + 1);
-                });
+                box.classList.add('border-slate-300', 'bg-slate-50');
+                icon.setAttribute('data-lucide', 'info');
+                icon.classList.add('text-slate-400');
+                title.textContent = "Compétence notée 📝";
+                text.innerHTML = `Pas de souci, on a tous des styles différents ! <strong>${skill.name}</strong> n'est peut-être pas ton point fort naturel, et c'est OK. On se concentre sur tes vraies forces.`;
             }
             
-            updateUI();
+            lucide.createIcons();
         }
 
-        function updateUI() {
-            // Update stats
-            document.getElementById('scoreCount').textContent = selectedActivities.size;
-            document.getElementById('activitiesCount').textContent = selectedActivities.size;
-            document.getElementById('skillsCount').textContent = revealedSkills.size;
-            document.getElementById('categoriesCount').textContent = categoriesWithActivities.size;
-            
-            // Update export button
-            document.getElementById('exportBtn').disabled = selectedActivities.size === 0;
-            
-            // Update skills summary
-            updateSkillsSummary();
-        }
-
-        function updateSkillsSummary() {
-            const summary = document.getElementById('skillsSummary');
-            
-            if (revealedSkills.size === 0) {
-                summary.classList.add('hidden');
-                return;
+        function nextSkill() {
+            if (currentSkillIndex < SKILLS.length - 1) {
+                loadSkill(currentSkillIndex + 1);
+            } else {
+                showResults();
             }
+        }
+
+        // ============== RÉSULTATS ==============
+        function showResults() {
+            document.getElementById('assessment-view').classList.add('hidden');
+            document.getElementById('results-view').classList.remove('hidden');
             
-            summary.classList.remove('hidden');
+            // Calculs
+            const identifiedSkills = SKILLS.map((skill, i) => ({
+                ...skill,
+                score: results[i] || 0
+            })).filter(s => s.score > 0).sort((a, b) => b.score - a.score);
             
-            // Group skills by category
-            const skillsByType = {
-                "Soft Skills": [],
-                "Compétences Techniques": [],
-                "Qualités Personnelles": []
-            };
+            const fullSkills = identifiedSkills.filter(s => s.score === 2);
+            const partialSkills = identifiedSkills.filter(s => s.score === 1);
             
-            const softSkills = ["Communication", "Travail en équipe", "Adaptabilité", "Créativité", "Leadership", "Empathie", "Pédagogie", "Médiation", "Diplomatie", "Écoute active"];
-            const technical = ["Maîtrise technique", "Maîtrise logiciels", "Technique", "Précision", "Logique", "Programmation", "Sens esthétique"];
+            document.getElementById('total-identified').textContent = identifiedSkills.length;
             
-            revealedSkills.forEach((count, skill) => {
-                if (softSkills.includes(skill)) {
-                    skillsByType["Soft Skills"].push(skill);
-                } else if (technical.includes(skill)) {
-                    skillsByType["Compétences Techniques"].push(skill);
-                } else {
-                    skillsByType["Qualités Personnelles"].push(skill);
-                }
-            });
-            
-            let html = '<div class="skills-revealed">';
-            html += '<div class="skills-title">🎯 Ton Capital Compétences</div>';
-            html += '<div class="skills-grid">';
-            
-            Object.entries(skillsByType).forEach(([type, skills]) => {
-                if (skills.length > 0) {
-                    html += `
-                        <div class="skill-category">
-                            <div class="skill-category-title">${type}</div>
-                            ${skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+            // Top 5 compétences
+            const topSkills = identifiedSkills.slice(0, 5);
+            document.getElementById('top-skills').innerHTML = topSkills.map((skill, i) => `
+                <div class="flex items-center gap-4 pb-4 border-b border-slate-100">
+                    <div class="text-4xl font-black text-slate-100">${String(i + 1).padStart(2, '0')}</div>
+                    <div class="flex-grow">
+                        <h4 class="font-bold text-lg mb-1">${skill.name}</h4>
+                        <div class="flex gap-2">
+                            ${skill.keywords.map(kw => `<span class="text-[10px] px-2 py-1 rounded-full bg-slate-100 text-slate-600 font-semibold">${kw}</span>`).join('')}
                         </div>
-                    `;
-                }
-            });
+                    </div>
+                    <div class="skill-badge ${skill.score === 2 ? 'full' : 'partial'}">
+                        ${skill.score === 2 ? 'Maîtrisée' : 'En développement'}
+                    </div>
+                </div>
+            `).join('');
             
-            html += '</div></div>';
-            summary.innerHTML = html;
+            // Profil type
+            determineProfile(fullSkills, partialSkills);
+            
+            // Mots-clés
+            const allKeywords = [...new Set(identifiedSkills.flatMap(s => s.keywords))];
+            document.getElementById('keywords-list').innerHTML = allKeywords.map(kw => 
+                `<span class="px-4 py-2 bg-white border-2 border-ls-turquoise rounded-full font-bold text-sm">${kw}</span>`
+            ).join('');
+            
+            // Liste complète
+            document.getElementById('all-skills').innerHTML = identifiedSkills.map(skill => `
+                <div class="p-4 rounded-xl border ${skill.score === 2 ? 'border-ls-red bg-red-50' : 'border-ls-yellow bg-yellow-50'}">
+                    <div class="flex items-start gap-3 mb-2">
+                        <i data-lucide="${skill.icon}" class="w-5 h-5 flex-shrink-0 ${skill.score === 2 ? 'text-ls-red' : 'text-ls-yellow'}"></i>
+                        <h4 class="font-bold text-sm">${skill.name}</h4>
+                    </div>
+                    <p class="text-xs text-slate-600 mb-3">${skill.transferability}</p>
+                    <div class="skill-badge ${skill.score === 2 ? 'full' : 'partial'} text-[10px]">
+                        ${skill.score === 2 ? '✓✓ Maîtrisée' : '✓ En développement'}
+                    </div>
+                </div>
+            `).join('');
+            
+            // Radar Chart
+            renderRadarChart(identifiedSkills);
+            
+            lucide.createIcons();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function updateTotalActivities() {
-            const total = competencesData.reduce((sum, cat) => sum + cat.activities.length, 0);
-            document.getElementById('totalActivities').textContent = total;
+        function determineProfile(fullSkills, partialSkills) {
+            let profileType = "";
+            let profileDesc = "";
+            
+            const totalFull = fullSkills.length;
+            const totalPartial = partialSkills.length;
+            
+            // Analyse des dominantes
+            const hasRelational = fullSkills.some(s => ['Aisance relationnelle', 'Sens de la coopération', 'Médiation / Communication non-violente'].includes(s.name));
+            const hasOrganization = fullSkills.some(s => ['Organisation personnelle', 'Autonomie décisionnelle', 'Rigueur'].includes(s.name));
+            const hasCreativity = fullSkills.some(s => ['Créativité appliquée', 'Prise d\'initiative', 'Agilité professionnelle'].includes(s.name));
+            const hasAnalysis = fullSkills.some(s => ['Esprit d\'analyse', 'Capacité de résolution', 'Discernement / Vigilance'].includes(s.name));
+            
+            if (totalFull >= 15) {
+                profileType = "PROFIL EXPERT POLYVALENT";
+                profileDesc = "Tu maîtrises un large éventail de compétences professionnelles. Tu es capable de t'adapter à de nombreux contextes et de briller dans des rôles variés.";
+            } else if (hasRelational && hasOrganization) {
+                profileType = "PROFIL COORDINATEUR";
+                profileDesc = "Tu combines l'aisance relationnelle et les capacités organisationnelles. Tu es fait(e) pour des rôles de coordination d'équipe, de gestion de projet ou de management.";
+            } else if (hasCreativity && hasAnalysis) {
+                profileType = "PROFIL INNOVATEUR STRATÉGIQUE";
+                profileDesc = "Tu allies créativité et capacité d'analyse. Tu excelles dans les rôles qui demandent à la fois de l'innovation et de la réflexion stratégique.";
+            } else if (hasRelational) {
+                profileType = "PROFIL RELATIONNEL";
+                profileDesc = "Ton point fort c'est l'humain. Tu es à l'aise dans les métiers de contact, de service, de commerce ou de médiation.";
+            } else if (hasOrganization) {
+                profileType = "PROFIL ORGANISATEUR";
+                profileDesc = "Tu es structuré(e) et fiable. Les métiers de gestion, de logistique, d'administration ou de planification te correspondent bien.";
+            } else if (hasCreativity) {
+                profileType = "PROFIL CRÉATIF";
+                profileDesc = "Tu as l'esprit inventif et tu t'adaptes facilement. Les secteurs créatifs, innovants ou en évolution rapide sont faits pour toi.";
+            } else if (hasAnalysis) {
+                profileType = "PROFIL ANALYTIQUE";
+                profileDesc = "Tu as un esprit logique et critique. Les métiers techniques, scientifiques ou qui demandent de la rigueur te conviennent.";
+            } else {
+                profileType = "PROFIL EN CONSTRUCTION";
+                profileDesc = `Tu as identifié ${totalFull + totalPartial} compétences. Continue à les développer et à explorer de nouveaux domaines pour affiner ton profil.`;
+            }
+            
+            document.getElementById('profile-type').textContent = profileType;
+            document.getElementById('profile-desc').textContent = profileDesc;
         }
 
-        function exportProfile() {
-            // Create comprehensive profile text
-            let profile = "MON PROFIL DE COMPÉTENCES - LS4YOU\n";
-            profile += "=".repeat(50) + "\n\n";
-            profile += `Date: ${new Date().toLocaleDateString('fr-FR')}\n\n`;
-            profile += `📊 RÉSUMÉ\n`;
-            profile += `   • ${selectedActivities.size} activités identifiées\n`;
-            profile += `   • ${revealedSkills.size} compétences révélées\n`;
-            profile += `   • ${categoriesWithActivities.size} domaines d'expertise\n\n`;
+        function renderRadarChart(identifiedSkills) {
+            const ctx = document.getElementById('radarChart');
             
-            profile += `💎 MES COMPÉTENCES CLÉS\n`;
-            const sortedSkills = Array.from(revealedSkills.entries()).sort((a, b) => b[1] - a[1]);
-            sortedSkills.forEach(([skill, count]) => {
-                profile += `   • ${skill} (confirmée par ${count} activité${count > 1 ? 's' : ''})\n`;
-            });
+            // Prendre les 10 premières compétences pour le radar
+            const top10 = identifiedSkills.slice(0, 10);
             
-            profile += `\n📋 MES ACTIVITÉS PAR DOMAINE\n`;
-            competencesData.forEach((category, catIdx) => {
-                const catActivities = category.activities.filter((_, actIdx) => 
-                    selectedActivities.has(`${catIdx}-${actIdx}`)
-                );
-                
-                if (catActivities.length > 0) {
-                    profile += `\n${category.emoji} ${category.title.toUpperCase()}\n`;
-                    catActivities.forEach(activity => {
-                        profile += `   ✓ ${activity.title}\n`;
-                    });
+            if (radarChart) radarChart.destroy();
+            
+            radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: top10.map(s => s.name),
+                    datasets: [{
+                        label: 'Niveau de maîtrise',
+                        data: top10.map(s => s.score),
+                        backgroundColor: 'rgba(230, 57, 70, 0.2)',
+                        borderColor: '#E63946',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#E63946',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#E63946',
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 2,
+                            ticks: {
+                                stepSize: 1,
+                                display: false
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 11,
+                                    family: 'Poppins',
+                                    weight: '600'
+                                },
+                                color: '#1D3557'
+                            },
+                            grid: {
+                                color: '#E2E8F0'
+                            },
+                            angleLines: {
+                                color: '#E2E8F0'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    maintainAspectRatio: true
                 }
             });
-            
-            profile += `\n${"=".repeat(50)}\n`;
-            profile += `Projet LS4YOU - Life Skills For Youth\n`;
-            profile += `Co-financé par l'Union Européenne\n`;
-            
-            // Download
-            const blob = new Blob([profile], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Mon_Profil_Competences_${new Date().toISOString().split('T')[0]}.txt`;
-            a.click();
-            URL.revokeObjectURL(url);
         }
+
+        function downloadPDF() {
+            window.print();
+        }
+
+        // ============== INIT ==============
+        window.onload = () => {
+            lucide.createIcons();
+        };
     </script>
 </body>
 </html>
