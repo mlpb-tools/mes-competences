@@ -3,525 +3,1066 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LS4YOU - Révélateur de Compétences</title>
-    
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- jsPDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
+    <title>Mes Compétences - Auto-diagnostic Mission Locale Pays Basque</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
+        :root {
+            --mlpb-blue: #0066CC;
+            --mlpb-light-blue: #E6F2FF;
+            --mlpb-dark: #1a1a1a;
+            --mlpb-gray: #666;
+            --mlpb-light-gray: #f5f5f5;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #F1FAEE;
-            overflow-x: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--mlpb-light-blue) 0%, #ffffff 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--mlpb-dark);
         }
-        
-        .font-header {
-            font-family: 'Montserrat', sans-serif;
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 102, 204, 0.15);
+            overflow: hidden;
         }
-        
-        .dot-grid {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            opacity: 0.1;
-            background-image: radial-gradient(#1D3557 1px, transparent 1px);
-            background-size: 12px 12px;
+
+        header {
+            background: var(--mlpb-blue);
+            color: white;
+            padding: 30px;
+            text-align: center;
         }
-        
+
+        header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .progress-bar {
+            background: var(--mlpb-light-gray);
+            height: 8px;
+            margin: 20px 30px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--mlpb-blue), #0088ff);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: var(--mlpb-gray);
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+
+        .question-container {
+            padding: 40px 30px;
+            display: none;
+        }
+
+        .question-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-header {
+            margin-bottom: 30px;
+        }
+
+        .question-number {
+            color: var(--mlpb-blue);
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .question-title {
+            font-size: 1.6em;
+            font-weight: 600;
+            color: var(--mlpb-dark);
+            margin-bottom: 15px;
+        }
+
+        .situation-box {
+            background: var(--mlpb-light-blue);
+            border-left: 4px solid var(--mlpb-blue);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .situation-box strong {
+            color: var(--mlpb-blue);
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+
+        .situation-box p {
+            color: var(--mlpb-dark);
+            line-height: 1.6;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            color: var(--mlpb-gray);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            background: var(--mlpb-light-gray);
+            border: 2px solid transparent;
+            padding: 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .option:hover {
+            border-color: var(--mlpb-blue);
+            background: white;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            background: var(--mlpb-light-blue);
+            border-color: var(--mlpb-blue);
+        }
+
+        .option-radio {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--mlpb-gray);
+            border-radius: 50%;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .option.selected .option-radio {
+            border-color: var(--mlpb-blue);
+        }
+
+        .option.selected .option-radio::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: var(--mlpb-blue);
+            border-radius: 50%;
+        }
+
+        .option-text {
+            flex: 1;
+            font-size: 1.05em;
+            color: var(--mlpb-dark);
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            padding: 30px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        button {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--mlpb-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0052a3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--mlpb-light-gray);
+            color: var(--mlpb-dark);
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-container {
+            display: none;
+            padding: 40px 30px;
+        }
+
+        .results-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .results-header h2 {
+            font-size: 2em;
+            color: var(--mlpb-blue);
+            margin-bottom: 10px;
+        }
+
+        .overall-score {
+            background: linear-gradient(135deg, var(--mlpb-blue), #0088ff);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .overall-score .score-number {
+            font-size: 3.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .overall-score .score-label {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .competence-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .competence-card {
+            background: white;
+            border: 2px solid var(--mlpb-light-gray);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .competence-card:hover {
+            border-color: var(--mlpb-blue);
+            box-shadow: 0 4px 16px rgba(0, 102, 204, 0.1);
+        }
+
+        .competence-card h3 {
+            font-size: 1.1em;
+            color: var(--mlpb-dark);
+            margin-bottom: 15px;
+        }
+
+        .score-bar {
+            background: var(--mlpb-light-gray);
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.6s ease;
+        }
+
+        .score-bar-fill.level-1 { background: var(--danger); width: 25%; }
+        .score-bar-fill.level-2 { background: var(--warning); width: 50%; }
+        .score-bar-fill.level-3 { background: #17a2b8; width: 75%; }
+        .score-bar-fill.level-4 { background: var(--success); width: 100%; }
+
+        .score-label {
+            font-size: 0.9em;
+            color: var(--mlpb-gray);
+            font-weight: 600;
+        }
+
+        .chart-container {
+            background: white;
+            border: 2px solid var(--mlpb-light-gray);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container h3 {
+            text-align: center;
+            color: var(--mlpb-blue);
+            margin-bottom: 30px;
+            font-size: 1.4em;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto !important;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
             }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+
+            header h1 {
+                font-size: 1.5em;
+            }
+
+            header p {
+                font-size: 1em;
+            }
+
+            .question-title {
+                font-size: 1.3em;
+            }
+
+            .competence-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            button {
+                width: 100%;
             }
         }
-        
-        .fade-in {
-            animation: fadeIn 0.6s ease-out;
+
+        .intro-screen {
+            padding: 40px 30px;
+            text-align: center;
         }
-        
-        .hidden {
-            display: none !important;
+
+        .intro-screen h2 {
+            color: var(--mlpb-blue);
+            font-size: 1.8em;
+            margin-bottom: 20px;
         }
-        
-        @media print {
-            .no-print {
-                display: none !important;
-            }
+
+        .intro-screen p {
+            color: var(--mlpb-gray);
+            line-height: 1.8;
+            margin-bottom: 15px;
+            font-size: 1.05em;
+        }
+
+        .intro-screen ul {
+            text-align: left;
+            max-width: 600px;
+            margin: 30px auto;
+            color: var(--mlpb-dark);
+            line-height: 1.8;
+        }
+
+        .intro-screen li {
+            margin-bottom: 10px;
+        }
+
+        .start-button {
+            margin-top: 30px;
         }
     </style>
 </head>
 <body>
-    <div id="app"></div>
+    <div class="container">
+        <header>
+            <h1>🎯 Mes Compétences</h1>
+            <p>Auto-diagnostic professionnel - Mission Locale Pays Basque</p>
+        </header>
 
+        <!-- Écran d'introduction -->
+        <div id="introScreen" class="intro-screen">
+            <h2>Découvre tes compétences professionnelles</h2>
+            <p>Ce questionnaire t'aide à identifier tes points forts à travers des situations concrètes du quotidien et du monde professionnel.</p>
+            
+            <ul>
+                <li><strong>28 compétences</strong> issues du référentiel Mission Locale et Pix</li>
+                <li><strong>Durée :</strong> environ 10-15 minutes</li>
+                <li><strong>Objectif :</strong> mieux te connaître pour valoriser ton profil</li>
+                <li>Réponds en pensant à ce que tu fais vraiment, pas ce que tu voudrais faire</li>
+            </ul>
+
+            <button class="btn-primary start-button" onclick="startQuiz()">Commencer l'auto-diagnostic</button>
+        </div>
+
+        <!-- Barre de progression -->
+        <div id="progressSection" style="display:none;">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+            <div class="progress-text" id="progressText">Question 1 sur 28</div>
+        </div>
+
+        <!-- Questions -->
+        <div id="questionsContainer"></div>
+
+        <!-- Navigation -->
+        <div id="navigationSection" class="navigation" style="display:none;">
+            <button class="btn-secondary" id="prevBtn" onclick="previousQuestion()">← Précédent</button>
+            <button class="btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>Suivant →</button>
+        </div>
+
+        <!-- Résultats -->
+        <div id="resultsContainer" class="results-container">
+            <div class="results-header">
+                <h2>📊 Ton profil de compétences</h2>
+                <p>Voici une vision globale de tes forces professionnelles</p>
+            </div>
+
+            <div class="overall-score">
+                <div class="score-number" id="overallScore">--</div>
+                <div class="score-label">Score global sur 100</div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Vision radar de tes compétences</h3>
+                <canvas id="radarChart"></canvas>
+            </div>
+
+            <h3 style="margin-bottom: 20px; color: var(--mlpb-blue);">Détail par compétence</h3>
+            <div class="competence-cards" id="competenceCards"></div>
+
+            <div class="action-buttons">
+                <button class="btn-primary" onclick="window.print()">📄 Imprimer mes résultats</button>
+                <button class="btn-secondary" onclick="location.reload()">🔄 Recommencer</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // --- CONFIGURATION & DATA ---
-        const THEME = {
-            colors: {
-                red: '#E63946',
-                yellow: '#FFB703',
-                turquoise: '#2EC4B6',
-                pink: '#FF99AC',
-                dark: '#1D3557',
-                white: '#FFFFFF',
-                slate: '#F1FAEE',
+        // DONNÉES DES COMPÉTENCES (28 domaines avec mises en situation métiers jeunes)
+        const competences = [
+            {
+                id: 1,
+                titre: "Esprit d'analyse",
+                situation: "En cuisine, le chef te demande de vérifier pourquoi les portions de frites partent trop vite. Comment analyses-tu la situation ?",
+                description: "Capacité à examiner une situation, comparer des informations et tirer des conclusions logiques.",
+                options: [
+                    { text: "Je dis juste qu'on en vend beaucoup, c'est tout", score: 1 },
+                    { text: "Je regarde vite fait les quantités servies", score: 2 },
+                    { text: "Je compare les portions servies avec ce qui est prévu dans les fiches techniques", score: 3 },
+                    { text: "J'analyse les commandes, je vérifie les grammages servis, je compare avec les stocks et je propose un ajustement précis", score: 4 }
+                ]
+            },
+            {
+                id: 2,
+                titre: "Capacité de résolution",
+                situation: "En plein service, la machine à café tombe en panne et il y a 10 clients qui attendent. Que fais-tu ?",
+                description: "Aptitude à trouver des solutions concrètes face à un problème imprévu.",
+                options: [
+                    { text: "Je panique et je dis aux clients qu'il n'y a plus de café", score: 1 },
+                    { text: "J'appelle le responsable sans chercher de solution", score: 2 },
+                    { text: "J'essaie de redémarrer la machine et je préviens le responsable", score: 3 },
+                    { text: "Je propose aux clients d'autres boissons, j'utilise la machine de secours si elle existe, et je préviens la maintenance tout en gardant le service fluide", score: 4 }
+                ]
+            },
+            {
+                id: 3,
+                titre: "Discernement / Vigilance",
+                situation: "En magasin, un client très pressant te demande de lui faire un avoir sans ticket ni preuve d'achat. Ta réaction ?",
+                description: "Capacité à repérer les situations anormales et à appliquer les règles de sécurité.",
+                options: [
+                    { text: "J'accepte pour ne pas avoir de problème", score: 1 },
+                    { text: "Je dis que je ne sais pas faire", score: 2 },
+                    { text: "Je lui dis qu'il faut un ticket normalement", score: 3 },
+                    { text: "J'explique calmement la politique du magasin, je vérifie dans le système s'il y a une trace d'achat et j'appelle un responsable si besoin", score: 4 }
+                ]
+            },
+            {
+                id: 4,
+                titre: "Aisance relationnelle",
+                situation: "Tu arrives pour ton premier jour en salle de restaurant et tu dois servir 30 couverts. Comment abordes-tu les clients ?",
+                description: "Facilité à créer du contact, échanger avec des personnes inconnues et s'adapter.",
+                options: [
+                    { text: "Je stresse, je reste en retrait et j'évite le contact visuel", score: 1 },
+                    { text: "Je fais le minimum syndical sans vraiment engager la conversation", score: 2 },
+                    { text: "Je souris et je prends les commandes poliment", score: 3 },
+                    { text: "Je me présente avec le sourire, je demande si c'est la première fois qu'ils viennent, je conseille les plats et je crée une ambiance conviviale", score: 4 }
+                ]
+            },
+            {
+                id: 5,
+                titre: "Sens de la coopération",
+                situation: "En entrepôt, un collègue est débordé sur sa zone de préparation de commandes et prend du retard. Que fais-tu ?",
+                description: "Capacité à travailler en équipe et à contribuer à un objectif commun.",
+                options: [
+                    { text: "C'est son secteur, je ne m'en mêle pas", score: 1 },
+                    { text: "J'attends qu'il me demande de l'aide", score: 2 },
+                    { text: "Je lui demande si ça va et je lui file un coup de main rapide", score: 3 },
+                    { text: "Je finis rapidement ma zone, je vais le voir et je l'aide à terminer pour que l'équipe respecte les délais de livraison", score: 4 }
+                ]
+            },
+            {
+                id: 6,
+                titre: "Prise d'initiative",
+                situation: "Tu remarques que la réserve de sachets en caisse est presque vide alors que c'est samedi après-midi (forte affluence). Que fais-tu ?",
+                description: "Capacité à agir sans attendre qu'on te le demande et à anticiper les besoins.",
+                options: [
+                    { text: "J'attends qu'on me dise de réapprovisionner", score: 1 },
+                    { text: "Je préviens juste un collègue", score: 2 },
+                    { text: "Je vais chercher un carton de sachets quand j'ai le temps", score: 3 },
+                    { text: "Je préviens ma collègue que je vais réapprovisionner, je ramène plusieurs cartons d'avance et je vérifie les autres fournitures de caisse", score: 4 }
+                ]
+            },
+            {
+                id: 7,
+                titre: "Maîtrise de soi",
+                situation: "Un client t'insulte parce que son plat a 5 minutes de retard en cuisine. Comment réagis-tu ?",
+                description: "Capacité à gérer ses émotions et rester professionnel dans des situations difficiles.",
+                options: [
+                    { text: "Je lui réponds sur le même ton, il n'a pas à me parler comme ça", score: 1 },
+                    { text: "Je suis blessé et je pars sans rien dire", score: 2 },
+                    { text: "Je prends sur moi et je continue à le servir normalement", score: 3 },
+                    { text: "Je garde mon calme, je m'excuse pour l'attente, j'explique la situation et je propose une solution (boisson offerte, accélération), puis j'en parle au manager", score: 4 }
+                ]
+            },
+            {
+                id: 8,
+                titre: "Persévérance",
+                situation: "Tu rates 3 fois d'affilée le chronométrage pour préparer un plateau en cuisine collective (objectif 3 min, tu mets 5 min). Ta réaction ?",
+                description: "Capacité à continuer malgré les difficultés et à progresser par la répétition.",
+                options: [
+                    { text: "Je me dis que je ne suis pas fait pour ce métier", score: 1 },
+                    { text: "Je continue sans chercher à comprendre pourquoi je suis lent", score: 2 },
+                    { text: "Je demande des conseils à un collègue", score: 3 },
+                    { text: "J'observe les gestes des collègues rapides, je décompose les étapes, je m'entraîne hors service et je m'améliore progressivement", score: 4 }
+                ]
+            },
+            {
+                id: 9,
+                titre: "Affirmation professionnelle",
+                situation: "Ton planning affiche 39h cette semaine mais ton manager te demande de faire samedi (non prévu) sans compensation. Que dis-tu ?",
+                description: "Capacité à faire respecter ses droits tout en restant constructif.",
+                options: [
+                    { text: "J'accepte sans rien dire pour garder mon travail", score: 1 },
+                    { text: "Je râle dans mon coin mais j'accepte", score: 2 },
+                    { text: "Je dis que je préfère pas mais que je vais le faire", score: 3 },
+                    { text: "J'explique calmement que ce n'était pas prévu, je demande une récupération ou une majoration conformément au contrat et je propose une solution alternative", score: 4 }
+                ]
+            },
+            {
+                id: 10,
+                titre: "Capacité d'apprentissage",
+                situation: "Le magasin installe une nouvelle caisse avec système tactile que tu n'as jamais utilisé. Comment t'y prends-tu ?",
+                description: "Facilité à acquérir de nouvelles compétences techniques rapidement.",
+                options: [
+                    { text: "Je demande à toujours travailler sur l'ancienne caisse", score: 1 },
+                    { text: "J'essaie un peu mais je laisse tomber si c'est compliqué", score: 2 },
+                    { text: "Je regarde un collègue faire et je reproduis", score: 3 },
+                    { text: "Je teste toutes les fonctions, je prends des notes, je pose des questions précises et je m'entraîne hors affluence jusqu'à être à l'aise", score: 4 }
+                ]
+            },
+            {
+                id: 11,
+                titre: "Créativité appliquée",
+                situation: "En boulangerie, il reste 15 croissants invendus 30 min avant la fermeture. Comment les valorises-tu ?",
+                description: "Capacité à trouver des solutions originales face à des contraintes commerciales.",
+                options: [
+                    { text: "Je les mets de côté, on verra demain", score: 1 },
+                    { text: "Je baisse le prix de 10% et j'attends", score: 2 },
+                    { text: "Je fais une petite promotion -30%", score: 3 },
+                    { text: "Je crée une offre flash '3 pour le prix de 2', je l'affiche en vitrine, je le propose activement aux derniers clients et je mets en avant le fait maison/fraîcheur du jour", score: 4 }
+                ]
+            },
+            {
+                id: 12,
+                titre: "Ouverture d'esprit",
+                situation: "Un nouveau collègue étranger range les stocks différemment de toi (mais de façon logique aussi). Comment réagis-tu ?",
+                description: "Capacité à accepter la différence et à remettre en question ses habitudes.",
+                options: [
+                    { text: "Je lui dis de faire comme moi, c'est mieux", score: 1 },
+                    { text: "Je trouve ça bizarre mais je ne dis rien", score: 2 },
+                    { text: "Je laisse faire et je m'adapte", score: 3 },
+                    { text: "Je lui demande d'expliquer sa logique, je compare avec la mienne et on trouve ensemble la méthode la plus efficace pour l'équipe", score: 4 }
+                ]
+            },
+            {
+                id: 13,
+                titre: "Organisation personnelle",
+                situation: "Tu travailles mardi, jeudi et samedi cette semaine + tu as une formation France Travail mercredi. Comment t'organises-tu ?",
+                description: "Capacité à planifier et gérer plusieurs engagements en même temps.",
+                options: [
+                    { text: "Je ne note rien, je gère au jour le jour", score: 1 },
+                    { text: "Je note vaguement dans ma tête mais je confonds parfois", score: 2 },
+                    { text: "Je note tout dans mon téléphone", score: 3 },
+                    { text: "Je mets tout dans mon agenda avec alertes, je prépare mes affaires la veille, je prévois mes transports et je vérifie qu'il n'y a pas de chevauchement", score: 4 }
+                ]
+            },
+            {
+                id: 14,
+                titre: "Autonomie décisionnelle",
+                situation: "En drive, une cliente dit qu'il manque un produit dans sa commande, mais ton scan indique que tout est là. Le responsable est en pause. Que fais-tu ?",
+                description: "Capacité à prendre des décisions responsables sans supervision immédiate.",
+                options: [
+                    { text: "Je dis à la cliente de revenir quand le responsable sera là", score: 1 },
+                    { text: "Je refuse catégoriquement, le scan dit que c'est bon", score: 2 },
+                    { text: "J'hésite et je lui demande d'attendre 5 minutes", score: 3 },
+                    { text: "Je vérifie calmement avec elle article par article, si doute j'applique la politique de confiance du magasin (remplacement), je note l'incident pour le responsable", score: 4 }
+                ]
+            },
+            {
+                id: 15,
+                titre: "Agilité professionnelle",
+                situation: "En plein rush en salle, la cuisine te demande de changer de secteur car un serveur est absent. Comment réagis-tu ?",
+                description: "Capacité à s'adapter rapidement aux changements et à changer de mission.",
+                options: [
+                    { text: "Je dis que c'est pas possible, je connais pas ce secteur", score: 1 },
+                    { text: "Je râle mais j'accepte et je fais n'importe quoi", score: 2 },
+                    { text: "J'accepte et je fais de mon mieux", score: 3 },
+                    { text: "J'accepte directement, je demande 1 minute pour qu'on me brieffe sur les tables en cours, je reprends le fil et j'assure le service", score: 4 }
+                ]
+            },
+            {
+                id: 16,
+                titre: "Responsabilité numérique",
+                situation: "Un client te donne ses codes de carte de fidélité pour que tu lui ajoutes des points directement. Que fais-tu ?",
+                description: "Conscience de la sécurité des données personnelles et des bonnes pratiques.",
+                options: [
+                    { text: "Je prends ses codes et j'ajoute les points comme il demande", score: 1 },
+                    { text: "Je les note sur un papier que je laisse en caisse", score: 2 },
+                    { text: "Je lui dis que je préfère pas garder ses codes", score: 3 },
+                    { text: "J'explique que pour sa sécurité je ne peux pas garder ses codes, je lui montre comment faire sur son appli ou la borne, et je l'aide à le faire lui-même", score: 4 }
+                ]
+            },
+            {
+                id: 17,
+                titre: "Usage raisonné de l'IA",
+                situation: "Tu dois créer une affiche promotionnelle pour la boulangerie. Comment utilises-tu une IA de création d'image ?",
+                description: "Capacité à utiliser l'IA comme outil d'aide en gardant le contrôle créatif.",
+                options: [
+                    { text: "Je génère une image et je l'imprime directement sans réfléchir", score: 1 },
+                    { text: "Je génère 2-3 images et je choisis la plus jolie", score: 2 },
+                    { text: "Je génère des propositions et j'ajoute les textes moi-même", score: 3 },
+                    { text: "Je définis d'abord mon message et mon style, je teste plusieurs prompts, je sélectionne le meilleur résultat que je personnalise avec les infos du magasin et je valide avec mon responsable", score: 4 }
+                ]
+            },
+            {
+                id: 18,
+                titre: "Conscience environnementale",
+                situation: "En fin de service au restaurant, il reste de la nourriture préparée qui va être jetée. Que proposes-tu ?",
+                description: "Engagement pour réduire le gaspillage et l'impact environnemental.",
+                options: [
+                    { text: "C'est normal, on jette tout comme d'habitude", score: 1 },
+                    { text: "Je trouve ça dommage mais c'est pas mon rôle", score: 2 },
+                    { text: "Je propose qu'on se partage les restes entre collègues", score: 3 },
+                    { text: "Je propose un système : donner aux associations (Too Good To Go, banques alimentaires), ajuster les quantités préparées, congeler certains produits réutilisables", score: 4 }
+                ]
+            },
+            {
+                id: 19,
+                titre: "Ponctualité / Assiduité",
+                situation: "Tu travailles en 2x8 cette semaine : prise de poste à 6h le lundi. À quelle heure te lèves-tu pour être sûr d'arriver à l'heure ?",
+                description: "Respect des horaires et anticipation des contraintes personnelles.",
+                options: [
+                    { text: "5h45, je fonce direct", score: 1 },
+                    { text: "5h30, normalement ça passe", score: 2 },
+                    { text: "5h15, pour avoir un peu de marge", score: 3 },
+                    { text: "5h00 : je prévois temps de préparation, trajet, imprévus (bus en retard), et j'arrive 10 min avant pour me changer et prendre mon poste à l'heure", score: 4 }
+                ]
+            },
+            {
+                id: 20,
+                titre: "Respect des codes professionnels",
+                situation: "Tu commences en hôtel d'affaires (poste d'accueil). On ne t'a rien dit sur la tenue. Comment t'habilles-tu pour le 1er jour ?",
+                description: "Capacité à adapter sa présentation au contexte professionnel.",
+                options: [
+                    { text: "Comme d'habitude : jogging, sweat, baskets", score: 1 },
+                    { text: "Jean propre et polo", score: 2 },
+                    { text: "Tenue décontractée mais correcte", score: 3 },
+                    { text: "J'ai cherché des photos de l'hôtel en ligne, je viens en tenue professionnelle (chemise/chemisier, pantalon sobre, chaussures de ville propres)", score: 4 }
+                ]
+            },
+            {
+                id: 21,
+                titre: "Sens de la confidentialité",
+                situation: "Tu travailles en boutique de téléphonie. Un client connu laisse son téléphone en réparation. Tes amis te demandent ce qu'il a dedans.",
+                description: "Respect du secret professionnel et de la vie privée des clients.",
+                options: [
+                    { text: "Je raconte tout, c'est trop stylé de l'avoir vu", score: 1 },
+                    { text: "Je dis juste qu'il est venu sans donner de détails", score: 2 },
+                    { text: "Je dis que je ne peux rien dire", score: 3 },
+                    { text: "Je rappelle que j'ai un devoir de confidentialité total sur les clients et leurs données, comme tout professionnel, et je refuse catégoriquement d'en parler", score: 4 }
+                ]
+            },
+            {
+                id: 22,
+                titre: "Prévention des risques professionnels",
+                situation: "En entrepôt, tu vois un collègue porter seul un colis de 30kg alors que la procédure dit 'port à deux au-delà de 20kg'. Que fais-tu ?",
+                description: "Vigilance face aux dangers et respect des règles de sécurité.",
+                options: [
+                    { text: "C'est son problème, je ne dis rien", score: 1 },
+                    { text: "Je trouve ça risqué mais je le laisse faire", score: 2 },
+                    { text: "Je lui dis de faire attention", score: 3 },
+                    { text: "J'interviens directement : je vais l'aider à porter, je rappelle la consigne de sécurité et j'en parle au responsable si ça se reproduit", score: 4 }
+                ]
+            },
+            {
+                id: 23,
+                titre: "Gestion du capital santé",
+                situation: "Tu enchaînes 6 jours de travail debout en magasin, tu as mal au dos et aux pieds, tu es épuisé. Que fais-tu ?",
+                description: "Conscience de ses limites et préservation de sa santé physique.",
+                options: [
+                    { text: "Je continue en serrant les dents jusqu'à l'accident", score: 1 },
+                    { text: "Je prends des anti-douleurs tous les jours", score: 2 },
+                    { text: "Je me repose le jour de repos mais je ne change rien", score: 3 },
+                    { text: "J'en parle à mon responsable, je vois un médecin, je demande un aménagement de poste (alternance debout/assis, chaussures adaptées), et je vérifie mes droits", score: 4 }
+                ]
+            },
+            {
+                id: 24,
+                titre: "Intelligence interculturelle",
+                situation: "En hôtellerie, un client japonais s'incline en te tendant sa carte bancaire. Comment réagis-tu ?",
+                description: "Capacité à comprendre et respecter les codes culturels différents.",
+                options: [
+                    { text: "Je trouve ça bizarre et je prends la carte normalement", score: 1 },
+                    { text: "Je prends la carte sans rien faire de spécial", score: 2 },
+                    { text: "Je souris poliment et je prends la carte avec respect", score: 3 },
+                    { text: "Je reconnais le geste de respect japonais, je m'incline légèrement en retour, je prends la carte à deux mains et je le remercie dans sa langue si possible", score: 4 }
+                ]
+            },
+            {
+                id: 25,
+                titre: "Médiation / Communication Non Violente",
+                situation: "Deux collègues de cuisine se disputent violemment sur qui a brûlé la sauce. L'ambiance est tendue. Comment interviens-tu ?",
+                description: "Capacité à désamorcer les conflits et faciliter le dialogue.",
+                options: [
+                    { text: "Je reste en dehors, c'est leur problème", score: 1 },
+                    { text: "Je dis que celui que je connais le mieux a raison", score: 2 },
+                    { text: "Je leur demande d'arrêter de crier", score: 3 },
+                    { text: "J'interviens calmement, je propose qu'on finisse le service d'abord, puis je les aide à discuter au calme en écoutant les deux versions sans juger et en recentrant sur la solution", score: 4 }
+                ]
+            },
+            {
+                id: 26,
+                titre: "Compréhension du cadre contractuel",
+                situation: "Le supermarché te propose un contrat 30h/semaine. Quels éléments vérifies-tu avant de signer ?",
+                description: "Connaissance de ses droits et devoirs en tant que salarié.",
+                options: [
+                    { text: "Je regarde juste le salaire et je signe", score: 1 },
+                    { text: "Je vérifie le salaire et les horaires", score: 2 },
+                    { text: "Je lis le contrat mais sans tout comprendre", score: 3 },
+                    { text: "Je vérifie : type de contrat, durée, période d'essai, salaire brut/net, horaires, jours de repos, tickets resto, mutuelle, primes, clause de mobilité, et je pose des questions sur ce que je ne comprends pas", score: 4 }
+                ]
+            },
+            {
+                id: 27,
+                titre: "Autonomie administrative",
+                situation: "Tu dois actualiser ta situation France Travail et déclarer tes heures travaillées en CDD. Comment procèdes-tu ?",
+                description: "Capacité à gérer ses démarches administratives de manière autonome.",
+                options: [
+                    { text: "Je ne fais rien, c'est trop compliqué", score: 1 },
+                    { text: "J'attends que la Mission Locale le fasse pour moi", score: 2 },
+                    { text: "Je me fais aider à chaque fois par quelqu'un", score: 3 },
+                    { text: "Je me connecte sur mon espace France Travail, je renseigne mes heures avec les bulletins de paie, je vérifie que tout est correct et je valide dans les délais", score: 4 }
+                ]
+            },
+            {
+                id: 28,
+                titre: "Connaissance du territoire / Ressources",
+                situation: "Un collègue cherche une formation en vente mais ne sait pas par où commencer. Que lui conseilles-tu ?",
+                description: "Connaissance des structures locales et capacité à orienter.",
+                options: [
+                    { text: "Je ne sais pas, débrouille-toi", score: 1 },
+                    { text: "Je lui dis de chercher sur internet", score: 2 },
+                    { text: "Je lui conseille d'aller à France Travail", score: 3 },
+                    { text: "Je lui conseille Mission Locale (si -26 ans), France Travail, CFA/GRETA, je lui donne les contacts précis du territoire et je lui explique comment prendre RDV", score: 4 }
+                ]
             }
-        };
-
-        const skillsData = [
-            { id: 1, title: "Esprit d'analyse", definition: "Comprendre le 'pourquoi' et le 'comment' d'une situation.", situation: "Tu dois choisir un nouveau téléphone ou une destination de vacances. Tu compares les prix, les avis, la batterie et les options avant de te décider.", keywords: ["Comparaison", "Diagnostic", "Étude"] },
-            { id: 2, title: "Capacité de résolution", definition: "Trouver des solutions face à un problème bloquant.", situation: "Ton PC plante, ta console ne se connecte pas ou une fermeture éclair est coincée. Tu testes plusieurs trucs jusqu'à ce que ça remarche.", keywords: ["Dépannage", "Solution", "Débrouillardise"] },
-            { id: 3, title: "Discernement / Vigilance", definition: "Ne pas se faire avoir, savoir évaluer la fiabilité.", situation: "Tu reçois un mail bizarre t'annonçant que tu as gagné un iPhone, ou tu vois une info choc sur TikTok. Tu vérifies la source avant de cliquer ou de partager.", keywords: ["Esprit critique", "Vérification", "Prudence"] },
-            { id: 4, title: "Aisance relationnelle", definition: "Facilité à entrer en contact avec les autres.", situation: "En soirée ou dans un nouveau groupe, tu arrives facilement à discuter avec des gens que tu ne connais pas encore.", keywords: ["Communication", "Contact", "Sociabilité"] },
-            { id: 5, title: "Sens de la coopération", definition: "Travailler avec les autres vers un but commun.", situation: "Dans un jeu vidéo en équipe ou pour organiser l'anniversaire d'un ami, tu te coordonnes avec les autres pour que le plan fonctionne.", keywords: ["Travail d'équipe", "Entraide", "Collectif"] },
-            { id: 6, title: "Prise d'initiative", definition: "Agir sans attendre qu'on te le demande.", situation: "Personne ne sait quoi faire ce soir. Tu proposes un lieu, une heure et tu lances le mouvement.", keywords: ["Proactivité", "Moteur", "Proposition"] },
-            { id: 7, title: "Maîtrise de soi", definition: "Garder son calme sous la pression.", situation: "Tu perds une partie importante en ligne ou tu rates ton bus de justesse. Tu es frustré, mais tu ne casses rien et tu restes poli.", keywords: ["Sang-froid", "Patience", "Gestion des émotions"] },
-            { id: 8, title: "Persévérance", definition: "Ne pas abandonner face à la difficulté.", situation: "Tu essaies d'apprendre un trick de skate, un morceau de guitare ou de passer un niveau difficile. Tu rates 10 fois, mais tu recommences.", keywords: ["Tenacité", "Effort", "Motivation"] },
-            { id: 9, title: "Affirmation professionnelle", definition: "Savoir dire ce qu'on pense ou veut, avec respect.", situation: "Tes amis veulent aller voir un film qui ne te tente pas du tout. Tu oses dire 'Non, ça ne me dit rien, je préfère faire autre chose' sans être agressif.", keywords: ["Confiance", "Assertivité", "Positionnement"] },
-            { id: 10, title: "Capacité d'apprentissage", definition: "Acquérir de nouvelles connaissances par soi-même.", situation: "Tu ne sais pas faire quelque chose (monter un meuble, utiliser un logiciel). Tu regardes un tuto YouTube et tu apprends à le faire.", keywords: ["Curiosité", "Auto-formation", "Adaptation"] },
-            { id: 11, title: "Créativité appliquée", definition: "Inventer ou adapter avec ce qu'on a.", situation: "Tu dois cuisiner mais il manque la moitié des ingrédients. Tu improvises avec ce qu'il y a dans le frigo et c'est bon.", keywords: ["Innovation", "Système D", "Imagination"] },
-            { id: 12, title: "Ouverture d'esprit", definition: "Accepter la nouveauté et la différence.", situation: "On te propose de goûter un plat étranger bizarre ou d'écouter un style de musique que tu ne connais pas. Tu testes avant de juger.", keywords: ["Tolérance", "Curiosité", "Inclusion"] },
-            { id: 13, title: "Organisation personnelle", definition: "Structurer ses tâches pour être efficace.", situation: "Tu pars en voyage. Tu prépares ta valise la veille avec une liste pour être sûr de ne rien oublier (chargeur, brosse à dents...).", keywords: ["Planification", "Ordre", "Méthode"] },
-            { id: 14, title: "Autonomie décisionnelle", definition: "Faire des choix seul et les assumer.", situation: "Tu dois choisir tes vêtements, ta coiffure ou tes options au lycée. Tu écoutes les avis, mais au final, c'est toi qui tranches.", keywords: ["Choix", "Indépendance", "Responsabilité"] },
-            { id: 15, title: "Agilité professionnelle", definition: "S'adapter rapidement au changement.", situation: "Une sortie était prévue mais il pleut des cordes. Tu ne restes pas bloqué, tu trouves tout de suite un plan B sympa.", keywords: ["Adaptabilité", "Flexibilité", "Réactivité"] },
-            { id: 16, title: "Responsabilité numérique", definition: "Gérer sa présence et ses traces en ligne.", situation: "Tu fais attention aux photos que tu postes et tu règles tes paramètres de confidentialité pour que tout le monde ne voie pas ta vie privée.", keywords: ["Cyber-sécurité", "E-réputation", "Vie privée"] },
-            { id: 17, title: "Usage raisonné de l'IA", definition: "Utiliser l'intelligence artificielle comme un outil, pas une béquille.", situation: "Tu utilises ChatGPT pour t'expliquer un texte compliqué ou te donner des idées, mais tu rédiges toi-même la réponse finale.", keywords: ["Prompting", "Esprit critique", "Outil"] },
-            { id: 18, title: "Conscience environnementale", definition: "Agir pour limiter son impact écologique.", situation: "Tu tries tes déchets, tu revends tes vieux jeux/vêtements sur Vinted au lieu de jeter, ou tu prends le vélo quand c'est possible.", keywords: ["Écologie", "Sobriété", "Durabilité"] },
-            { id: 19, title: "Ponctualité et assiduité", definition: "Respecter le temps et l'engagement.", situation: "Quand tu as rendez-vous avec des potes pour un ciné à 20h, tu t'arranges pour être là à 19h55, pas 20h30.", keywords: ["Rigueur", "Fiabilité", "Respect des horaires"] },
-            { id: 20, title: "Respect des codes", definition: "Adapter son comportement au contexte.", situation: "Tu ne parles pas à ton prof, à un commerçant ou à ta grand-mère de la même façon qu'à ton meilleur ami.", keywords: ["Savoir-être", "Politesse", "Adaptation"] },
-            { id: 21, title: "Sens de la confidentialité", definition: "Savoir garder une information pour soi.", situation: "Un ami te confie un secret important. Même si d'autres insistent pour savoir, tu gardes le silence.", keywords: ["Discrétion", "Confiance", "Secret professionnel"] },
-            { id: 22, title: "Prévention des risques", definition: "Anticiper le danger pour soi et les autres.", situation: "En voiture, tu mets ta ceinture. En soirée, tu t'assures que celui qui conduit n'a pas bu.", keywords: ["Sécurité", "Prudence", "Anticipation"] },
-            { id: 23, title: "Gestion du capital santé", definition: "Prendre soin de sa capacité à travailler.", situation: "Tu as un gros examen ou un match le lendemain. Tu te couches plus tôt pour être en forme.", keywords: ["Hygiène de vie", "Énergie", "Équilibre"] },
-            { id: 24, title: "Intelligence interculturelle", definition: "Comprendre et respecter les différences culturelles.", situation: "Tu as un ami qui a des coutumes ou une religion différente. Tu poses des questions pour comprendre et tu respectes ses interdits alimentaires.", keywords: ["Diversité", "Inclusion", "Ouverture"] },
-            { id: 25, title: "Médiation / CNV", definition: "Résoudre les conflits par le dialogue.", situation: "Deux de tes amis s'embrouillent. Au lieu de mettre de l'huile sur le feu, tu essaies de calmer le jeu et de les faire discuter.", keywords: ["Négociation", "Pacification", "Écoute"] },
-            { id: 26, title: "Compréhension du cadre", definition: "Accepter les règles du jeu.", situation: "Avant de rejoindre un serveur Discord ou un club de sport, tu lis le règlement pour savoir ce qui est banni ou autorisé.", keywords: ["Règlement", "Conformité", "Limites"] },
-            { id: 27, title: "Autonomie administrative", definition: "Gérer ses papiers et formalités.", situation: "Tu dois t'inscrire quelque part ou refaire ta carte d'identité. Tu remplis le dossier et rassembles les pièces sans que tes parents fassent tout.", keywords: ["Gestion", "Rigueur", "Formalités"] },
-            { id: 28, title: "Connaissance du territoire", definition: "Savoir utiliser les ressources autour de soi.", situation: "Tu sais où se trouve la mairie, où prendre le bus pour aller en ville, ou où trouver une asso de sport dans ton quartier.", keywords: ["Mobilité", "Réseau", "Ressources"] }
         ];
 
-        // --- STATE ---
-        let gameState = 'welcome';
-        let currentSkillIndex = 0;
-        let userAnswers = [];
+        let currentQuestion = 0;
+        let answers = {};
 
-        // --- RENDER FUNCTIONS ---
-        function render() {
-            const app = document.getElementById('app');
-            
-            let content = `
-                <div class="min-h-screen relative overflow-hidden">
-                    <div class="dot-grid"></div>
-                    
-                    <header class="relative z-10 p-6 flex justify-between items-center no-print">
-                        <div class="flex items-center gap-3">
-                            <div class="w-4 h-4 rounded-full" style="background-color: ${THEME.colors.red};"></div>
-                            <span class="text-xs md:text-sm font-black uppercase tracking-widest text-slate-400">LS4YOU • Tools</span>
-                        </div>
-                    </header>
-
-                    <main class="relative z-10 pb-12 flex items-center justify-center min-h-[85vh]">
-            `;
-
-            if (gameState === 'welcome') {
-                content += renderWelcomeScreen();
-            } else if (gameState === 'playing') {
-                content += renderSkillCard();
-            } else if (gameState === 'results') {
-                content += renderResultScreen();
-            }
-
-            content += `
-                    </main>
-
-                    <footer class="relative z-10 text-center py-6 text-xs font-bold uppercase tracking-widest text-slate-300">
-                        <p>Cofinancé par l'Union européenne</p>
-                    </footer>
-                </div>
-            `;
-
-            app.innerHTML = content;
-            
-            // Initialize Lucide icons
-            if (window.lucide) {
-                lucide.createIcons();
-            }
-            
-            attachEventListeners();
-        }
-
-        function renderWelcomeScreen() {
-            return `
-                <div class="relative flex flex-col items-center justify-center min-h-[70vh] text-center px-4 fade-in">
-                    <div class="relative bg-white p-8 md:p-12 rounded-3xl shadow-2xl max-w-4xl w-full border border-slate-100 overflow-hidden">
-                        <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full opacity-60" style="background-color: ${THEME.colors.yellow};"></div>
-                        
-                        <div class="absolute top-4 right-4 md:top-8 md:right-8 z-10">
-                            <img src="https://static.wixstatic.com/media/dd5dab_47743b1c86024865ba19e623a3db327f~mv2.avif/v1/fill/w_224,h_60,al_c,q_80,enc_avif,quality_auto/dd5dab_47743b1c86024865ba19e623a3db327f~mv2.avif" alt="Logo Partenaire" class="h-8 md:h-12 object-contain" />
-                        </div>
-
-                        <div class="flex flex-col sm:flex-row items-center gap-4 mb-8">
-                            <img src="https://www.lifeskills4youth.eu/wp-content/uploads/2024/07/LS4YOU_Logo_whiteback.jpg" alt="Logo LS4YOU" class="h-10 md:h-12" />
-                            <div class="hidden sm:block h-8 w-[1px] bg-slate-300"></div>
-                            <div class="text-[10px] uppercase tracking-widest font-bold text-slate-400 text-center sm:text-left">
-                                Programme Mission Locale<br/>Life Skills For Youth
-                            </div>
-                        </div>
-                        
-                        <h1 class="text-4xl md:text-7xl font-black text-gray-800 mb-8 uppercase tracking-tight leading-tight font-header" style="color: ${THEME.colors.dark};">
-                            Révélateur de<br/>
-                            <span style="color: ${THEME.colors.red};">Compétences</span>
-                        </h1>
-                        
-                        <div class="flex justify-center gap-2 mb-10">
-                            <div class="w-24 h-3 rounded-full" style="background-color: ${THEME.colors.turquoise};"></div>
-                            <div class="w-10 h-3 rounded-full" style="background-color: ${THEME.colors.yellow};"></div>
-                            <div class="w-6 h-3 rounded-full" style="background-color: ${THEME.colors.pink};"></div>
-                        </div>
-
-                        <p class="text-lg md:text-2xl text-gray-600 mb-12 leading-relaxed font-medium max-w-2xl mx-auto">
-                            Tu penses ne pas avoir d'expérience professionnelle ? Détrompe-toi.<br/>
-                            Tes habitudes de vie cachent des <span class="font-bold text-gray-800">soft skills</span> recherchées.
-                        </p>
-                        
-                        <button 
-                            onclick="startQuiz()"
-                            class="group relative inline-flex items-center justify-center py-5 px-12 text-white font-black uppercase tracking-widest text-base md:text-lg rounded-lg shadow-lg transition-all transform hover:-translate-y-1 hover:shadow-2xl font-header"
-                            style="background-color: ${THEME.colors.red};"
-                        >
-                            C'est parti ! 
-                            <i data-lucide="chevron-right" class="ml-2 w-6 h-6"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderSkillCard() {
-            const skill = skillsData[currentSkillIndex];
-            const percentage = Math.round(((currentSkillIndex) / skillsData.length) * 100);
-            
-            return `
-                <div class="max-w-3xl mx-auto w-full px-4 fade-in">
-                    <div class="flex justify-between items-end mb-3 px-2">
-                        <span class="text-xs font-black uppercase tracking-widest text-slate-400">Question</span>
-                        <span class="text-base font-bold" style="color: ${THEME.colors.dark};">${currentSkillIndex + 1} <span class="text-slate-300">/</span> ${skillsData.length}</span>
-                    </div>
-                    <div class="w-full bg-slate-200 rounded-full h-3 mb-6 overflow-hidden border border-slate-300">
-                        <div 
-                            class="h-full rounded-full transition-all duration-500 ease-out" 
-                            style="width: ${percentage}%; background-color: ${THEME.colors.turquoise};"
-                        ></div>
-                    </div>
-                    
-                    <div class="bg-white rounded-3xl shadow-2xl overflow-hidden relative border border-slate-100 transition-all">
-                        <div class="p-8 md:p-12 text-white relative overflow-hidden" style="background-color: ${THEME.colors.dark};">
-                            <div class="absolute -right-6 -top-6 opacity-10 transform rotate-12">
-                                <i data-lucide="puzzle" style="width: 200px; height: 200px;"></i>
-                            </div>
-                            <h2 class="text-xs uppercase tracking-[0.2em] font-black opacity-70 mb-4 font-header">Mise en situation</h2>
-                            <p class="text-xl md:text-3xl font-medium italic leading-relaxed">
-                                "${skill.situation}"
-                            </p>
-                        </div>
-
-                        <div class="p-8 md:p-12">
-                            <div class="mb-12 p-8 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50">
-                                <h3 class="text-2xl font-black mb-3 flex items-center uppercase font-header" style="color: ${THEME.colors.red};">
-                                    <span class="w-2 h-10 mr-4 rounded-full" style="background-color: ${THEME.colors.red};"></span>
-                                    ${skill.title}
-                                </h3>
-                                <p class="text-slate-600 pl-6 text-lg font-medium">
-                                    ${skill.definition}
-                                </p>
-                            </div>
-
-                            <div class="text-center">
-                                <p class="text-slate-400 text-sm font-black uppercase tracking-widest mb-8">Est-ce que cela te correspond ?</p>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <button 
-                                        onclick="handleAnswer(${skill.id}, 2)"
-                                        class="group relative py-6 px-4 rounded-2xl border-2 bg-white transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-                                        style="border-color: ${THEME.colors.turquoise};"
-                                    >
-                                        <div class="absolute inset-0 bg-teal-50 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity"></div>
-                                        <div class="relative z-10 flex flex-col items-center">
-                                            <i data-lucide="check-circle-2" class="w-10 h-10 mb-3" style="color: ${THEME.colors.turquoise};"></i>
-                                            <span class="font-bold text-lg text-slate-800">C'est tout moi</span>
-                                        </div>
-                                    </button>
-                                    
-                                    <button 
-                                        onclick="handleAnswer(${skill.id}, 1)"
-                                        class="group relative py-6 px-4 rounded-2xl border-2 bg-white transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-                                        style="border-color: ${THEME.colors.yellow};"
-                                    >
-                                        <div class="absolute inset-0 bg-yellow-50 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity"></div>
-                                        <div class="relative z-10 flex flex-col items-center">
-                                            <div class="w-10 h-10 mb-3 rounded-full border-4 flex items-center justify-center" style="border-color: ${THEME.colors.yellow};">
-                                                <span class="block w-3 h-3 rounded-full" style="background-color: ${THEME.colors.yellow};"></span>
-                                            </div>
-                                            <span class="font-bold text-lg text-slate-800">Ça m'arrive</span>
-                                        </div>
-                                    </button>
-
-                                    <button 
-                                        onclick="handleAnswer(${skill.id}, 0)"
-                                        class="group relative py-6 px-4 rounded-2xl border-2 border-slate-200 bg-white transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-slate-300"
-                                    >
-                                        <div class="absolute inset-0 bg-slate-50 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity"></div>
-                                        <div class="relative z-10 flex flex-col items-center">
-                                            <i data-lucide="circle" class="w-10 h-10 mb-3 text-slate-300"></i>
-                                            <span class="font-bold text-lg text-slate-400 group-hover:text-slate-600">Pas vraiment</span>
-                                        </div>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderResultScreen() {
-            const acquired = userAnswers.filter(a => a.rating === 2);
-            const partial = userAnswers.filter(a => a.rating === 1);
-            const todo = userAnswers.filter(a => a.rating === 0);
-
-            let acquiredHTML = '';
-            if (acquired.length === 0) {
-                acquiredHTML = '<p class="text-gray-400 italic text-lg">Aucune compétence validée à 100%.</p>';
-            } else {
-                acquiredHTML = '<ul class="space-y-6 relative z-10">';
-                acquired.forEach(a => {
-                    const skill = skillsData.find(s => s.id === a.id);
-                    acquiredHTML += `
-                        <li class="pb-4 border-b border-slate-100 last:border-0">
-                            <div class="font-bold text-xl text-slate-800 mb-2">${skill.title}</div>
-                            <div class="flex flex-wrap gap-2">
-                                ${skill.keywords.map(k => `
-                                    <span class="text-xs uppercase font-bold px-3 py-1.5 rounded-md bg-slate-50 text-slate-500 border border-slate-100">
-                                        ${k}
-                                    </span>
-                                `).join('')}
-                            </div>
-                        </li>
-                    `;
-                });
-                acquiredHTML += '</ul>';
-            }
-
-            let partialHTML = '';
-            if (partial.length === 0 && todo.length === 0) {
-                partialHTML = '<p class="text-gray-500 italic text-lg">Tout est acquis ? Bravo !</p>';
-            } else {
-                partialHTML = '<ul class="space-y-4 relative z-10">';
-                partial.forEach(a => {
-                    const skill = skillsData.find(s => s.id === a.id);
-                    partialHTML += `
-                        <li class="flex items-center text-slate-700 font-bold text-lg p-3 rounded-lg bg-yellow-50 border border-yellow-100">
-                            <div class="w-3 h-3 rounded-full mr-4" style="background-color: ${THEME.colors.yellow};"></div>
-                            ${skill.title}
-                        </li>
-                    `;
-                });
-                if (todo.length > 0) {
-                    partialHTML += `<li class="text-sm text-gray-400 mt-8 pt-6 border-t border-slate-200 italic font-medium">+ ${todo.length} compétences à explorer.</li>`;
-                }
-                partialHTML += '</ul>';
-            }
-
-            return `
-                <div class="max-w-6xl mx-auto py-8 px-4 fade-in">
-                    <div class="text-center mb-12 relative">
-                        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-yellow-400 rounded-full blur-3xl opacity-20 -z-10"></div>
-                        <h2 class="text-4xl md:text-6xl font-black uppercase mb-4 font-header" style="color: ${THEME.colors.dark};">
-                            Mon Panorama
-                        </h2>
-                        <div class="w-32 h-3 mx-auto rounded-full mb-6" style="background-color: ${THEME.colors.red};"></div>
-                        <p class="text-lg md:text-xl text-slate-600 font-medium">Voici la traduction professionnelle de ton vécu.</p>
-                    </div>
-
-                    <div class="grid lg:grid-cols-2 gap-8 md:gap-12 mb-16">
-                        <div class="bg-white p-8 md:p-10 rounded-3xl shadow-xl relative overflow-hidden border-t-8 transition-transform hover:-translate-y-2 duration-300" style="border-color: ${THEME.colors.turquoise};">
-                            <div class="absolute top-0 right-0 p-4 opacity-10 transform translate-x-1/4 -translate-y-1/4">
-                                <i data-lucide="star" style="width: 180px; height: 180px; color: ${THEME.colors.turquoise}; fill: ${THEME.colors.turquoise};"></i>
-                            </div>
-                            <h3 class="text-2xl md:text-3xl font-black mb-8 flex items-center font-header" style="color: ${THEME.colors.dark};">
-                                <span class="w-10 h-10 rounded-full flex items-center justify-center mr-4 text-white shadow-md" style="background-color: ${THEME.colors.turquoise};">✓</span>
-                                Points Forts
-                            </h3>
-                            ${acquiredHTML}
-                        </div>
-
-                        <div class="bg-white p-8 md:p-10 rounded-3xl shadow-xl relative overflow-hidden border-t-8 transition-transform hover:-translate-y-2 duration-300" style="border-color: ${THEME.colors.yellow};">
-                            <div class="absolute top-0 right-0 p-4 opacity-10 transform translate-x-1/4 -translate-y-1/4">
-                                <i data-lucide="rocket" style="width: 180px; height: 180px; color: ${THEME.colors.yellow}; fill: ${THEME.colors.yellow};"></i>
-                            </div>
-                            <h3 class="text-2xl md:text-3xl font-black mb-8 flex items-center font-header" style="color: ${THEME.colors.dark};">
-                                <span class="w-10 h-10 rounded-full flex items-center justify-center mr-4 text-white shadow-md" style="background-color: ${THEME.colors.yellow};">~</span>
-                                En développement
-                            </h3>
-                            ${partialHTML}
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row justify-center gap-6 pb-8">
-                        <button 
-                            onclick="downloadPDF()" 
-                            class="flex items-center justify-center py-5 px-10 text-white font-black uppercase tracking-widest text-sm md:text-base rounded-lg shadow-lg hover:shadow-xl transition-transform transform hover:-translate-y-1 font-header"
-                            style="background-color: ${THEME.colors.dark};"
-                        >
-                            <i data-lucide="download" class="w-6 h-6 mr-3"></i>
-                            Télécharger PDF
-                        </button>
-                        <button 
-                            onclick="resetQuiz()" 
-                            class="flex items-center justify-center py-5 px-10 font-black uppercase tracking-widest text-sm md:text-base rounded-lg border-2 hover:bg-slate-50 transition-colors bg-white font-header"
-                            style="border-color: ${THEME.colors.dark}; color: ${THEME.colors.dark};"
-                        >
-                            <i data-lucide="refresh-cw" class="w-6 h-6 mr-3"></i>
-                            Recommencer
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        // --- EVENT HANDLERS ---
         function startQuiz() {
-            gameState = 'playing';
-            currentSkillIndex = 0;
-            userAnswers = [];
-            render();
+            document.getElementById('introScreen').style.display = 'none';
+            document.getElementById('progressSection').style.display = 'block';
+            document.getElementById('navigationSection').style.display = 'flex';
+            renderQuestions();
+            showQuestion(0);
         }
 
-        function handleAnswer(skillId, rating) {
-            const newAnswer = { id: skillId, rating: rating };
-            userAnswers.push(newAnswer);
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
 
-            if (currentSkillIndex < skillsData.length - 1) {
-                setTimeout(() => {
-                    currentSkillIndex++;
-                    render();
-                }, 200);
+            competences.forEach((comp, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-container';
+                questionDiv.id = `question-${index}`;
+
+                let optionsHTML = '';
+                comp.options.forEach((option, optIndex) => {
+                    optionsHTML += `
+                        <div class="option" onclick="selectOption(${index}, ${option.score})">
+                            <div class="option-radio"></div>
+                            <div class="option-text">${option.text}</div>
+                        </div>
+                    `;
+                });
+
+                questionDiv.innerHTML = `
+                    <div class="question-header">
+                        <div class="question-number">Question ${index + 1} / ${competences.length}</div>
+                        <h2 class="question-title">${comp.titre}</h2>
+                        <p class="question-text">${comp.description}</p>
+                    </div>
+                    <div class="situation-box">
+                        <strong>💡 Mets-toi en situation :</strong>
+                        <p>${comp.situation}</p>
+                    </div>
+                    <div class="options" id="options-${index}">
+                        ${optionsHTML}
+                    </div>
+                `;
+
+                container.appendChild(questionDiv);
+            });
+        }
+
+        function showQuestion(index) {
+            document.querySelectorAll('.question-container').forEach(q => {
+                q.classList.remove('active');
+            });
+            document.getElementById(`question-${index}`).classList.add('active');
+
+            updateProgress();
+            updateNavigation();
+        }
+
+        function selectOption(questionIndex, score) {
+            answers[questionIndex] = score;
+
+            // Mettre à jour visuellement
+            const options = document.querySelectorAll(`#options-${questionIndex} .option`);
+            options.forEach(opt => opt.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+
+            // Activer le bouton suivant
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / competences.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Question ${currentQuestion + 1} sur ${competences.length}`;
+        }
+
+        function updateNavigation() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            prevBtn.disabled = currentQuestion === 0;
+
+            if (currentQuestion === competences.length - 1) {
+                nextBtn.textContent = 'Voir mes résultats 🎯';
             } else {
-                gameState = 'results';
-                render();
+                nextBtn.textContent = 'Suivant →';
             }
-        }
 
-        function resetQuiz() {
-            gameState = 'welcome';
-            userAnswers = [];
-            currentSkillIndex = 0;
-            render();
-        }
-
-        function downloadPDF() {
-            if (!window.jspdf) {
-                alert("Erreur: La librairie PDF n'est pas encore chargée. Veuillez réessayer dans quelques secondes.");
-                return;
-            }
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            const acquired = userAnswers.filter(a => a.rating === 2);
-            const partial = userAnswers.filter(a => a.rating === 1);
-            
-            // Header
-            doc.setFillColor(230, 57, 70);
-            doc.rect(0, 0, 210, 20, 'F');
-            
-            doc.setFont("helvetica", "bold");
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(22);
-            doc.text("LS4YOU - MON PROFIL", 105, 13, { align: "center" });
-            
-            doc.setTextColor(29, 53, 87);
-            doc.setFontSize(10);
-            doc.text(`Généré le ${new Date().toLocaleDateString()}`, 20, 30);
-
-            let yPos = 45;
-
-            // Points Forts
-            if (acquired.length > 0) {
-                doc.setFillColor(46, 196, 182);
-                doc.rect(20, yPos - 6, 170, 10, 'F');
-                doc.setTextColor(255);
-                doc.setFontSize(12);
-                doc.text("MES POINTS FORTS (Acquis)", 25, yPos);
-                yPos += 15;
-                
-                doc.setTextColor(0);
-                doc.setFontSize(11);
-                
-                acquired.forEach(item => {
-                    const skill = skillsData.find(s => s.id === item.id);
-                    if (yPos > 270) { doc.addPage(); yPos = 20; }
-                    doc.setFont("helvetica", "bold");
-                    doc.text(`• ${skill.title}`, 25, yPos);
-                    doc.setFont("helvetica", "normal");
-                    doc.setFontSize(10);
-                    doc.setTextColor(100);
-                    doc.text(`  ${skill.keywords.join(" - ")}`, 25, yPos + 5);
-                    doc.setTextColor(0);
-                    doc.setFontSize(11);
-                    yPos += 12;
+            // Vérifier si une réponse est sélectionnée
+            if (answers[currentQuestion] !== undefined) {
+                nextBtn.disabled = false;
+                // Réappliquer la classe selected
+                const selectedScore = answers[currentQuestion];
+                const options = document.querySelectorAll(`#options-${currentQuestion} .option`);
+                options.forEach(opt => {
+                    const scoreText = opt.querySelector('.option-text').textContent;
+                    const matchingOption = competences[currentQuestion].options.find(o => o.text === scoreText);
+                    if (matchingOption && matchingOption.score === selectedScore) {
+                        opt.classList.add('selected');
+                    }
                 });
-                yPos += 10;
+            } else {
+                nextBtn.disabled = true;
             }
-
-            // En cours
-            if (partial.length > 0) {
-                if (yPos > 270) { doc.addPage(); yPos = 20; }
-                doc.setFillColor(255, 183, 3);
-                doc.rect(20, yPos - 6, 170, 10, 'F');
-                doc.setTextColor(29, 53, 87);
-                doc.setFontSize(12);
-                doc.setFont("helvetica", "bold");
-                doc.text("EN DÉVELOPPEMENT", 25, yPos);
-                yPos += 15;
-                
-                doc.setTextColor(0);
-                doc.setFontSize(11);
-
-                partial.forEach(item => {
-                    const skill = skillsData.find(s => s.id === item.id);
-                    if (yPos > 270) { doc.addPage(); yPos = 20; }
-                    doc.text(`• ${skill.title}`, 25, yPos);
-                    yPos += 8;
-                });
-            }
-            
-            doc.save("mon-profil-LS4YOU.pdf");
         }
 
-        function attachEventListeners() {
-            // Event listeners are attached via onclick attributes in HTML
+        function nextQuestion() {
+            if (currentQuestion < competences.length - 1) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            } else {
+                showResults();
+            }
         }
 
-        // --- INIT ---
-        document.addEventListener('DOMContentLoaded', function() {
-            render();
-        });
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
+            }
+        }
+
+        function showResults() {
+            document.getElementById('progressSection').style.display = 'none';
+            document.getElementById('questionsContainer').style.display = 'none';
+            document.getElementById('navigationSection').style.display = 'none';
+            document.getElementById('resultsContainer').classList.add('active');
+
+            calculateResults();
+        }
+
+        function calculateResults() {
+            // Calcul du score global
+            const totalScore = Object.values(answers).reduce((sum, score) => sum + score, 0);
+            const maxScore = competences.length * 4;
+            const percentage = Math.round((totalScore / maxScore) * 100);
+
+            document.getElementById('overallScore').textContent = percentage;
+
+            // Créer les cartes de compétences
+            const cardsContainer = document.getElementById('competenceCards');
+            cardsContainer.innerHTML = '';
+
+            const radarLabels = [];
+            const radarData = [];
+
+            competences.forEach((comp, index) => {
+                const score = answers[index] || 0;
+                const level = score;
+                const levelClass = `level-${level}`;
+                const levelText = ['Non évalué', 'À développer', 'En cours', 'Bien acquis', 'Maîtrisé'][level];
+
+                const card = document.createElement('div');
+                card.className = 'competence-card';
+                card.innerHTML = `
+                    <h3>${comp.titre}</h3>
+                    <div class="score-bar">
+                        <div class="score-bar-fill ${levelClass}"></div>
+                    </div>
+                    <div class="score-label">${levelText}</div>
+                `;
+                cardsContainer.appendChild(card);
+
+                radarLabels.push(comp.titre);
+                radarData.push(score);
+            });
+
+            // Créer le graphique radar
+            createRadarChart(radarLabels, radarData);
+        }
+
+        function createRadarChart(labels, data) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Niveau de maîtrise',
+                        data: data,
+                        backgroundColor: 'rgba(0, 102, 204, 0.2)',
+                        borderColor: 'rgba(0, 102, 204, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(0, 102, 204, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(0, 102, 204, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 4,
+                            min: 0,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    const labels = ['', 'À développer', 'En cours', 'Bien acquis', 'Maîtrisé'];
+                                    return labels[value] || '';
+                                }
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const labels = ['Non évalué', 'À développer', 'En cours', 'Bien acquis', 'Maîtrisé'];
+                                    return labels[context.parsed.r] || '';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>
