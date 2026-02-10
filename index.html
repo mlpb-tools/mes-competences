@@ -87,34 +87,230 @@
         };
 
         const skillsData = [
-            { id: 1, title: "Esprit d'analyse", definition: "Comprendre le 'pourquoi' et le 'comment' d'une situation.", situation: "Tu dois choisir un nouveau téléphone ou une destination de vacances. Tu compares les prix, les avis, la batterie et les options avant de te décider.", keywords: ["Comparaison", "Diagnostic", "Étude"] },
-            { id: 2, title: "Capacité de résolution", definition: "Trouver des solutions face à un problème bloquant.", situation: "Ton PC plante, ta console ne se connecte pas ou une fermeture éclair est coincée. Tu testes plusieurs trucs jusqu'à ce que ça remarche.", keywords: ["Dépannage", "Solution", "Débrouillardise"] },
-            { id: 3, title: "Discernement / Vigilance", definition: "Ne pas se faire avoir, savoir évaluer la fiabilité.", situation: "Tu reçois un mail bizarre t'annonçant que tu as gagné un iPhone, ou tu vois une info choc sur TikTok. Tu vérifies la source avant de cliquer ou de partager.", keywords: ["Esprit critique", "Vérification", "Prudence"] },
-            { id: 4, title: "Aisance relationnelle", definition: "Facilité à entrer en contact avec les autres.", situation: "En soirée ou dans un nouveau groupe, tu arrives facilement à discuter avec des gens que tu ne connais pas encore.", keywords: ["Communication", "Contact", "Sociabilité"] },
-            { id: 5, title: "Sens de la coopération", definition: "Travailler avec les autres vers un but commun.", situation: "Dans un jeu vidéo en équipe ou pour organiser l'anniversaire d'un ami, tu te coordonnes avec les autres pour que le plan fonctionne.", keywords: ["Travail d'équipe", "Entraide", "Collectif"] },
-            { id: 6, title: "Prise d'initiative", definition: "Agir sans attendre qu'on te le demande.", situation: "Personne ne sait quoi faire ce soir. Tu proposes un lieu, une heure et tu lances le mouvement.", keywords: ["Proactivité", "Moteur", "Proposition"] },
-            { id: 7, title: "Maîtrise de soi", definition: "Garder son calme sous la pression.", situation: "Tu perds une partie importante en ligne ou tu rates ton bus de justesse. Tu es frustré, mais tu ne casses rien et tu restes poli.", keywords: ["Sang-froid", "Patience", "Gestion des émotions"] },
-            { id: 8, title: "Persévérance", definition: "Ne pas abandonner face à la difficulté.", situation: "Tu essaies d'apprendre un trick de skate, un morceau de guitare ou de passer un niveau difficile. Tu rates 10 fois, mais tu recommences.", keywords: ["Tenacité", "Effort", "Motivation"] },
-            { id: 9, title: "Affirmation professionnelle", definition: "Savoir dire ce qu'on pense ou veut, avec respect.", situation: "Tes amis veulent aller voir un film qui ne te tente pas du tout. Tu oses dire 'Non, ça ne me dit rien, je préfère faire autre chose' sans être agressif.", keywords: ["Confiance", "Assertivité", "Positionnement"] },
-            { id: 10, title: "Capacité d'apprentissage", definition: "Acquérir de nouvelles connaissances par soi-même.", situation: "Tu ne sais pas faire quelque chose (monter un meuble, utiliser un logiciel). Tu regardes un tuto YouTube et tu apprends à le faire.", keywords: ["Curiosité", "Auto-formation", "Adaptation"] },
-            { id: 11, title: "Créativité appliquée", definition: "Inventer ou adapter avec ce qu'on a.", situation: "Tu dois cuisiner mais il manque la moitié des ingrédients. Tu improvises avec ce qu'il y a dans le frigo et c'est bon.", keywords: ["Innovation", "Système D", "Imagination"] },
-            { id: 12, title: "Ouverture d'esprit", definition: "Accepter la nouveauté et la différence.", situation: "On te propose de goûter un plat étranger bizarre ou d'écouter un style de musique que tu ne connais pas. Tu testes avant de juger.", keywords: ["Tolérance", "Curiosité", "Inclusion"] },
-            { id: 13, title: "Organisation personnelle", definition: "Structurer ses tâches pour être efficace.", situation: "Tu pars en voyage. Tu prépares ta valise la veille avec une liste pour être sûr de ne rien oublier (chargeur, brosse à dents...).", keywords: ["Planification", "Ordre", "Méthode"] },
-            { id: 14, title: "Autonomie décisionnelle", definition: "Faire des choix seul et les assumer.", situation: "Tu dois choisir tes vêtements, ta coiffure ou tes options au lycée. Tu écoutes les avis, mais au final, c'est toi qui tranches.", keywords: ["Choix", "Indépendance", "Responsabilité"] },
-            { id: 15, title: "Agilité professionnelle", definition: "S'adapter rapidement au changement.", situation: "Une sortie était prévue mais il pleut des cordes. Tu ne restes pas bloqué, tu trouves tout de suite un plan B sympa.", keywords: ["Adaptabilité", "Flexibilité", "Réactivité"] },
-            { id: 16, title: "Responsabilité numérique", definition: "Gérer sa présence et ses traces en ligne.", situation: "Tu fais attention aux photos que tu postes et tu règles tes paramètres de confidentialité pour que tout le monde ne voie pas ta vie privée.", keywords: ["Cyber-sécurité", "E-réputation", "Vie privée"] },
-            { id: 17, title: "Usage raisonné de l'IA", definition: "Utiliser l'intelligence artificielle comme un outil, pas une béquille.", situation: "Tu utilises ChatGPT pour t'expliquer un texte compliqué ou te donner des idées, mais tu rédiges toi-même la réponse finale.", keywords: ["Prompting", "Esprit critique", "Outil"] },
-            { id: 18, title: "Conscience environnementale", definition: "Agir pour limiter son impact écologique.", situation: "Tu tries tes déchets, tu revends tes vieux jeux/vêtements sur Vinted au lieu de jeter, ou tu prends le vélo quand c'est possible.", keywords: ["Écologie", "Sobriété", "Durabilité"] },
-            { id: 19, title: "Ponctualité et assiduité", definition: "Respecter le temps et l'engagement.", situation: "Quand tu as rendez-vous avec des potes pour un ciné à 20h, tu t'arranges pour être là à 19h55, pas 20h30.", keywords: ["Rigueur", "Fiabilité", "Respect des horaires"] },
-            { id: 20, title: "Respect des codes", definition: "Adapter son comportement au contexte.", situation: "Tu ne parles pas à ton prof, à un commerçant ou à ta grand-mère de la même façon qu'à ton meilleur ami.", keywords: ["Savoir-être", "Politesse", "Adaptation"] },
-            { id: 21, title: "Sens de la confidentialité", definition: "Savoir garder une information pour soi.", situation: "Un ami te confie un secret important. Même si d'autres insistent pour savoir, tu gardes le silence.", keywords: ["Discrétion", "Confiance", "Secret professionnel"] },
-            { id: 22, title: "Prévention des risques", definition: "Anticiper le danger pour soi et les autres.", situation: "En voiture, tu mets ta ceinture. En soirée, tu t'assures que celui qui conduit n'a pas bu.", keywords: ["Sécurité", "Prudence", "Anticipation"] },
-            { id: 23, title: "Gestion du capital santé", definition: "Prendre soin de sa capacité à travailler.", situation: "Tu as un gros examen ou un match le lendemain. Tu te couches plus tôt pour être en forme.", keywords: ["Hygiène de vie", "Énergie", "Équilibre"] },
-            { id: 24, title: "Intelligence interculturelle", definition: "Comprendre et respecter les différences culturelles.", situation: "Tu as un ami qui a des coutumes ou une religion différente. Tu poses des questions pour comprendre et tu respectes ses interdits alimentaires.", keywords: ["Diversité", "Inclusion", "Ouverture"] },
-            { id: 25, title: "Médiation / CNV", definition: "Résoudre les conflits par le dialogue.", situation: "Deux de tes amis s'embrouillent. Au lieu de mettre de l'huile sur le feu, tu essaies de calmer le jeu et de les faire discuter.", keywords: ["Négociation", "Pacification", "Écoute"] },
-            { id: 26, title: "Compréhension du cadre", definition: "Accepter les règles du jeu.", situation: "Avant de rejoindre un serveur Discord ou un club de sport, tu lis le règlement pour savoir ce qui est banni ou autorisé.", keywords: ["Règlement", "Conformité", "Limites"] },
-            { id: 27, title: "Autonomie administrative", definition: "Gérer ses papiers et formalités.", situation: "Tu dois t'inscrire quelque part ou refaire ta carte d'identité. Tu remplis le dossier et rassembles les pièces sans que tes parents fassent tout.", keywords: ["Gestion", "Rigueur", "Formalités"] },
-            { id: 28, title: "Connaissance du territoire", definition: "Savoir utiliser les ressources autour de soi.", situation: "Tu sais où se trouve la mairie, où prendre le bus pour aller en ville, ou où trouver une asso de sport dans ton quartier.", keywords: ["Mobilité", "Réseau", "Ressources"] }
+            { 
+                id: 1, 
+                title: "Esprit d'analyse", 
+                definition: "Comprendre le 'pourquoi' et le 'comment' d'une situation.", 
+                situation: "Tu dois choisir un nouveau téléphone ou une destination de vacances. Tu compares les prix, les avis, la batterie et les options avant de te décider.", 
+                example: "Exemple : Tu veux acheter des baskets en ligne. Tu regardes les avis, tu compares 3 sites différents pour le prix, tu vérifies les frais de port et les délais de livraison avant de commander.",
+                keywords: ["Comparaison", "Diagnostic", "Étude"] 
+            },
+            { 
+                id: 2, 
+                title: "Capacité de résolution", 
+                definition: "Trouver des solutions face à un problème bloquant.", 
+                situation: "Ton PC plante, ta console ne se connecte pas ou une fermeture éclair est coincée. Tu testes plusieurs trucs jusqu'à ce que ça remarche.", 
+                example: "Exemple : Ton WiFi ne fonctionne plus. Tu redémarres la box, tu vérifies si les câbles sont bien branchés, tu rapproches ton téléphone du routeur, tu contactes ton opérateur si besoin.",
+                keywords: ["Dépannage", "Solution", "Débrouillardise"] 
+            },
+            { 
+                id: 3, 
+                title: "Discernement / Vigilance", 
+                definition: "Ne pas se faire avoir, savoir évaluer la fiabilité.", 
+                situation: "Tu reçois un mail bizarre t'annonçant que tu as gagné un iPhone, ou tu vois une info choc sur TikTok. Tu vérifies la source avant de cliquer ou de partager.", 
+                example: "Exemple : Un site te propose un iPhone 15 à 200€. C'est louche. Tu regardes les avis Google, tu vérifies si le site a des mentions légales, tu demandes l'avis de tes parents ou amis avant d'acheter.",
+                keywords: ["Esprit critique", "Vérification", "Prudence"] 
+            },
+            { 
+                id: 4, 
+                title: "Aisance relationnelle", 
+                definition: "Facilité à entrer en contact avec les autres.", 
+                situation: "En soirée ou dans un nouveau groupe, tu arrives facilement à discuter avec des gens que tu ne connais pas encore.", 
+                example: "Exemple : Tu arrives dans une nouvelle salle de sport. Tu n'hésites pas à dire bonjour, à demander si quelqu'un peut te montrer comment fonctionne la machine, à échanger quelques mots dans les vestiaires.",
+                keywords: ["Communication", "Contact", "Sociabilité"] 
+            },
+            { 
+                id: 5, 
+                title: "Sens de la coopération", 
+                definition: "Travailler avec les autres vers un but commun.", 
+                situation: "Dans un jeu vidéo en équipe ou pour organiser l'anniversaire d'un ami, tu te coordonnes avec les autres pour que le plan fonctionne.", 
+                example: "Exemple : Vous organisez une soirée pizza entre potes. L'un apporte les boissons, toi tu t'occupes de la playlist, un autre ramène les jeux de société. Vous vous répartissez les tâches naturellement.",
+                keywords: ["Travail d'équipe", "Entraide", "Collectif"] 
+            },
+            { 
+                id: 6, 
+                title: "Prise d'initiative", 
+                definition: "Agir sans attendre qu'on te le demande.", 
+                situation: "Personne ne sait quoi faire ce soir. Tu proposes un lieu, une heure et tu lances le mouvement.", 
+                example: "Exemple : Tout le monde traîne sur le canapé sans savoir quoi faire. Tu proposes : 'Et si on allait au ciné voir le dernier Marvel à 20h ?' Tu envoies les horaires dans le groupe et tu réserves les places.",
+                keywords: ["Proactivité", "Moteur", "Proposition"] 
+            },
+            { 
+                id: 7, 
+                title: "Maîtrise de soi", 
+                definition: "Garder son calme sous la pression.", 
+                situation: "Tu perds une partie importante en ligne ou tu rates ton bus de justesse. Tu es frustré, mais tu ne casses rien et tu restes poli.", 
+                example: "Exemple : Tu es en finale d'un tournoi FIFA et tu perds sur un but à la dernière minute. Tu es dégoûté mais tu dis 'GG' à ton adversaire, tu poses la manette calmement et tu vas boire un verre d'eau.",
+                keywords: ["Sang-froid", "Patience", "Gestion des émotions"] 
+            },
+            { 
+                id: 8, 
+                title: "Persévérance", 
+                definition: "Ne pas abandonner face à la difficulté.", 
+                situation: "Tu essaies d'apprendre un trick de skate, un morceau de guitare ou de passer un niveau difficile. Tu rates 10 fois, mais tu recommences.", 
+                example: "Exemple : Tu apprends à faire un ollie en skate. Tu tombes 20 fois, tu te fais mal aux chevilles, mais tu reviens le lendemain et le surlendemain jusqu'à réussir.",
+                keywords: ["Tenacité", "Effort", "Motivation"] 
+            },
+            { 
+                id: 9, 
+                title: "Affirmation professionnelle", 
+                definition: "Savoir dire ce qu'on pense ou veut, avec respect.", 
+                situation: "Tes amis veulent aller voir un film qui ne te tente pas du tout. Tu oses dire 'Non, ça ne me dit rien, je préfère faire autre chose' sans être agressif.", 
+                example: "Exemple : Tes potes veulent commander des sushis mais tu détestes ça. Tu dis calmement : 'Les sushis c'est pas mon truc, on peut pas plutôt prendre des burgers ou des pizzas ?'",
+                keywords: ["Confiance", "Assertivité", "Positionnement"] 
+            },
+            { 
+                id: 10, 
+                title: "Capacité d'apprentissage", 
+                definition: "Acquérir de nouvelles connaissances par soi-même.", 
+                situation: "Tu ne sais pas faire quelque chose (monter un meuble, utiliser un logiciel). Tu regardes un tuto YouTube et tu apprends à le faire.", 
+                example: "Exemple : Tu veux créer une story Instagram avec des effets stylés. Tu ne sais pas faire, alors tu cherches 'tuto story Instagram 2025' sur YouTube et tu suis les étapes pour apprendre.",
+                keywords: ["Curiosité", "Auto-formation", "Adaptation"] 
+            },
+            { 
+                id: 11, 
+                title: "Créativité appliquée", 
+                definition: "Inventer ou adapter avec ce qu'on a.", 
+                situation: "Tu dois cuisiner mais il manque la moitié des ingrédients. Tu improvises avec ce qu'il y a dans le frigo et c'est bon.", 
+                example: "Exemple : Tu voulais faire des pâtes carbo mais il n'y a plus de lardons. Tu utilises du jambon, tu ajoutes un peu de crème fraîche et des herbes. Résultat : c'est différent mais délicieux.",
+                keywords: ["Innovation", "Système D", "Imagination"] 
+            },
+            { 
+                id: 12, 
+                title: "Ouverture d'esprit", 
+                definition: "Accepter la nouveauté et la différence.", 
+                situation: "On te propose de goûter un plat étranger bizarre ou d'écouter un style de musique que tu ne connais pas. Tu testes avant de juger.", 
+                example: "Exemple : Un ami te fait découvrir du K-pop alors que d'habitude tu écoutes du rap. Tu te dis 'pourquoi pas' et tu écoutes vraiment au lieu de critiquer direct. Peut-être que tu vas aimer.",
+                keywords: ["Tolérance", "Curiosité", "Inclusion"] 
+            },
+            { 
+                id: 13, 
+                title: "Organisation personnelle", 
+                definition: "Structurer ses tâches pour être efficace.", 
+                situation: "Tu pars en voyage. Tu prépares ta valise la veille avec une liste pour être sûr de ne rien oublier (chargeur, brosse à dents...).", 
+                example: "Exemple : Demain tu as un entretien important. Ce soir, tu prépares tes vêtements, tu charges ton téléphone, tu notes l'adresse et l'heure dans ton agenda pour ne rien oublier.",
+                keywords: ["Planification", "Ordre", "Méthode"] 
+            },
+            { 
+                id: 14, 
+                title: "Autonomie décisionnelle", 
+                definition: "Faire des choix seul et les assumer.", 
+                situation: "Tu dois choisir tes vêtements, ta coiffure ou tes options au lycée. Tu écoutes les avis, mais au final, c'est toi qui tranches.", 
+                example: "Exemple : Tes parents préfèrent que tu fasses espagnol en LV2, mais toi tu veux faire allemand car ça t'intéresse plus. Tu écoutes leurs arguments, mais tu choisis allemand et tu assumes ton choix.",
+                keywords: ["Choix", "Indépendance", "Responsabilité"] 
+            },
+            { 
+                id: 15, 
+                title: "Agilité professionnelle", 
+                definition: "S'adapter rapidement au changement.", 
+                situation: "Une sortie était prévue mais il pleut des cordes. Tu ne restes pas bloqué, tu trouves tout de suite un plan B sympa.", 
+                example: "Exemple : Vous deviez faire un barbecue au parc mais il pleut. Tu proposes direct : 'On fait raclette chez moi à la place ?' et tout le monde est content.",
+                keywords: ["Adaptabilité", "Flexibilité", "Réactivité"] 
+            },
+            { 
+                id: 16, 
+                title: "Responsabilité numérique", 
+                definition: "Gérer sa présence et ses traces en ligne.", 
+                situation: "Tu fais attention aux photos que tu postes et tu règles tes paramètres de confidentialité pour que tout le monde ne voie pas ta vie privée.", 
+                example: "Exemple : Avant de poster une photo de soirée, tu réfléchis : 'Est-ce que je veux que mes futurs employeurs voient ça ?' Tu floutes les visages de tes amis et tu mets ton compte en privé.",
+                keywords: ["Cyber-sécurité", "E-réputation", "Vie privée"] 
+            },
+            { 
+                id: 17, 
+                title: "Usage raisonné de l'IA", 
+                definition: "Utiliser l'intelligence artificielle comme un outil, pas une béquille.", 
+                situation: "Tu utilises ChatGPT pour t'expliquer un texte compliqué ou te donner des idées, mais tu rédiges toi-même la réponse finale.", 
+                example: "Exemple : Tu dois écrire une lettre de motivation. Tu demandes à ChatGPT de te donner la structure et des idées, mais après tu personnalises tout avec tes propres mots et expériences.",
+                keywords: ["Prompting", "Esprit critique", "Outil"] 
+            },
+            { 
+                id: 18, 
+                title: "Conscience environnementale", 
+                definition: "Agir pour limiter son impact écologique.", 
+                situation: "Tu tries tes déchets, tu revends tes vieux jeux/vêtements sur Vinted au lieu de jeter, ou tu prends le vélo quand c'est possible.", 
+                example: "Exemple : Au lieu de jeter ton vieux sweat Nike, tu le mets sur Vinted à 15€. Quelqu'un l'achète, tu gagnes de l'argent, l'autre personne fait une bonne affaire, et tu évites le gaspillage.",
+                keywords: ["Écologie", "Sobriété", "Durabilité"] 
+            },
+            { 
+                id: 19, 
+                title: "Ponctualité et assiduité", 
+                definition: "Respecter le temps et l'engagement.", 
+                situation: "Quand tu as rendez-vous avec des potes pour un ciné à 20h, tu t'arranges pour être là à 19h55, pas 20h30.", 
+                example: "Exemple : Tu as dit à tes amis 'RDV à 18h devant le McDo'. À 17h45, tu quittes ta maison pour être sûr d'arriver à l'heure. Tu détestes faire attendre les gens.",
+                keywords: ["Rigueur", "Fiabilité", "Respect des horaires"] 
+            },
+            { 
+                id: 20, 
+                title: "Respect des codes", 
+                definition: "Adapter son comportement au contexte.", 
+                situation: "Tu ne parles pas à ton prof, à un commerçant ou à ta grand-mère de la même façon qu'à ton meilleur ami.", 
+                example: "Exemple : Avec tes potes tu dis 'Wesh gros, ça va ?'. Mais quand tu entres dans une boulangerie, tu dis poliment 'Bonjour, je voudrais une baguette s'il vous plaît'.",
+                keywords: ["Savoir-être", "Politesse", "Adaptation"] 
+            },
+            { 
+                id: 21, 
+                title: "Sens de la confidentialité", 
+                definition: "Savoir garder une information pour soi.", 
+                situation: "Un ami te confie un secret important. Même si d'autres insistent pour savoir, tu gardes le silence.", 
+                example: "Exemple : Ton pote te dit qu'il va demander sa copine en mariage. D'autres amis te demandent 'Il se passe quoi avec lui ?'. Tu réponds simplement : 'Rien de spécial' et tu gardes le secret.",
+                keywords: ["Discrétion", "Confiance", "Secret professionnel"] 
+            },
+            { 
+                id: 22, 
+                title: "Prévention des risques", 
+                definition: "Anticiper le danger pour soi et les autres.", 
+                situation: "En voiture, tu mets ta ceinture. En soirée, tu t'assures que celui qui conduit n'a pas bu.", 
+                example: "Exemple : Avant une soirée, tu vérifies qui est le SAM (celui qui ne boit pas et qui ramène tout le monde). Tu proposes de dormir chez un pote si personne ne peut conduire.",
+                keywords: ["Sécurité", "Prudence", "Anticipation"] 
+            },
+            { 
+                id: 23, 
+                title: "Gestion du capital santé", 
+                definition: "Prendre soin de sa capacité à travailler.", 
+                situation: "Tu as un gros examen ou un match le lendemain. Tu te couches plus tôt pour être en forme.", 
+                example: "Exemple : Demain tu as un entretien d'embauche à 9h. Ce soir, tu refuses de veiller tard sur Netflix, tu mets ton réveil à 7h et tu dors 8h pour être frais et performant.",
+                keywords: ["Hygiène de vie", "Énergie", "Équilibre"] 
+            },
+            { 
+                id: 24, 
+                title: "Intelligence interculturelle", 
+                definition: "Comprendre et respecter les différences culturelles.", 
+                situation: "Tu as un ami qui a des coutumes ou une religion différente. Tu poses des questions pour comprendre et tu respectes ses interdits alimentaires.", 
+                example: "Exemple : Ton ami musulman fait le ramadan. Tu ne manges pas devant lui pendant la journée par respect, et tu lui demandes à quelle heure il peut manger pour organiser la soirée en conséquence.",
+                keywords: ["Diversité", "Inclusion", "Ouverture"] 
+            },
+            { 
+                id: 25, 
+                title: "Médiation / CNV", 
+                definition: "Résoudre les conflits par le dialogue.", 
+                situation: "Deux de tes amis s'embrouillent. Au lieu de mettre de l'huile sur le feu, tu essaies de calmer le jeu et de les faire discuter.", 
+                example: "Exemple : Deux de tes potes se disputent dans le groupe WhatsApp. Tu leur envoies un message privé à chacun pour comprendre le problème, puis tu proposes qu'ils se parlent calmement autour d'un café.",
+                keywords: ["Négociation", "Pacification", "Écoute"] 
+            },
+            { 
+                id: 26, 
+                title: "Compréhension du cadre", 
+                definition: "Accepter les règles du jeu.", 
+                situation: "Avant de rejoindre un serveur Discord ou un club de sport, tu lis le règlement pour savoir ce qui est banni ou autorisé.", 
+                example: "Exemple : Tu rejoins un nouveau serveur Discord. Tu lis les règles affichées dans le canal #règlement pour savoir ce qui est autorisé (pas de spam, pas d'insultes, etc.) avant de participer.",
+                keywords: ["Règlement", "Conformité", "Limites"] 
+            },
+            { 
+                id: 27, 
+                title: "Autonomie administrative", 
+                definition: "Gérer ses papiers et formalités.", 
+                situation: "Tu dois t'inscrire quelque part ou refaire ta carte d'identité. Tu remplis le dossier et rassembles les pièces sans que tes parents fassent tout.", 
+                example: "Exemple : Tu dois refaire ton Pass Navigo. Tu vas sur le site, tu remplis le formulaire en ligne, tu prépares une photo et une photocopie de ta carte d'identité, tu gères tout seul.",
+                keywords: ["Gestion", "Rigueur", "Formalités"] 
+            },
+            { 
+                id: 28, 
+                title: "Connaissance du territoire", 
+                definition: "Savoir utiliser les ressources autour de soi.", 
+                situation: "Tu sais où se trouve la mairie, où prendre le bus pour aller en ville, ou où trouver une asso de sport dans ton quartier.", 
+                example: "Exemple : Tu cherches une salle de muscu pas chère. Tu connais le centre social de ton quartier qui propose des activités gratuites, tu sais qu'il y a un city stade gratuit à 10 min à pied.",
+                keywords: ["Mobilité", "Réseau", "Ressources"] 
+            }
         ];
 
         // --- STATE ---
@@ -243,7 +439,7 @@
                         </div>
 
                         <div class="p-8 md:p-12">
-                            <div class="mb-12 p-8 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50">
+                            <div class="mb-8 p-8 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50">
                                 <h3 class="text-2xl font-black mb-3 flex items-center uppercase font-header" style="color: ${THEME.colors.red};">
                                     <span class="w-2 h-10 mr-4 rounded-full" style="background-color: ${THEME.colors.red};"></span>
                                     ${skill.title}
@@ -251,6 +447,16 @@
                                 <p class="text-slate-600 pl-6 text-lg font-medium">
                                     ${skill.definition}
                                 </p>
+                            </div>
+
+                            <!-- EXEMPLE CONCRET -->
+                            <div class="mb-12 p-6 rounded-xl bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4" style="border-color: ${THEME.colors.yellow};">
+                                <div class="flex items-start gap-3">
+                                    <i data-lucide="lightbulb" class="w-6 h-6 mt-1 flex-shrink-0" style="color: ${THEME.colors.yellow};"></i>
+                                    <p class="text-slate-700 text-base leading-relaxed">
+                                        ${skill.example}
+                                    </p>
+                                </div>
                             </div>
 
                             <div class="text-center">
